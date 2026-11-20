@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>JAMBO · Kit visual e movimentos (prévia demonstrativa)</title>
+<link rel="icon" href="assets/logo/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/bricolage-grotesque-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Bricolage Grotesque";font-weight:800;font-display:swap;src:url(assets/fonts/bricolage-grotesque-latin-800-normal.woff2) format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-weight:700;font-display:swap;src:url(assets/fonts/bricolage-grotesque-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"DM Sans";font-weight:400;font-display:swap;src:url(assets/fonts/dm-sans-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"DM Sans";font-weight:600;font-display:swap;src:url(assets/fonts/dm-sans-latin-600-normal.woff2) format("woff2")}
+:root{
+  --creme:#F5EBDD;--roxo:#40204F;--noite:#2A1233;--lilas-claro:#D9C3EA;--lilas:#A67CC4;--folha:#78966A;--roxo-08:rgba(64,32,79,.08);
+  --f-titulo:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;--f-texto:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --lado:clamp(20px,5vw,80px);--secao:clamp(72px,12vh,160px);--r-cartao:28px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--creme);color:var(--roxo);font:400 clamp(16px,1.15vw,18px)/1.5 var(--f-texto)}
+::selection{background:var(--lilas);color:var(--roxo)}
+a{color:inherit}
+:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+.pular-link{position:fixed;left:12px;top:-60px;z-index:100;background:var(--roxo);color:var(--creme);padding:12px 18px;border-radius:999px;font-weight:600;text-decoration:none}
+.pular-link:focus{top:12px}
+.so-leitor{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 24px;border-radius:999px;border:0;background:var(--roxo);color:var(--creme);font:600 16px/1 var(--f-texto);letter-spacing:.01em;text-decoration:none;cursor:pointer;transition:transform .1s,background .15s}
+.btn:hover{background:#56306A}.btn:active{transform:scale(.97)}
+.btn--contorno{background:var(--creme);color:var(--roxo);border:2px solid var(--roxo)}
+.btn--contorno:hover{background:#fff}
+.sobre{font:600 clamp(12px,1vw,14px)/1.2 var(--f-texto);letter-spacing:.12em;text-transform:uppercase}
+h1,h2,h3{font-family:var(--f-titulo);margin:0}
+h2{font-weight:800;font-size:clamp(40px,6vw,96px);line-height:.92;letter-spacing:-.02em}
+h3{font-weight:700;font-size:clamp(22px,2.2vw,32px);line-height:1.05;letter-spacing:-.01em}
+.legenda{font-size:13px;line-height:1.4}
+/* cabeçalho */
+.topo{position:fixed;inset:0 0 auto 0;height:72px;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 var(--lado);transition:transform .3s cubic-bezier(.33,1,.68,1),background .3s}
+.topo.solido{background:rgba(245,235,221,.92);backdrop-filter:blur(10px)}
+.topo.some{transform:translateY(-100%)}
+.topo img{height:28px;width:auto;display:block}
+.pedir .conta{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--lilas);color:var(--roxo);font-size:13px}
+@media (max-width:767px){.topo{height:60px}}
+/* abertura */
+.abertura{position:relative;height:100svh;min-height:560px;overflow:hidden}
+.abertura canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.abertura .marca{position:absolute;left:50%;top:27%;transform:translate(-50%,-50%);z-index:2;text-align:center;width:min(90vw,700px)}
+.abertura .marca img{width:clamp(220px,38vw,560px);height:auto;display:block;margin:0 auto}
+.abertura .marca h1{font-weight:800;font-size:clamp(32px,4.4vw,64px);line-height:.95;letter-spacing:-.02em;margin-top:32px}
+.js .abertura .marca img,.js .abertura .marca h1{opacity:0}
+.pular-abertura{position:fixed;right:24px;bottom:24px;z-index:60}
+.ver{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);z-index:2;color:var(--creme);font-weight:600;font-size:15px;text-decoration:none;display:flex;gap:8px;align-items:center;opacity:0;transition:opacity .6s}
+.ver.on{opacity:1}
+.ver span{display:inline-block;animation:desce 1.6s ease-in-out infinite}
+@keyframes desce{50%{transform:translateY(6px)}}
+@media (max-width:767px){.pular-abertura{right:16px;bottom:16px}}
+/* aviso da prévia */
+.nota{max-width:1320px;margin:0 auto;padding:var(--secao) var(--lado) 0}
+.nota p{max-width:60ch}
+/* açaí da casa */
+.acai{max-width:1320px;margin:0 auto;padding:var(--secao) var(--lado)}
+.acai h2{max-width:12ch;margin:16px 0 48px}
+.acai-grade{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
+.palco-foto{grid-column:1/7;position:sticky;top:96px;align-self:start;width:min(42vw,560px)}
+.moldura{position:relative;aspect-ratio:4/5;border-radius:var(--r-cartao);overflow:visible}
+.moldura .fotos{position:absolute;inset:0;border-radius:var(--r-cartao);overflow:hidden;background:var(--roxo-08)}
+.moldura .fotos img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.adesivo{position:absolute;width:clamp(72px,7vw,104px);height:auto;z-index:3;pointer-events:none}
+.palco-foto .legenda{margin-top:12px;opacity:.8}
+.lista{grid-column:8/13;list-style:none;margin:0;padding:0}
+.lista li{min-height:34vh;padding:28px 0;border-top:1px solid var(--roxo-08);display:flex;flex-direction:column;gap:10px;justify-content:center}
+.lista .linha{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.lista h3{display:flex;align-items:center;gap:12px}
+.lista h3::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--lilas);transform:scale(0);transition:transform .3s cubic-bezier(.34,1.8,.64,1)}
+.lista li.ativo h3::before{transform:scale(1)}
+.preco{font:600 clamp(18px,1.4vw,22px)/1.2 var(--f-texto);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lista .foto-celular{display:none}
+@media (max-width:767px),(prefers-reduced-motion:reduce){
+  .palco-foto{display:none}
+  .lista{grid-column:1/-1}
+  .lista li{min-height:0}
+  .lista .foto-celular{display:block;position:relative;aspect-ratio:4/5;border-radius:var(--r-cartao);overflow:hidden;margin-bottom:8px}
+  .lista .foto-celular img{width:100%;height:100%;object-fit:cover;display:block}
+}
+/* combos */
+.combos{background:var(--noite);color:var(--creme)}
+.trilha{height:300vh;position:relative}
+.palco{position:sticky;top:0;height:100svh;display:grid;grid-template-columns:repeat(12,1fr);gap:24px;align-items:center;padding:0 var(--lado);max-width:1440px;margin:0 auto}
+.palco .texto{grid-column:1/6;position:relative;min-height:320px}
+.combo{position:absolute;inset:0;opacity:0;transition:opacity .25s}
+.combo.ativo{opacity:1}
+.combo h2{color:var(--lilas);margin:16px 0}
+.combo .preco{color:var(--lilas-claro);font-size:28px;display:block;margin:12px 0 20px}
+.palco .canvases{grid-column:6/13;position:relative;height:80svh}
+.palco .canvases canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .25s}
+.palco .canvases canvas.ativo{opacity:1}
+.regua{position:absolute;left:var(--lado);right:var(--lado);bottom:40px;height:2px;background:rgba(245,235,221,.16)}
+.regua i{position:absolute;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--lilas-claro);transform:translateX(-50%)}
+.regua b{position:absolute;inset:0 auto 0 0;background:var(--lilas);width:0}
+.combos-lista{display:none;margin:0;padding:var(--secao) var(--lado);gap:24px}
+.combos-lista img{width:100%;height:auto;border-radius:var(--r-cartao)}
+@media (max-width:767px),(prefers-reduced-motion:reduce){.trilha{display:none}.combos-lista{display:grid}}
+/* kit */
+.kit{max-width:1320px;margin:0 auto;padding:var(--secao) var(--lado)}
+.kit h2{margin:16px 0 32px}
+.kit section{margin-bottom:96px}
+.paleta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
+.paleta div{border-radius:20px;padding:20px;min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;font-size:14px}
+.ingredientes{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:16px;background:var(--roxo);color:var(--creme);padding:32px;border-radius:var(--r-cartao)}
+.ingredientes figure{margin:0;text-align:center;font-size:13px}
+.ingredientes img{width:88px;height:88px}
+.modelos{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.modelos figure{margin:0;background:#fff8ef;border-radius:var(--r-cartao);padding:12px;text-align:center;font-size:14px}
+.modelos canvas{width:100%;aspect-ratio:1;display:block}
+.videos{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start}
+.videos video{width:100%;border-radius:20px;display:block;background:var(--roxo-08)}
+.fotos-prov{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.fotos-prov figure{margin:0;font-size:13px}
+.fotos-prov img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:16px;display:block;margin-bottom:6px}
+@media (max-width:767px){.videos{grid-template-columns:1fr}}
+.rodape{background:var(--noite);color:var(--creme);padding:64px var(--lado);font-size:15px}
+.rodape p{max-width:70ch}
+</style>
+</head>
+<body>
+<a class="pular-link" href="#acai">Pular para o cardápio</a>
+<script>document.documentElement.classList.add('js')</script>
+
+<header class="topo" id="topo">
+  <img src="assets/logo/jambo-wordmark.svg" alt="JAMBO" style="color:var(--roxo)">
+  <a class="btn pedir" href="#combos">Pedir agora <span class="conta" aria-label="0 itens">0</span></a>
+</header>
+
+<main>
+<section class="abertura" id="abertura" aria-label="Abertura">
+  <canvas id="onda" aria-hidden="true"></canvas>
+  <div class="marca">
+    <img src="assets/logo/jambo-logo.svg" alt="JAMBO Açaí &amp; Gelato" width="701" height="333">
+    <h1>Seu verão, do seu jeito.</h1>
+  </div>
+  <a class="ver" href="#acai" id="ver">Ver o cardápio <span aria-hidden="true">↓</span></a>
+</section>
+<button class="btn btn--contorno pular-abertura" id="pular" type="button">Pular</button>
+
+<div class="nota">
+  <p class="sobre">Prévia do diretor de arte · 19/11/2026</p>
+  <p><strong>Esta página não é o site.</strong> É a prévia dos movimentos e dos assets da JAMBO para a Letícia aprovar: a abertura, os movimentos "bowls revelados", "frutas entrando" e "combos montados", os copos 3D, os 19 ingredientes, a logo e as imagens provisórias. As fotos são as 12 imagens ilustrativas geradas no Gemini em 19/11, no estilo da direção fotográfica.</p>
+</div>
+
+<section class="acai" id="acai" aria-labelledby="acai-t">
+  <p class="sobre">01 · Açaí</p>
+  <h2 id="acai-t">Seu bowl, suas regras.</h2>
+  <div class="acai-grade">
+    <div class="palco-foto" aria-hidden="true">
+      <div class="moldura"><div class="fotos" id="fotos"></div><div id="adesivos"></div></div>
+      <p class="legenda">Imagem ilustrativa</p>
+    </div>
+    <ol class="lista" id="lista">
+      <li data-foto="assets/img/bowl-jambo-classic.webp" data-frutas="banana,morango,granola,leite-em-po">
+        <div class="foto-celular"><img src="assets/img/bowl-jambo-classic-640.webp" alt="" loading="lazy" width="640" height="800"></div>
+        <div class="linha"><h3>Jambo Classic</h3><span class="preco">R$ 24,90</span></div>
+        <p>Banana, morango, granola e leite em pó.</p>
+        <p class="legenda">≈ [preencher] kcal · Imagem ilustrativa</p>
+        <div><button class="btn btn--contorno" type="button">Adicionar</button></div>
+      </li>
+      <li data-foto="assets/img/bowl-pacoca-club.webp" data-frutas="pacoca,banana,pasta-amendoim,granola">
+        <div class="foto-celular"><img src="assets/img/bowl-pacoca-club-640.webp" alt="" loading="lazy" width="640" height="800"></div>
+        <div class="linha"><h3>Paçoca Club</h3><span class="preco">R$ 27,90</span></div>
+        <p>Paçoca, banana, pasta de amendoim e granola.</p>
+        <p class="legenda">≈ [preencher] kcal · Imagem ilustrativa</p>
+        <div><button class="btn btn--contorno" type="button">Adicionar</button></div>
+      </li>
+      <li data-foto="assets/img/bowl-tropical-vibe.webp" data-frutas="manga,kiwi,banana,coco">
+        <div class="foto-celular"><img src="assets/img/bowl-tropical-vibe-640.webp" alt="" loading="lazy" width="640" height="800"></div>
+        <div class="linha"><h3>Tropical Vibe</h3><span class="preco">R$ 29,90</span></div>
+        <p>Manga, kiwi, banana, coco e granola.</p>
+        <p class="legenda">≈ [preencher] kcal · Imagem ilustrativa</p>
+        <div><button class="btn btn--contorno" type="button">Adicionar</button></div>
+      </li>
+      <li data-foto="assets/img/bowl-choco-crush.webp" data-frutas="creme-avela,banana,morango,granola">
+        <div class="foto-celular"><img src="assets/img/bowl-choco-crush-640.webp" alt="" loading="lazy" width="640" height="800"></div>
+        <div class="linha"><h3>Choco Crush</h3><span class="preco">R$ 29,90</span></div>
+        <p>Creme de avelã, banana, morango e granola.</p>
+        <p class="legenda">≈ [preencher] kcal · Imagem ilustrativa</p>
+        <div><button class="btn btn--contorno" type="button">Adicionar</button></div>
+      </li>
+      <li data-foto="assets/img/bowl-berry-mood.webp" data-frutas="morango,banana,granola">
+        <div class="foto-celular"><img src="assets/img/bowl-berry-mood-640.webp" alt="" loading="lazy" width="640" height="800"></div>
+        <div class="linha"><h3>Berry Mood</h3><span class="preco">R$ 28,90</span></div>
+        <p>Morango, mirtilo, banana e granola.</p>
+        <p class="legenda">≈ [preencher] kcal · Imagem ilustrativa</p>
+        <div><button class="btn btn--contorno" type="button">Adicionar</button></div>
+      </li>
+      <li data-foto="assets/img/bowl-pistachio-dream.webp" data-frutas="pistache,morango,granola">
+        <div class="foto-celular"><img src="assets/img/bowl-pistachio-dream-640.webp" alt="" loading="lazy" width="640" height="800"></div>
+        <div class="linha"><h3>Pistachio Dream</h3><span class="preco">R$ 32,90</span></div>
+        <p>Creme de pistache, pistache, morango e granola.</p>
+        <p class="legenda">≈ [preencher] kcal · Imagem ilustrativa</p>
+        <div><button class="btn btn--contorno" type="button">Adicionar</button></div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="combos" id="combos" aria-labelledby="combos-t">
+  <h2 id="combos-t" class="so-leitor">Combos</h2>
+  <div class="trilha" id="trilha">
+    <div class="palco">
+      <ol class="texto" id="combos-texto" style="list-style:none;margin:0;padding:0">
+        <li class="combo ativo"><p class="sobre">05 · Combos</p><h2>Solo Sun</h2><p>Açaí de 300 ml + uma bebida.</p><span class="preco">R$ 25,90</span><button class="btn btn--contorno" type="button">Adicionar combo</button></li>
+        <li class="combo"><p class="sobre">05 · Combos</p><h2>Double Trouble</h2><p>Dois açaís de 300 ml.</p><span class="preco">R$ 35,90</span><button class="btn btn--contorno" type="button">Adicionar combo</button></li>
+        <li class="combo"><p class="sobre">05 · Combos</p><h2>Sweet Escape</h2><p>Açaí de 500 ml + milkshake pequeno.</p><span class="preco">R$ 39,90</span><button class="btn btn--contorno" type="button">Adicionar combo</button></li>
+      </ol>
+      <div class="canvases" aria-hidden="true"><canvas></canvas><canvas></canvas><canvas></canvas></div>
+      <div class="regua" aria-hidden="true"><b id="regua-b"></b><i style="left:16.6%"></i><i style="left:50%"></i><i style="left:83.3%"></i></div>
+    </div>
+  </div>
+  <div class="combos-lista">
+    <img src="assets/img/combos-640.webp" alt="Dois açaís, um suco de laranja e um milkshake de morango lado a lado." loading="lazy" width="640" height="514" style="aspect-ratio:auto">
+    <ol style="list-style:none;margin:0;padding:0;display:grid;gap:24px">
+      <li><h3>Solo Sun · R$ 25,90</h3><p>Açaí de 300 ml + uma bebida.</p></li>
+      <li><h3>Double Trouble · R$ 35,90</h3><p>Dois açaís de 300 ml.</p></li>
+      <li><h3>Sweet Escape · R$ 39,90</h3><p>Açaí de 500 ml + milkshake pequeno.</p></li>
+    </ol>
+    <p class="legenda">Imagem ilustrativa</p>
+  </div>
+</section>
+
+<div class="kit">
+  <p class="sobre">Kit visual</p>
+  <h2>Tudo o que já está pronto.</h2>
+
+  <section aria-labelledby="k1"><h3 id="k1">Logo tipográfica</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;align-items:center">
+      <img src="assets/logo/jambo-logo.svg" alt="Logo JAMBO em roxo" width="320" height="152">
+      <div style="background:var(--roxo);padding:24px;border-radius:20px"><img src="assets/logo/jambo-logo-creme.svg" alt="Logo JAMBO em creme sobre roxo" width="280" height="133"></div>
+      <img src="assets/logo/favicon.svg" alt="Favicon" width="96" height="96">
+    </div>
+  </section>
+
+  <section aria-labelledby="k2"><h3 id="k2">Paleta</h3>
+    <div class="paleta" style="margin-top:16px">
+      <div style="background:var(--creme);border:1px solid var(--roxo-08)"><strong>Creme #F5EBDD</strong>fundo · 11,6:1 com o roxo</div>
+      <div style="background:var(--roxo);color:var(--creme)"><strong>Roxo jambo #40204F</strong>texto e botões</div>
+      <div style="background:var(--noite);color:var(--creme)"><strong>Noite #2A1233</strong>carrinho e rodapé</div>
+      <div style="background:var(--lilas-claro)"><strong>Lilás claro #D9C3EA</strong>texto sobre roxo · 8,4:1</div>
+      <div style="background:var(--lilas)"><strong>Lilás #A67CC4</strong>só título grande e adesivos</div>
+      <div style="background:var(--folha);color:var(--roxo)"><strong>Folha #78966A</strong>só decoração</div>
+    </div>
+  </section>
+
+  <section aria-labelledby="k3"><h3 id="k3">19 ingredientes do montador (vetor)</h3>
+    <div class="ingredientes" id="ingredientes" style="margin-top:16px"></div>
+  </section>
+
+  <section aria-labelledby="k4"><h3 id="k4">Copos em 3D (GLB, feitos em código)</h3>
+    <div class="modelos" style="margin-top:16px">
+      <figure><canvas data-glb="jambo-tigela-acai.glb" data-cam='{"y":0.17,"z":0.3,"alvoY":0.04}' aria-hidden="true"></canvas><figcaption>Tigela de açaí · 414 KB</figcaption></figure>
+      <figure><canvas data-glb="jambo-milkshake.glb" data-cam='{"y":0.12,"z":0.5,"alvoY":0.09}' aria-hidden="true"></canvas><figcaption>Milkshake · 268 KB</figcaption></figure>
+      <figure><canvas data-glb="jambo-suco.glb" data-cam='{"y":0.1,"z":0.45,"alvoY":0.07}' aria-hidden="true"></canvas><figcaption>Suco · 46 KB</figcaption></figure>
+      <figure><canvas data-glb="jambo-gelato.glb" data-cam='{"y":0.12,"z":0.32,"alvoY":0.05}' aria-hidden="true"></canvas><figcaption>Gelato · 273 KB</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="k5"><h3 id="k5">Abertura em vídeo (para o Instagram e como reserva)</h3>
+    <div class="videos" style="margin-top:16px">
+      <video src="assets/video/abertura-onda-16x9.mp4" poster="assets/video/abertura-final-16x9.webp" controls muted playsinline preload="none" aria-label="Vídeo da abertura, 16 por 9"></video>
+      <video src="assets/video/abertura-onda-9x16.mp4" poster="assets/video/abertura-final-9x16.webp" controls muted playsinline preload="none" aria-label="Vídeo da abertura, 9 por 16"></video>
+    </div>
+  </section>
+
+  <section aria-labelledby="k6"><h3 id="k6">As 12 imagens geradas no Gemini (as 6 dos bowls estão no Açaí da casa)</h3>
+    <div class="fotos-prov" style="margin-top:16px"><figure><img src="assets/img/gelatos-montagem-21x9-960.webp" alt="" loading="lazy" style="aspect-ratio:auto">gelatos-montagem (corte 21:9)</figure><figure><img src="assets/img/milkshakes-montagem-640.webp" alt="" loading="lazy" style="aspect-ratio:auto">milkshakes-montagem</figure><figure><img src="assets/img/combos-640.webp" alt="" loading="lazy" style="aspect-ratio:auto">combos</figure><figure><img src="assets/img/frutas-macro-960.webp" alt="" loading="lazy" style="aspect-ratio:auto">frutas-macro</figure><figure><img src="assets/img/ambiente-balcao-800.webp" alt="" loading="lazy" style="aspect-ratio:auto">ambiente-balcao</figure><figure><img src="assets/img/ambiente-sol-800.webp" alt="" loading="lazy" style="aspect-ratio:auto">ambiente-sol</figure></div>
+  </section>
+</div>
+</main>
+
+<footer class="rodape">
+  <p><strong>Site demonstrativo.</strong> A JAMBO é uma marca fictícia criada para o portfólio de Letícia Beatriz. Imagens ilustrativas geradas com IA; calorias aproximadas.</p>
+</footer>
+
+<script type="module">
+import { iniciarAbertura, desenhar } from './assets/js/abertura.js';
+const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- abertura ---------- */
+const marcaImg = document.querySelector('.abertura .marca img'), marcaH1 = document.querySelector('.abertura .marca h1');
+const pular = document.getElementById('pular'), ver = document.getElementById('ver');
+function mostrarMarca(instantaneo){
+  const op = instantaneo ? {duration:0} : null;
+  marcaImg.animate([{opacity:0,transform:'translateY(6vh)'},{opacity:1,transform:'none'}], op || {duration:900,delay:4900,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+  marcaH1.animate([{opacity:0,transform:'translateY(20px)'},{opacity:1,transform:'none'}], op || {duration:700,delay:6000,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+  if (instantaneo){ marcaImg.style.opacity = 1; marcaH1.style.opacity = 1; }
+}
+const ab = await iniciarAbertura(document.getElementById('onda'), { base:'assets/ingredientes/', aoTerminar(){ ver.classList.add('on'); pular.hidden = true; } });
+if (reduzido){ ab.parar(); ab.desenharParado(); mostrarMarca(true); ver.classList.add('on'); pular.hidden = true; }
+else mostrarMarca(false);
+pular.addEventListener('click', () => {
+  ab.pular(); document.getAnimations().forEach(a => { if (a.effect?.target === marcaImg || a.effect?.target === marcaH1) a.finish(); });
+  marcaImg.style.opacity = 1; marcaH1.style.opacity = 1; pular.hidden = true; ver.classList.add('on');
+  document.getElementById('acai').scrollIntoView({behavior: reduzido ? 'auto' : 'smooth'});
+  document.getElementById('acai-t').setAttribute('tabindex','-1'); document.getElementById('acai-t').focus({preventScroll:true});
+});
+
+/* ---------- cabeçalho que some e volta ---------- */
+const topo = document.getElementById('topo'); let ultimoY = 0;
+addEventListener('scroll', () => {
+  const y = scrollY; topo.classList.toggle('solido', y > innerHeight * .8);
+  topo.classList.toggle('some', y > ultimoY && y > innerHeight && !topo.contains(document.activeElement)); ultimoY = y;
+}, {passive:true});
+
+/* ---------- açaí: bowls revelados + frutas entrando ---------- */
+const fotos = document.getElementById('fotos'), adesivos = document.getElementById('adesivos');
+const POS = [[-.12,.08,-14],[.88,.18,12],[-.1,.7,10],[.86,.78,-10]]; // x, y (fração da moldura), rotação
+let atual = null;
+function ativar(li){
+  if (li === atual || reduzido || innerWidth < 768) return; atual = li;
+  document.querySelectorAll('#lista li').forEach(l => l.classList.toggle('ativo', l === li));
+  const img = new Image(); img.src = li.dataset.foto; img.alt = ''; fotos.appendChild(img);
+  img.animate([{clipPath:'inset(100% 0 0 0 round 28px)',transform:'scale(1.12)'},{clipPath:'inset(0 0 0 0 round 28px)',transform:'scale(1)'}],{duration:900,easing:'cubic-bezier(.16,1,.3,1)'})
+     .finished.then(() => { while (fotos.children.length > 1) fotos.firstChild.remove(); });
+  for (const a of [...adesivos.children]) a.animate([{opacity:1},{opacity:0,transform:a.style.transform+' scale(.6)'}],{duration:300,fill:'forwards'}).finished.then(()=>a.remove());
+  li.dataset.frutas.split(',').forEach((n,i) => {
+    const s = new Image(); s.src = `assets/ingredientes/${n}.svg`; s.alt=''; s.className='adesivo';
+    const [x,y,r] = POS[i % POS.length]; s.style.left = (x*100)+'%'; s.style.top = (y*100)+'%'; s.style.transform = `rotate(${r}deg)`;
+    adesivos.appendChild(s);
+    const dx = (x < .5 ? -1 : 1) * innerWidth * .4;
+    s.animate([{transform:`translate(${dx}px, 30vh) rotate(${r + (x<.5?-90:90)}deg)`,opacity:0},{transform:`rotate(${r}deg)`,opacity:1}],
+      {duration:800,delay:i*80,easing:'cubic-bezier(.34,1.56,.64,1)',fill:'backwards'});
+  });
+}
+const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && ativar(e.target)), {rootMargin:'-45% 0px -45% 0px'});
+document.querySelectorAll('#lista li').forEach(li => io.observe(li));
+ativar(document.querySelector('#lista li'));
+
+/* ---------- combos montados (3D sob demanda) ---------- */
+const trilha = document.getElementById('trilha');
+if (!reduzido && innerWidth >= 768){
+  let cena = null, combo = -1;
+  const COMBOS = [
+    [{arquivo:'jambo-tigela-acai.glb',pos:[-.06,0,0],de:[-.5,0,0],escala:.82},{arquivo:'jambo-suco.glb',pos:[.055,0,-.01],de:[.5,0,0],atraso:.2,escala:.8}],
+    [{arquivo:'jambo-tigela-acai.glb',pos:[-.06,0,0],de:[-.5,0,0],escala:.82},{arquivo:'jambo-tigela-acai.glb',pos:[.06,0,-.01],de:[.5,0,0],atraso:.2,rotY:.5,escala:.82}],
+    [{arquivo:'jambo-tigela-acai.glb',pos:[-.065,0,0],de:[-.5,0,0],escala:.92},{arquivo:'jambo-milkshake.glb',pos:[.06,0,-.02],de:[.5,0,0],atraso:.2,escala:.8}]
+  ];
+  const canvases = [...document.querySelectorAll('.canvases canvas')], textos = [...document.querySelectorAll('.combo')];
+  const regua = document.getElementById('regua-b');
+  const { criarCena } = await import('./assets/js/cena3d.js');
+  const cenas = [];
+  async function trocar(i){
+    if (i === combo) return; combo = i;
+    textos.forEach((t,k) => t.classList.toggle('ativo', k === i));
+    canvases.forEach((c,k) => c.classList.toggle('ativo', k === i));
+    if (!cenas[i]) cenas[i] = criarCena(canvases[i], { itens: COMBOS[i], camera:{y:.16,z:.62,alvoY:.06,fov:24} });
+    pronta = await cenas[i];
+  }
+  let pronta = null;
+  new IntersectionObserver(async ([e]) => { if (e.isIntersecting && combo < 0) await trocar(0); }, {rootMargin:'100% 0px'}).observe(trilha);
+  addEventListener('scroll', async () => {
+    const r = trilha.getBoundingClientRect(); const total = r.height - innerHeight;
+    const p = Math.min(1, Math.max(0, -r.top / total)); regua.style.width = (p*100)+'%';
+    const i = Math.min(2, Math.floor(p * 3)); const local = (p * 3) - i;
+    if (i !== combo) await trocar(i);
+    if (pronta) pronta.definirProgresso(Math.min(1, Math.max(0, (local - .2) / .4)));
+  }, {passive:true});
+}
+
+/* ---------- kit: ingredientes e vitrine 3D ---------- */
+const lista = await (await fetch('assets/ingredientes/lista.json')).json();
+document.getElementById('ingredientes').innerHTML = Object.entries(lista).map(([k,v]) => `<figure><img src="assets/ingredientes/${k}.svg" alt="" width="88" height="88"><figcaption>${v}</figcaption></figure>`).join('');
+const { criarCena } = await import('./assets/js/cena3d.js');
+for (const c of document.querySelectorAll('.modelos canvas')) criarCena(c, { itens:[{arquivo:c.dataset.glb}], camera: JSON.parse(c.dataset.cam), girar: !reduzido });
+</script>
+</body>
+</html>

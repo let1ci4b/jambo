@@ -1,0 +1,24 @@
+{
+  "nome": "JAMBO — Açaí & Gelato",
+  "frase": "Seu verão, do seu jeito.",
+  "endereco": "Rua Bocaiúva, 1842 — Centro, Florianópolis/SC",
+  "rua": "Rua Bocaiúva, 1842",
+  "bairro": "Centro",
+  "cidade": "Florianópolis",
+  "uf": "SC",
+  "whatsapp": "5548999990000",
+  "whatsappTexto": "(48) 99999-0000",
+  "instagram": "@jambo.gelato",
+  "entrega": "Centro, Beira-Mar Norte e bairros próximos. Taxa a confirmar no WhatsApp.",
+  "site": "https://jambo.pages.dev/",
+  "whatsappLeticia": "[preencher]",
+  "horario": [
+    { "dia": "Domingo", "abre": "13:00", "fecha": "22:00" },
+    { "dia": "Segunda", "abre": "12:00", "fecha": "22:00" },
+    { "dia": "Terça", "abre": "12:00", "fecha": "22:00" },
+    { "dia": "Quarta", "abre": "12:00", "fecha": "22:00" },
+    { "dia": "Quinta", "abre": "12:00", "fecha": "22:00" },
+    { "dia": "Sexta", "abre": "12:00", "fecha": "23:00" },
+    { "dia": "Sábado", "abre": "13:00", "fecha": "23:00" }
+  ]
+}

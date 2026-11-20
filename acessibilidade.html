@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acessibilidade · JAMBO — Açaí &amp; Gelato (site demonstrativo)</title>
+<meta name="description" content="Declaração de acessibilidade do site demonstrativo da JAMBO: o que cumpre, como foi testado e o caminho alternativo ao arrastar.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#40204F">
+<link rel="icon" href="/assets/logo/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/logo/apple-touch-icon.png">
+<script>
+  // antes de pintar: JS ligado e as escolhas do menu de acessibilidade (ou "reduzir movimento" do aparelho)
+  (function(){var d=document.documentElement,a={};d.classList.add('js');try{a=JSON.parse(localStorage.getItem('acess')||'{}')}catch(e){}
+  if(a.fs)d.style.setProperty('--fs',a.fs);['contraste','legivel','espaco','links'].forEach(function(k){if(a[k])d.classList.add(k)});
+  if(a.parado)d.classList.add('pausado');if(a.parado||matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('reduzido');})();
+</script>
+<script type="module" src="/src/pagina.js"></script>
+</head>
+<body>
+<a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+<header class="topo solido"><a class="topo-logo" href="/" aria-label="JAMBO, voltar ao cardápio"><!--@WORDMARK--></a><a class="btn" href="/#acai">Ver o cardápio</a></header>
+<main id="conteudo" class="pagina">
+<h1>Acessibilidade</h1>
+<p>Este site foi feito para seguir as Diretrizes de Acessibilidade para Conteúdo Web (WCAG) 2.2, nível AA.</p>
+<h2>O que o site faz</h2>
+<ul>
+<li>Link "Pular para o cardápio" como primeiro item da página e botão "Pular" na abertura animada.</li>
+<li>Todo o cardápio, os preços e os combos estão em texto. As animações e os desenhos em 3D são decorativos e não escondem informação.</li>
+<li><strong>Menu de acessibilidade</strong> em todas as páginas (botão redondo no canto inferior direito): tamanho do texto de 90% a 160%, alto contraste, parar animações e vídeos, fonte mais legível, mais espaço entre linhas, destacar links e botões e voltar ao padrão. Na primeira visita, um aviso convida a ajustar a página. As escolhas ficam salvas no seu navegador.</li>
+<li>Com a opção "reduzir movimento" do seu aparelho ligada, ou com "Parar animações" no menu, nada se mexe sozinho: as fotos aparecem paradas, o vídeo vira imagem e os combos viram lista.</li>
+<li>Contraste de texto conferido: roxo sobre creme 11,6:1; creme sobre o roxo da noite 14,5:1; lilás claro sobre roxo 8,4:1.</li>
+<li>Dá para fazer o pedido inteiro só com o teclado, com o foco sempre visível. Áreas de toque com pelo menos 44 × 44 px.</li>
+<li>Formulário do pedido com rótulos visíveis e mensagens de erro em texto ao lado de cada campo.</li>
+</ul>
+<h2>Limitação conhecida: montar arrastando</h2>
+<p>O "Monte seu Jambo" deixa arrastar os ingredientes até o copo. Arrastar não é acessível para todo mundo, por isso há dois caminhos que fazem a mesma coisa, com o mesmo preço e as mesmas calorias:</p>
+<ul>
+<li>Cada ingrediente da bancada é um botão: um toque (ou Enter, no teclado) já coloca no copo, e um toque no ingrediente dentro do copo tira.</li>
+<li>Logo antes do montador há o link "Monte pelo cardápio", que leva ao "Montar pela lista": um formulário comum, com caixas de marcar, em que o leitor de tela anuncia o total a cada mudança.</li>
+</ul>
+<h2>Como foi testado</h2>
+<p>Em 20/11/2026: verificação automática com axe-core e Lighthouse; validação do HTML; navegação só com o teclado; telas de 390 px e 1440 px; emulação de toque; e o modo "reduzir movimento".</p>
+<p>Ainda não foi testado com pessoas que usam leitores de tela no dia a dia. Se algo não funcionar para você, conte para a gente.</p>
+<h2>Contato</h2>
+<p>Site demonstrativo: fale com a Letícia pelo botão "Quero um site assim", no rodapé do cardápio.</p>
+<p class="legenda">Atualizado em 20/11/2026.</p>
+</main>
+</body>
+</html>

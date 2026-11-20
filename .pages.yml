@@ -1,0 +1,138 @@
+# Pages CMS (app.pagescms.org): edição do cardápio e da loja pelo dono.
+# Só conteúdo: nada de cor, fonte ou layout (RF-16). Cada salvamento gera um build novo no Cloudflare Pages.
+media:
+  input: public/assets/img
+  output: /assets/img
+  extensions: [webp, jpg, jpeg, png]
+content:
+  - name: cardapio
+    label: Cardápio
+    type: file
+    path: content/cardapio.json
+    format: json
+    fields:
+      - name: acai
+        label: Açaí da casa
+        type: object
+        list: true
+        fields:
+          - { name: id, label: Código (não mude), type: string, readonly: true }
+          - { name: nome, label: Nome, type: string, required: true }
+          - { name: descricao, label: Descrição, type: text, required: true }
+          - { name: preco, label: Preço (R$), type: number, required: true }
+          - { name: kcal, label: Calorias aproximadas, type: number }
+          - { name: imagem, label: Foto, type: image }
+          - { name: alt, label: Descrição da foto (deixe vazio se o nome e a descrição já dizem tudo), type: string }
+          - { name: esgotado, label: Esgotado hoje, type: boolean }
+          - { name: adesivos, label: Ingredientes que voam (códigos), type: string, list: true }
+      - name: montador
+        label: Monte seu Jambo
+        type: object
+        fields:
+          - { name: toppingsGratis, label: Toppings inclusos, type: number }
+          - { name: precoExtra, label: Preço do topping extra e de cada adicional (R$), type: number }
+          - name: bases
+            label: Bases
+            type: object
+            list: true
+            fields:
+              - { name: id, label: Código (não mude), type: string, readonly: true }
+              - { name: nome, label: Nome, type: string }
+              - name: kcal
+                label: Calorias por tamanho
+                type: object
+                fields:
+                  - { name: "300", label: 300 ml, type: number }
+                  - { name: "500", label: 500 ml, type: number }
+                  - { name: "700", label: 700 ml, type: number }
+          - name: tamanhos
+            label: Tamanhos
+            type: object
+            list: true
+            fields:
+              - { name: ml, label: ml, type: number, readonly: true }
+              - { name: preco, label: Preço (R$), type: number }
+          - name: toppings
+            label: Toppings
+            type: object
+            list: true
+            fields: &ingrediente
+              - { name: id, label: Código (não mude), type: string, readonly: true }
+              - { name: nome, label: Nome, type: string }
+              - { name: kcal, label: Calorias da porção, type: number }
+              - { name: esgotado, label: Esgotado hoje, type: boolean }
+          - { name: adicionais, label: Adicionais, type: object, list: true, fields: *ingrediente }
+      - name: gelato
+        label: Gelato
+        type: object
+        fields:
+          - { name: imagem, label: Foto, type: image }
+          - { name: alt, label: Descrição da foto, type: string, required: true }
+          - { name: doisSabores, label: Copinho 2 sabores (R$), type: number }
+          - { name: tresSabores, label: Copinho 3 sabores (R$), type: number }
+          - name: sabores
+            label: Sabores
+            type: object
+            list: true
+            fields:
+              - { name: id, label: Código (não mude), type: string, readonly: true }
+              - { name: nome, label: Nome, type: string }
+              - { name: preco, label: Preço de 1 sabor (R$), type: number }
+              - { name: cor, label: Cor (não mude), type: string, readonly: true }
+              - { name: esgotado, label: Esgotado hoje, type: boolean }
+      - name: milkshakes
+        label: Milkshakes
+        type: object
+        fields:
+          - { name: imagem, label: Foto, type: image }
+          - { name: alt, label: Descrição da foto, type: string, required: true }
+          - name: itens
+            label: Milkshakes
+            type: object
+            list: true
+            fields: &produto
+              - { name: id, label: Código (não mude), type: string, readonly: true }
+              - { name: nome, label: Nome, type: string }
+              - { name: descricao, label: Descrição, type: text }
+              - { name: preco, label: Preço (R$), type: number }
+              - { name: esgotado, label: Esgotado hoje, type: boolean }
+      - name: combos
+        label: Combos
+        type: object
+        fields:
+          - { name: imagem, label: Foto, type: image }
+          - { name: alt, label: Descrição da foto, type: string, required: true }
+          - { name: itens, label: Combos, type: object, list: true, fields: *produto }
+      - name: bebidas
+        label: Bebidas
+        type: object
+        list: true
+        fields:
+          - { name: id, label: Código (não mude), type: string, readonly: true }
+          - { name: nome, label: Nome, type: string }
+          - { name: preco, label: Preço (R$), type: number }
+          - { name: esgotado, label: Esgotado hoje, type: boolean }
+  - name: loja
+    label: Loja
+    type: file
+    path: content/loja.json
+    format: json
+    fields:
+      - { name: frase, label: Frase de destaque, type: string }
+      - { name: endereco, label: Endereço completo, type: string }
+      - { name: rua, label: Rua e número, type: string }
+      - { name: bairro, label: Bairro, type: string }
+      - { name: cidade, label: Cidade, type: string }
+      - { name: uf, label: UF, type: string }
+      - { name: whatsapp, label: WhatsApp dos pedidos (só números, com 55 e DDD), type: string }
+      - { name: whatsappTexto, label: WhatsApp como aparece no site, type: string }
+      - { name: instagram, label: Instagram, type: string }
+      - { name: entrega, label: Bairros e taxa de entrega, type: text }
+      - name: horario
+        label: Horário (domingo primeiro)
+        type: object
+        list: true
+        fields:
+          - { name: dia, label: Dia, type: string, readonly: true }
+          - { name: abre, label: Abre (hh:mm), type: string }
+          - { name: fecha, label: Fecha (hh:mm), type: string }
