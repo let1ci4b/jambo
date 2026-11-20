@@ -6,7 +6,7 @@
 
 **Cardápio online com monte-seu-açaí e pedido pelo WhatsApp**
 
-[**Ver o site**](https://let1ci4b.github.io/jambo/) &nbsp;·&nbsp; [Declaração de acessibilidade](https://let1ci4b.github.io/jambo/acessibilidade.html) &nbsp;·&nbsp; [Privacidade](https://let1ci4b.github.io/jambo/privacidade.html)
+[**Ver o site**](https://jambo-3cc.pages.dev/) &nbsp;·&nbsp; [Declaração de acessibilidade](https://jambo-3cc.pages.dev/acessibilidade.html) &nbsp;·&nbsp; [Privacidade](https://jambo-3cc.pages.dev/privacidade.html)
 
 ![Status](https://img.shields.io/badge/status-demonstrativo-A67CC4?style=flat-square)
 ![WCAG 2.2 AA](https://img.shields.io/badge/WCAG_2.2-AA-2A1233?style=flat-square)
@@ -75,7 +75,7 @@
 | **Base** | HTML, CSS e JavaScript, com [Vite](https://vite.dev) e sem framework |
 | **Animações** | [GSAP](https://gsap.com) e three.js (copos 3D) |
 | **Conteúdo** | arquivos JSON, que também podem ser editados pelo [Pages CMS](https://pagescms.org) |
-| **Hospedagem** | GitHub Pages (demonstração) ou Cloudflare Pages |
+| **Hospedagem** | [Cloudflare Pages](https://pages.cloudflare.com), publicado a cada envio para a branch `main` |
 | **Métricas** | Cloudflare Web Analytics, sem cookies |
 
 ## Rodar no computador
@@ -120,8 +120,8 @@ Para ver a versão final, rode `npm run build` e depois `npm run preview` (http:
 
 ## Publicar
 
-- **GitHub Pages:** cada envio para a branch `main` publica o site sozinho, pelo arquivo `.github/workflows/pages.yml`.
-- **Cloudflare Pages:** comando de build `npm run build`, pasta de saída `dist`, Node 22. Depois, troque o endereço em `content/loja.json`.
+- **Cloudflare Pages (oficial):** cada envio para a branch `main` publica o site em https://jambo-3cc.pages.dev/. Configuração: comando de build `npm run build`, pasta de saída `dist`, Node 22. Se o endereço mudar (domínio próprio), troque `site` em `content/loja.json`.
+- **GitHub Pages (opcional):** cópia de reserva, acionada à mão em Actions → "Publicar no GitHub Pages" (precisa de Settings → Pages → Source: GitHub Actions).
 
 ## Créditos
 
