@@ -1,8 +1,10 @@
 #!/bin/sh
-# Gera a versão de prévia (caminhos relativos, GLB embrulhado em .js) em ../previa — só para a prévia no Claude.
+# Gera a versão de prévia (caminhos relativos, GLB embrulhado em .js) — usada na prévia do Claude e no GitHub Pages.
+# Uso (na raiz do projeto): sh ferramentas/previa.sh [pasta-de-saída]   (padrão: ../previa)
 set -e
-rm -rf ../previa && npx vite build --base ./ --outDir ../previa --emptyOutDir >/dev/null
-cd ../previa && python3 - <<'PY'
+OUT="${1:-../previa}"
+rm -rf "$OUT" && npx vite build --base ./ --outDir "$OUT" --emptyOutDir >/dev/null
+cd "$OUT" && python3 - <<'PY'
 import glob, base64, os
 for f in glob.glob('*.html'):
     s=open(f).read()
