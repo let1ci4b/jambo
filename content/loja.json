@@ -10,15 +10,45 @@
   "whatsappTexto": "(48) 99999-0000",
   "instagram": "@jambo.gelato",
   "entrega": "Centro, Beira-Mar Norte e bairros próximos. Taxa a confirmar no WhatsApp.",
-  "site": "https://jambo.pages.dev/",
+  "site": "https://let1ci4b.github.io/jambo/",
+  "compartilharTexto": "Monte seu açaí e peça pelo WhatsApp. Site demonstrativo; marca fictícia.",
+  "compartilharAlt": "Logo JAMBO — Açaí & Gelato e a frase \"Seu verão, do seu jeito.\" sobre morangos, banana, manga, kiwi, granola e pistache.",
   "whatsappLeticia": "[preencher]",
   "horario": [
-    { "dia": "Domingo", "abre": "13:00", "fecha": "22:00" },
-    { "dia": "Segunda", "abre": "12:00", "fecha": "22:00" },
-    { "dia": "Terça", "abre": "12:00", "fecha": "22:00" },
-    { "dia": "Quarta", "abre": "12:00", "fecha": "22:00" },
-    { "dia": "Quinta", "abre": "12:00", "fecha": "22:00" },
-    { "dia": "Sexta", "abre": "12:00", "fecha": "23:00" },
-    { "dia": "Sábado", "abre": "13:00", "fecha": "23:00" }
+    {
+      "dia": "Domingo",
+      "abre": "13:00",
+      "fecha": "22:00"
+    },
+    {
+      "dia": "Segunda",
+      "abre": "12:00",
+      "fecha": "22:00"
+    },
+    {
+      "dia": "Terça",
+      "abre": "12:00",
+      "fecha": "22:00"
+    },
+    {
+      "dia": "Quarta",
+      "abre": "12:00",
+      "fecha": "22:00"
+    },
+    {
+      "dia": "Quinta",
+      "abre": "12:00",
+      "fecha": "22:00"
+    },
+    {
+      "dia": "Sexta",
+      "abre": "12:00",
+      "fecha": "23:00"
+    },
+    {
+      "dia": "Sábado",
+      "abre": "13:00",
+      "fecha": "23:00"
+    }
   ]
 }

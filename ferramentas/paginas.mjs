@@ -141,6 +141,35 @@ function palavras(texto) {
   return texto.split(' ').map(p => `<span class="palavra"><span>${esc(p)}</span></span>`).join(' ');
 }
 
+// Card de compartilhamento (WhatsApp, Instagram, Facebook, LinkedIn, X): URLs sempre absolutas.
+function compartilhar(html, l, pagina) {
+  const base = l.site.endsWith('/') ? l.site : l.site + '/';
+  const titulo = pagina ? (html.match(/<title>([^<]*)<\/title>/) || [])[1] : esc(`${l.nome} · ${l.frase}`);
+  const desc = pagina ? (html.match(/<meta name="description" content="([^"]*)"/) || [])[1] : esc(l.compartilharTexto);
+  const img = base + 'assets/img/compartilhar.jpg';
+  const alt = esc(l.compartilharAlt);
+  return [
+    pagina === '404.html' ? '' : `<link rel="canonical" href="${base + pagina}">`,
+    '<meta property="og:type" content="website">',
+    '<meta property="og:locale" content="pt_BR">',
+    `<meta property="og:site_name" content="${esc(l.nome)}">`,
+    `<meta property="og:url" content="${base + pagina}">`,
+    `<meta property="og:title" content="${titulo}">`,
+    `<meta property="og:description" content="${desc}">`,
+    `<meta property="og:image" content="${img}">`,
+    `<meta property="og:image:secure_url" content="${img}">`,
+    '<meta property="og:image:type" content="image/jpeg">',
+    '<meta property="og:image:width" content="1200">',
+    '<meta property="og:image:height" content="630">',
+    `<meta property="og:image:alt" content="${alt}">`,
+    '<meta name="twitter:card" content="summary_large_image">',
+    `<meta name="twitter:title" content="${titulo}">`,
+    `<meta name="twitter:description" content="${desc}">`,
+    `<meta name="twitter:image" content="${img}">`,
+    `<meta name="twitter:image:alt" content="${alt}">`
+  ].filter(Boolean).join('\n');
+}
+
 export async function renderizar(html) {
   const c = JSON.parse(ler('content/cardapio.json'));
   const l = JSON.parse(ler('content/loja.json'));
@@ -184,5 +213,6 @@ export async function renderizar(html) {
     JSONLD: jsonld(l),
     ICO_SACOLA: ICONE.sacola, ICO_SETA: ICONE.seta, ICO_WHATS: ICONE.whatsapp, ICO_FECHAR: ICONE.fechar, ICO_MENU: ICONE.menu
   };
+  html = html.replace(/<!--@COMPARTILHAR:([^>]*?)-->/, (m, pag) => compartilhar(html, l, pag));
   return html.replace(/<!--@([A-Z0-9_]+)-->/g, (m, k) => (k in trocas ? trocas[k] : m));
 }

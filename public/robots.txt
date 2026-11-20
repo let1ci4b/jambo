@@ -1,3 +1,15 @@
 # Site demonstrativo: fora do Google até a Letícia decidir (aceite).
+# Os robôs de prévia de link (WhatsApp, Instagram, Facebook, LinkedIn, X, Telegram) podem ler a página,
+# para o card de compartilhamento aparecer.
+User-agent: facebookexternalhit
+User-agent: Facebot
+User-agent: WhatsApp
+User-agent: Twitterbot
+User-agent: LinkedInBot
+User-agent: TelegramBot
+User-agent: Slackbot-LinkExpanding
+User-agent: Discordbot
+Allow: /
+
 User-agent: *
 Disallow: /
