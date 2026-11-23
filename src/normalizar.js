@@ -135,5 +135,5 @@ export function normalizar(c, prontos = {}, sabores = []) {
   };
 }
 
-// bolinha de cor do sabor: classe pronta (sabores originais) ou a cor escolhida no editor
-export const corSabor = s => (s.cor ? ` sabor-${s.cor}"` : `" style="background:${s.hex};box-shadow:inset 0 0 0 1px rgba(42,18,51,.35)"`);
+// bolinha de cor do sabor: classe do desenho pronto ou do sabor novo (a cor do novo vem num <style> gerado no build)
+export const corSabor = s => ` sabor-${s.cor ?? s.id}"`;

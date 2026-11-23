@@ -218,11 +218,19 @@ export function shakes() {
 }
 
 // ---------- 3.5 combos montados ----------
-const COMBOS_3D = [
-  [{ arquivo: 'jambo-tigela-acai.glb', pos: [-.06, 0, 0], de: [-.5, 0, 0], escala: .82 }, { arquivo: 'jambo-suco.glb', pos: [.06, 0, -.01], de: [.5, 0, 0], atraso: .2 }],
-  [{ arquivo: 'jambo-tigela-acai.glb', pos: [-.07, 0, 0], de: [-.5, 0, 0], escala: .82 }, { arquivo: 'jambo-tigela-acai.glb', pos: [.07, 0, -.01], de: [.5, 0, 0], atraso: .2, rotY: .5, escala: .82 }],
-  [{ arquivo: 'jambo-tigela-acai.glb', pos: [-.065, 0, 0], de: [-.5, 0, 0], escala: .92 }, { arquivo: 'jambo-milkshake.glb', pos: [.06, 0, -.02], de: [.5, 0, 0], atraso: .2, escala: .8 }]
-];
+// Os copos de cada combo saem das partes dele (açaí → tigela, bebida → suco, milkshake → copo de shake).
+// Assim um combo novo, criado pelo editor, também ganha a sua cena.
+const MODELO = { acai: 'jambo-tigela-acai.glb', bebida: 'jambo-suco.glb', milkshake: 'jambo-milkshake.glb' };
+function itens3d(combo) {
+  const partes = combo.partes.length ? combo.partes.slice(0, 3) : [{ tipo: 'acai', ml: 500 }];
+  const escala = p => (p.tipo === 'acai' ? ({ 300: .82, 500: .92, 700: 1 }[p.ml] ?? .9) : p.tipo === 'milkshake' ? .8 : 1);
+  const n = partes.length, doisAcai = n === 2 && partes.every(p => p.tipo === 'acai');
+  const xs = n === 1 ? [0] : n === 2 ? (doisAcai ? [-.07, .07] : [-.065, .06]) : [-.1, 0, .1];
+  return partes.map((p, k) => ({
+    arquivo: MODELO[p.tipo], pos: [xs[k], 0, -.01 * k], de: [k < n / 2 ? -.5 : .5, 0, 0], atraso: k * .2,
+    escala: escala(p) * (n === 3 ? .75 : 1), ...(doisAcai && k === 1 ? { rotY: .5 } : {})
+  }));
+}
 export function combos(gsap, ScrollTrigger) {
   const trilha = $('#combos-trilha');
   const canvases = [...document.querySelectorAll('.combos-3d canvas')];
@@ -236,13 +244,15 @@ export function combos(gsap, ScrollTrigger) {
       if (!e.isIntersecting || carregado) return;
       carregado = true; io.disconnect();
       const { criarCena } = await importar('js/cena3d.js');
-      COMBOS_3D.forEach((itens, i) => { cenas[i] = criarCena(canvases[i], { itens, base: pastaAssets + '3d/', camera: { y: .16, z: .62, alvoY: .06, fov: 24 } }); });
+      cardapio.combos.itens.forEach((combo, i) => { if (canvases[i]) cenas[i] = criarCena(canvases[i], { itens: itens3d(combo), base: pastaAssets + '3d/', camera: { y: .16, z: .62, alvoY: .06, fov: 24 } }); });
       atualizar(st.progress);
     }, { rootMargin: '100% 0px' });
     io.observe(trilha);
+    const N = Math.max(1, textos.length);
+    trilha.style.setProperty('--n', N); // altura da trilha e régua: um trecho por combo
     async function atualizar(p) {
-      const i = Math.min(2, Math.floor(p * 3));
-      const local = p * 3 - i;
+      const i = Math.min(N - 1, Math.floor(p * N));
+      const local = p * N - i;
       if (i !== combo) {
         combo = i;
         textos.forEach((t, k) => t.classList.toggle('ativo', k === i));
@@ -253,13 +263,13 @@ export function combos(gsap, ScrollTrigger) {
       canvases.forEach((c, k) => c.classList.toggle('ativo', saindo ? k === i - 1 : k === i));
       if (saindo) (await cenas[i - 1]).definirProgresso(1 - local / .2); // os copos do combo anterior saem para os lados
       (await cenas[i]).definirProgresso(Math.min(1, Math.max(0, (local - .2) / .4)));
-      for (let k = i + 1; k < 3; k++) (await cenas[k]).definirProgresso(0);
+      for (let k = i + 1; k < cenas.length; k++) (await cenas[k]).definirProgresso(0);
     }
     // Tab num combo que não está na tela: rola até ele (assim o texto visível é sempre o do foco)
     textos.forEach((t, k) => t.addEventListener('focusin', () => {
       if (k === combo) return;
       const topo = scrollY + trilha.getBoundingClientRect().top;
-      window.scrollTo({ top: topo + (trilha.offsetHeight - innerHeight) * ((k + .8) / 3), behavior: 'instant' });
+      window.scrollTo({ top: topo + (trilha.offsetHeight - innerHeight) * ((k + .8) / N), behavior: 'instant' });
     }));
     const proxy = { p: 0 };
     const tw = gsap.to(proxy, { p: 1, ease: 'none', onUpdate: () => atualizar(proxy.p), scrollTrigger: { trigger: trilha, start: 'top top', end: 'bottom bottom', scrub: .5 } });
