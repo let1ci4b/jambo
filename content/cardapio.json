@@ -191,20 +191,6 @@
         "nome": "Gotas de chocolate",
         "kcal": 75,
         "esgotado": false
-      },
-      {
-        "nome": "Amendoim",
-        "kcal": 60,
-        "esgotado": false,
-        "estilo": "Salpicado",
-        "cor": "Marrom-claro"
-      },
-      {
-        "nome": "Nozes",
-        "kcal": 80,
-        "esgotado": false,
-        "estilo": "Pedaços",
-        "cor": "Bege"
       }
     ],
     "adicionais": [
@@ -320,7 +306,7 @@
         "nome": "Limão Siciliano",
         "preco": 10.9,
         "kcal": 110,
-        "esgotado": true,
+        "esgotado": false,
         "cor": "limao-siciliano"
       }
     ]
