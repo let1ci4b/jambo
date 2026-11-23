@@ -1,11 +1,12 @@
-// Gera, no build, o HTML do cardápio a partir de content/cardapio.json e content/loja.json.
+// Gera, no build, o HTML do cardápio a partir dos arquivos do editor (content/: cardápio, ingredientes, loja, textos).
 // Assim o cardápio funciona sem JS e o Google lê tudo. Usado pelo vite.config.js.
 import fs from 'node:fs';
 import path from 'node:path';
 import QRCode from 'qrcode';
 import { reais, centavos } from '../src/calculo.js';
 import { adesivoSabor, SABORES_PRONTOS, registrarIngredientes, registrarSabores } from '../src/copo.js';
-import { normalizar, corSabor } from '../src/normalizar.js';
+import { normalizar, montarCardapio, corSabor } from '../src/normalizar.js';
+import { lerConteudo } from './conteudo.mjs';
 
 const raiz = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const ler = f => fs.readFileSync(path.join(raiz, f), 'utf8');
@@ -16,6 +17,7 @@ const r = v => reais(centavos(v));
 // pelo editor, pode ser grande (foto de celular): no build ela vira webp nas larguras pedidas.
 // As conversões são feitas pelo vite.config.js (sharp), depois do build, direto na pasta dist.
 let modo = 'build';
+let ilustrativas = true;
 export const tarefasDeImagem = new Map(); // caminho de saída → { origem, largura }
 const existe = url => fs.existsSync(path.join(raiz, 'public', decodeURI(url)));
 function foto(src, larguras, proporcao = null) { // proporcao = largura / altura (a foto é cortada no centro)
@@ -65,7 +67,7 @@ function acai(c) {
   <div class="foto-celular" aria-hidden="true"><div class="moldura-c"><img src="${esc(m)}" alt="" width="640" height="800" loading="lazy" decoding="async"></div>${ades}</div>
   <div class="linha"><h3><span class="ponto" aria-hidden="true"></span>${esc(b.nome)}</h3><span class="preco">${r(b.preco)}</span></div>
   ${b.descricao ? `<p class="desc">${preencher(b.descricao)}</p>` : ''}
-  <p class="legenda">${b.kcal ? `≈ ${b.kcal} kcal (aproximado, 500 ml)` : '≈ <mark class="preencher">[preencher]</mark> kcal'} · Imagem ilustrativa</p>
+  <p class="legenda">${[b.kcal ? `≈ ${b.kcal} kcal (aproximado, 500 ml)` : '', ilustrativas ? 'Imagem ilustrativa' : ''].filter(Boolean).join(' · ')}</p>
   ${botaoAdicionar({ id: 'acai-' + b.id, nome: 'Açaí ' + b.nome, preco: b.preco, esgotado: esg, oculto: b.nome })}
 </li>`;
   }).join('\n');
@@ -150,7 +152,7 @@ function bebidas(c) {
 function horario(l) {
   // segunda primeiro na lista
   const ordem = [1, 2, 3, 4, 5, 6, 0];
-  return ordem.map(i => { const h = l.horario[i]; return `<li data-dia="${i}"><span>${h.dia}</span><span>${h.abre.replace(':00', 'h')}–${h.fecha.replace(':00', 'h')}</span></li>`; }).join('');
+  return ordem.map(i => { const h = l.horario[i]; return `<li data-dia="${i}"><span>${esc(h.dia)}</span><span>${h.fechado ? 'Fechado' : `${h.abre.replace(':00', 'h')}–${h.fecha.replace(':00', 'h')}`}</span></li>`; }).join('');
 }
 
 function jsonld(l) {
@@ -160,9 +162,17 @@ function jsonld(l) {
     name: l.nome, description: 'Site demonstrativo: marca fictícia criada como exemplo de portfólio.',
     address: { '@type': 'PostalAddress', streetAddress: l.rua, addressLocality: l.cidade, addressRegion: l.uf, addressCountry: 'BR' },
     telephone: '+' + l.whatsapp, url: l.site, menu: l.site + '#acai', servesCuisine: ['Açaí', 'Gelato'],
-    openingHoursSpecification: l.horario.map((h, i) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: dias[i], opens: h.abre, closes: h.fecha }))
+    openingHoursSpecification: l.horario.map((h, i) => (h.fechado ? null : { '@type': 'OpeningHoursSpecification', dayOfWeek: dias[i], opens: h.abre, closes: h.fecha })).filter(Boolean)
   };
   return `<script type="application/ld+json">${JSON.stringify(dados)}</script>`;
+}
+
+// fotos da seção Visite (editáveis): a original já tem versão de 800 px; foto nova vira webp no build
+function visiteFotos(v) {
+  return [1, 2].filter(k => v[`foto${k}`]).map(k => {
+    const f = foto(v[`foto${k}`], [800, 1264], 1264 / 848);
+    return `<figure><img src="${esc(f[800])}" srcset="${esc(f[800])} 800w, ${esc(f[1264])} 1264w" sizes="(min-width: 768px) 50vw, 100vw" alt="${esc(v[`foto${k}Descricao`] ?? '')}" width="1264" height="848" loading="lazy" decoding="async">${v[`foto${k}Legenda`] ? `<figcaption>${esc(v[`foto${k}Legenda`])}</figcaption>` : ''}</figure>`;
+  }).join('\n    ');
 }
 
 function palavras(texto) {
@@ -170,9 +180,9 @@ function palavras(texto) {
 }
 
 // Card de compartilhamento (WhatsApp, Instagram, Facebook, LinkedIn, X): URLs sempre absolutas.
-function compartilhar(html, l, pagina) {
+function compartilhar(html, l, pagina, t = {}) {
   const base = l.site.endsWith('/') ? l.site : l.site + '/';
-  const titulo = pagina ? (html.match(/<title>([^<]*)<\/title>/) || [])[1] : esc(`${l.nome} · ${l.frase}`);
+  const titulo = pagina ? (html.match(/<title>([^<]*)<\/title>/) || [])[1] : esc(`${l.nome} · ${t.inicio?.titulo ?? ''}`);
   const desc = pagina ? (html.match(/<meta name="description" content="([^"]*)"/) || [])[1] : esc(l.compartilharTexto);
   const img = base + 'assets/img/compartilhar.jpg';
   const alt = esc(l.compartilharAlt);
@@ -200,11 +210,14 @@ function compartilhar(html, l, pagina) {
 
 export async function renderizar(html, { comando = 'build' } = {}) {
   modo = comando;
-  const c = normalizar(JSON.parse(ler('content/cardapio.json')), JSON.parse(ler('public/assets/ingredientes/lista.json')), SABORES_PRONTOS);
+  const conteudo = lerConteudo();
+  const c = normalizar(montarCardapio(conteudo.partes), SABORES_PRONTOS);
+  const t = conteudo.textos;
+  ilustrativas = conteudo.loja.fotosIlustrativas !== false;
   registrarIngredientes([...c.montador.toppings, ...c.montador.adicionais]);
   registrarSabores(c.gelato.sabores);
   const fg = foto(c.gelato.imagem, [960, 1376], 1376 / 590), fs_ = foto(c.milkshakes.imagem, [640, 896], 896 / 1120), fc = foto(c.combos.imagem, [640, 896], 896 / 720);
-  const l = JSON.parse(ler('content/loja.json'));
+  const l = conteudo.loja;
   const mo = montador(c);
   const ge = gelato(c);
   const qr = await QRCode.toString(l.site + '#acai', { type: 'svg', margin: 1, color: { dark: '#2A1233', light: '#F5EBDD' } });
@@ -227,7 +240,7 @@ export async function renderizar(html, { comando = 'build' } = {}) {
     GELATO_ADIS: c.montador.adicionais.map(a => `<label class="caixa"><input type="checkbox" name="g-adicional" value="${a.id}"${a.esgotado ? ' disabled' : ''}><span>${esc(a.nome)}</span></label>`).join(''),
     PRECO_EXTRA: r(c.montador.precoExtra),
     GELATO_LISTA: ge.lista, GELATO_CAIXAS: ge.caixas, GELATO_FAIXA: ge.faixa,
-    GELATO_H2: palavras('O clima pede JAMBO.'),
+    GELATO_H2: palavras(t.gelato?.titulo ?? ''),
     SHAKES_IMG: `<img src="${esc(fs_.original ? c.milkshakes.imagem : fs_[896])}" srcset="${esc(fs_[640])} 640w, ${esc(fs_.original ? c.milkshakes.imagem : fs_[896])} 896w" sizes="(min-width: 1024px) 40vw, 100vw" alt="${esc(c.milkshakes.alt)}" width="896" height="1120" loading="lazy" decoding="async">`,
     SHAKES: shakes(c),
     COMBOS: combos(c),
@@ -243,12 +256,20 @@ export async function renderizar(html, { comando = 'build' } = {}) {
     WHATS: `https://wa.me/${l.whatsapp}`,
     WHATS_TEXTO: esc(l.whatsappTexto),
     INSTAGRAM: esc(l.instagram),
+    INSTAGRAM_URL: `https://www.instagram.com/${encodeURIComponent(String(l.instagram).replace(/^@/, ''))}/`,
+    VISITE_FOTOS: visiteFotos(t.visite ?? {}),
+    ILUSTRATIVAS_LUGAR: ilustrativas ? '<p class="legenda">Imagens ilustrativas · lugar fictício</p>' : '<!-- -->',
+    PAGAMENTOS: (l.pagamentos?.length ? l.pagamentos : ['Pix']).map((p, k) => `<label class="caixa"><input type="radio" name="pagamento" value="${esc(p)}"${k ? '' : ' checked'}><span>${esc(p)}</span></label>`).join('\n      '),
     ENTREGA: esc(l.entrega),
     QR: qr.replace('<svg ', '<svg class="qr" role="img" aria-label="QR code do cardápio" width="160" height="160" '),
     LETICIA: leticia,
     JSONLD: jsonld(l),
     ICO_SACOLA: ICONE.sacola, ICO_SETA: ICONE.seta, ICO_WHATS: ICONE.whatsapp, ICO_FECHAR: ICONE.fechar, ICO_MENU: ICONE.menu
   };
-  html = html.replace(/<!--@COMPARTILHAR:([^>]*?)-->/, (m, pag) => compartilhar(html, l, pag));
+  html = html.replace(/<!--@COMPARTILHAR:([^>]*?)-->/, (m, pag) => compartilhar(html, l, pag, t));
+  // textos do editor: <!--@T:secao.campo-->
+  html = html.replace(/<!--@T:([a-zA-Z0-9.]+)-->/g, (m, cam) => esc(cam.split('.').reduce((o, k) => o?.[k], t) ?? ''));
+  // avisos de "Imagem ilustrativa": saem quando a loja usa fotos de verdade
+  if (!ilustrativas) html = html.replace(/<span data-ilustrativa>[^<]*<\/span>/g, '').replace(/[ \t]*<(p|figcaption)\b[^>]*data-ilustrativa[^>]*>[^<]*<\/\1>[ \t]*(\n)?/g, '');
   return html.replace(/<!--@([A-Z0-9_]+)-->/g, (m, k) => (k in trocas ? trocas[k] : m));
 }

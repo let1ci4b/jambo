@@ -1,0 +1,92 @@
+{
+  "itens": [
+    {
+      "id": "jambo-classic",
+      "nome": "Jambo Classic",
+      "descricao": "Banana, morango, granola e leite em pó.",
+      "preco": 26.9,
+      "kcal": 680,
+      "imagem": "/assets/img/bowl-jambo-classic.webp",
+      "esgotado": false,
+      "ingredientes": [
+        "content/ingredientes/banana.json",
+        "content/ingredientes/morango.json",
+        "content/ingredientes/kiwi.json",
+        "content/ingredientes/granola.json"
+      ]
+    },
+    {
+      "id": "pacoca-club",
+      "nome": "Paçoca Club",
+      "descricao": "Paçoca, banana, pasta de amendoim e granola.",
+      "preco": 27.9,
+      "kcal": 775,
+      "imagem": "/assets/img/bowl-pacoca-club.webp",
+      "esgotado": false,
+      "ingredientes": [
+        "content/ingredientes/pacoca.json",
+        "content/ingredientes/banana.json",
+        "content/ingredientes/pasta-amendoim.json",
+        "content/ingredientes/granola.json"
+      ]
+    },
+    {
+      "id": "tropical-vibe",
+      "nome": "Tropical Vibe",
+      "descricao": "Manga, kiwi, banana, coco e granola.",
+      "preco": 29.9,
+      "kcal": 690,
+      "imagem": "/assets/img/bowl-tropical-vibe.webp",
+      "esgotado": false,
+      "ingredientes": [
+        "content/ingredientes/manga.json",
+        "content/ingredientes/kiwi.json",
+        "content/ingredientes/banana.json",
+        "content/ingredientes/coco.json"
+      ]
+    },
+    {
+      "id": "choco-crush",
+      "nome": "Choco Crush",
+      "descricao": "Creme de avelã, banana, morango e granola.",
+      "preco": 29.9,
+      "kcal": 710,
+      "imagem": "/assets/img/bowl-choco-crush.webp",
+      "esgotado": false,
+      "ingredientes": [
+        "content/ingredientes/creme-avela.json",
+        "content/ingredientes/banana.json",
+        "content/ingredientes/morango.json",
+        "content/ingredientes/granola.json"
+      ]
+    },
+    {
+      "id": "berry-mood",
+      "nome": "Berry Mood",
+      "descricao": "Morango, mirtilo, banana e granola.",
+      "preco": 28.9,
+      "kcal": 620,
+      "imagem": "/assets/img/bowl-berry-mood.webp",
+      "esgotado": false,
+      "ingredientes": [
+        "content/ingredientes/morango.json",
+        "content/ingredientes/banana.json",
+        "content/ingredientes/granola.json"
+      ]
+    },
+    {
+      "id": "pistachio-dream",
+      "nome": "Pistachio Dream",
+      "descricao": "Creme de pistache, pistache, morango e granola.",
+      "preco": 32.9,
+      "kcal": 755,
+      "imagem": "/assets/img/bowl-pistachio-dream.webp",
+      "esgotado": false,
+      "ingredientes": [
+        "content/ingredientes/pistache.json",
+        "content/ingredientes/morango.json",
+        "content/ingredientes/granola.json"
+      ]
+    }
+  ]
+}

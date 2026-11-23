@@ -1,5 +1,5 @@
 // Cálculos do cardápio. Tudo em centavos (inteiros) para não errar arredondamento.
-// Sempre a partir da tabela (content/cardapio.json), nunca somado na mão.
+// Sempre a partir da tabela (content/cardapio/), nunca somado na mão.
 
 export const centavos = reais => Math.round(reais * 100);
 

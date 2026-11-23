@@ -1,7 +1,7 @@
 # JAMBO — Açaí & Gelato · site demonstrativo
 
 Site-cardápio de página única (marca fictícia, exemplo do portfólio da Letícia Beatriz).
-Feito com Vite (sem framework). O cardápio vem de `content/cardapio.json` e a loja de `content/loja.json`; os dois entram no HTML no build.
+Feito com Vite (sem framework). O conteúdo vem de `content/` (cardápio, ingredientes, loja e textos) e entra no HTML no build, depois de conferido por `ferramentas/validar.mjs`.
 
 ## Ver no computador
 1. Instale o Node.js 22 (nodejs.org) uma vez.
@@ -13,8 +13,8 @@ Para ver a versão final (a mesma que vai para o ar): `npm run build` e `npm run
 ## O que muda e onde
 | O quê | Arquivo |
 |---|---|
-| Preços, nomes, descrições, calorias, "esgotado" | `content/cardapio.json` (ou pelo Pages CMS) |
-| Horário, endereço, WhatsApp, frase | `content/loja.json` (ou pelo Pages CMS) |
+| Preços, nomes, descrições, calorias, "esgotado" | `content/cardapio/*.json` e `content/ingredientes/*.json` (ou pelo Pages CMS) |
+| Horário, endereço, WhatsApp, pagamento | `content/loja.json`; textos das seções em `content/textos.json` (ou pelo Pages CMS) |
 | Cores e fontes | `src/estilo.css` (bloco `:root`) |
 | Fotos | `public/assets/img/` |
 | Ingredientes (desenhos) | `public/assets/ingredientes/` |

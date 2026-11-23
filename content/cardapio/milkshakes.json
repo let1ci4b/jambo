@@ -1,0 +1,35 @@
+{
+  "imagem": "/assets/img/milkshakes-montagem.webp",
+  "alt": "Quatro milkshakes com chantili em copos transparentes com a logo JAMBO.",
+  "tamanho": "400 ml",
+  "itens": [
+    {
+      "id": "freak-choc",
+      "nome": "Freak Choc",
+      "descricao": "Chocolate belga batido com sorvete de creme, calda de chocolate e chantili.",
+      "preco": 21.9,
+      "esgotado": false
+    },
+    {
+      "id": "morango-pop",
+      "nome": "Morango Pop",
+      "descricao": "Morango com sorvete de ninho, chantili e farofa de morango crocante.",
+      "preco": 19.9,
+      "esgotado": false
+    },
+    {
+      "id": "cookie-monster",
+      "nome": "Cookie Monster",
+      "descricao": "Cookies & cream batido com pedaços de biscoito e chantili.",
+      "preco": 22.9,
+      "esgotado": false
+    },
+    {
+      "id": "pistache-shake",
+      "nome": "Pistache Shake",
+      "descricao": "Gelato de pistache batido com leite, chantili e pistache picado.",
+      "preco": 24.9,
+      "esgotado": false
+    }
+  ]
+}

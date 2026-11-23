@@ -1,0 +1,57 @@
+{
+  "imagem": "/assets/img/combos.webp",
+  "alt": "Um açaí com frutas e um milkshake de morango lado a lado.",
+  "regra": "Cada açaí do combo vem com até 3 toppings. Topping extra e adicionais: R$ 3,00 cada.",
+  "itens": [
+    {
+      "id": "solo-sun",
+      "nome": "Solo Sun",
+      "descricao": "Açaí de 300 ml com até 3 toppings + uma bebida à escolha.",
+      "preco": 25.9,
+      "esgotado": false,
+      "partes": [
+        {
+          "tipo": "acai",
+          "ml": 300
+        },
+        {
+          "tipo": "bebida"
+        }
+      ]
+    },
+    {
+      "id": "double-trouble",
+      "nome": "Double Trouble",
+      "descricao": "Dois açaís de 300 ml, cada um com até 3 toppings. Bom para dividir (ou não).",
+      "preco": 35.9,
+      "esgotado": false,
+      "partes": [
+        {
+          "tipo": "acai",
+          "ml": 300
+        },
+        {
+          "tipo": "acai",
+          "ml": 300
+        }
+      ]
+    },
+    {
+      "id": "sweet-escape",
+      "nome": "Sweet Escape",
+      "descricao": "Açaí de 500 ml com até 3 toppings + milkshake pequeno (300 ml) do sabor que quiser.",
+      "preco": 39.9,
+      "esgotado": false,
+      "partes": [
+        {
+          "tipo": "acai",
+          "ml": 500
+        },
+        {
+          "tipo": "milkshake",
+          "tamanho": "300 ml"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "nome": "Morango",
+  "tipo": "topping",
+  "ordem": 2,
+  "kcal": 12,
+  "esgotado": true,
+  "desenho": "/assets/ingredientes/morango.svg"
+}

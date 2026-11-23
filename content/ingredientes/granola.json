@@ -1,0 +1,8 @@
+{
+  "nome": "Granola",
+  "tipo": "topping",
+  "ordem": 5,
+  "kcal": 110,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/granola.svg"
+}

@@ -1,0 +1,8 @@
+{
+  "nome": "Coco em lascas",
+  "tipo": "topping",
+  "ordem": 8,
+  "kcal": 60,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/coco.svg"
+}

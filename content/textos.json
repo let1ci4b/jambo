@@ -1,0 +1,47 @@
+{
+  "seo": {
+    "titulo": "JAMBO — Açaí & Gelato · Cardápio (site demonstrativo)",
+    "descricao": "Cardápio da JAMBO — Açaí & Gelato, no Centro de Florianópolis: bowls de açaí, monte o seu, gelato, milkshakes e combos, com pedido pelo WhatsApp. Site demonstrativo de portfólio; marca fictícia."
+  },
+  "inicio": {
+    "titulo": "Seu verão, do seu jeito.",
+    "texto": "Açaí e gelato no Centro de Florianópolis. Escolha um bowl da casa ou monte o seu, e peça pelo WhatsApp.",
+    "botaoCardapio": "Ver o cardápio",
+    "botaoMontar": "Montar o meu"
+  },
+  "acai": {
+    "titulo": "Seu bowl, suas regras.",
+    "chamada": "Prefere do seu jeito? Escolha a base, o tamanho e os toppings.",
+    "botao": "Montar meu açaí"
+  },
+  "gelato": {
+    "titulo": "O clima pede JAMBO.",
+    "botao": "Montar meu copinho"
+  },
+  "monte": {
+    "titulo": "A felicidade vem com topping extra."
+  },
+  "milkshakes": {
+    "titulo": "POV: você disse que só ia tomar um sorvete."
+  },
+  "bebidas": {
+    "titulo": "Pra acompanhar."
+  },
+  "final": {
+    "titulo": "Seu verão começa aqui.",
+    "botao": "Pedir pelo WhatsApp"
+  },
+  "visite": {
+    "titulo": "Passa aqui depois da praia.",
+    "texto": "A loja fica na Rua Bocaiúva, no Centro de Florianópolis. Dá para montar o bowl no balcão, escolher o gelato na vitrine ou pedir para levar.",
+    "foto1": "/assets/img/ambiente-balcao.webp",
+    "foto1Descricao": "Balcão da loja com os copos roxos empilhados e a vitrine de gelatos.",
+    "foto1Legenda": "O balcão: os bowls são montados na hora, na sua frente, e a vitrine mostra os sabores de gelato.",
+    "foto2": "/assets/img/ambiente-sol.webp",
+    "foto2Descricao": "Mão segurando um copo de açaí roxo da JAMBO na calçada ensolarada.",
+    "foto2Legenda": "Para levar: o bowl vai com você até a Beira-Mar."
+  },
+  "pedido": {
+    "privacidade": "Seus dados vão só na mensagem do WhatsApp para a JAMBO. O site não guarda nada."
+  }
+}

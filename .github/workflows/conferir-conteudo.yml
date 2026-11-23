@@ -1,0 +1,26 @@
+# Confere o conteúdo a cada mudança (inclusive as salvas pelo Pages CMS).
+# Se houver problema: o GitHub marca a mudança com ❌ e manda e-mail para quem salvou;
+# o resumo da execução explica o que corrigir. O Cloudflare roda a mesma conferência
+# antes de publicar e não publica (o site continua com a versão anterior).
+name: Conferir conteúdo
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  conferir:
+    name: Conferir cardápio, loja e textos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Conferir o conteúdo do editor
+        run: npm run validar
+      - name: Montar o site (como o Cloudflare faz)
+        run: npx vite build

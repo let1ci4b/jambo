@@ -1,0 +1,8 @@
+{
+  "nome": "Leite em pó",
+  "tipo": "topping",
+  "ordem": 6,
+  "kcal": 75,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/leite-em-po.svg"
+}

@@ -94,31 +94,40 @@ Para ver a versão final, rode `npm run build` e depois `npm run preview` (http:
 
 ## O que muda e onde
 
-| O quê | Arquivo |
-|---|---|
-| Preços, nomes, descrições, calorias, "esgotado" | `content/cardapio.json` |
-| Horário, endereço, WhatsApp, frase, endereço do site | `content/loja.json` |
-| Texto e imagem do card de compartilhamento | `content/loja.json` e `public/assets/img/compartilhar.jpg` (1200 × 630) |
-| Cores e fontes | `src/estilo.css` (bloco `:root`) |
-| Fotos | `public/assets/img/` |
-| Ícones do site (favicon) | `public/favicon.ico`, `public/assets/logo/` e `public/site.webmanifest` |
-| Ingredientes (desenhos) | `public/assets/ingredientes/` |
-| Abertura | `public/assets/js/abertura.js` e `public/assets/video/hero/` |
-| Textos legais | `privacidade.html` e `acessibilidade.html` |
+| O quê | Arquivo | Pelo editor? |
+|---|---|---|
+| Bowls, gelato, milkshakes, combos e bebidas (nome, descrição, preço, calorias, foto, "esgotado") | `content/cardapio/*.json` | Sim |
+| Toppings e adicionais (um arquivo por ingrediente, com o desenho) | `content/ingredientes/*.json` + `public/assets/ingredientes/` | Sim |
+| Regras do "Monte seu Jambo" (toppings inclusos, preço do extra, tamanhos) | `content/cardapio/montador.json` | Sim |
+| Endereço, WhatsApp, Instagram, entrega, pagamento, horário, card de compartilhamento | `content/loja.json` | Sim |
+| Textos das seções, botões, busca do Google, fotos da seção Visite | `content/textos.json` | Sim |
+| Aviso "Imagem ilustrativa" | `content/loja.json` → `fotosIlustrativas` | Sim |
+| Imagem do card de compartilhamento | `public/assets/img/compartilhar.jpg` (1200 × 630) | Não |
+| Logo, cores e fontes | `public/assets/logo/` e `src/estilo.css` (bloco `:root`) | Não (de propósito) |
+| Abertura (vídeo) e vídeo do "Monte seu Jambo" | `public/assets/js/abertura.js`, `public/assets/video/` | Não (precisa gerar os quadros) |
+| Copos 3D dos combos | `public/assets/3d/` | Não (saem das partes de cada combo) |
+| Desenho das bases e do copo | `src/copo.js` | Não |
+| Textos legais e o crédito do rodapé | `privacidade.html`, `acessibilidade.html`, `index.html` | Não |
 
 ### Edição pelo Pages CMS
 
-O dono edita o cardápio e a loja em [app.pagescms.org](https://app.pagescms.org), configurado em `.pages.yml`. Pelo editor dá para:
+O dono edita em [app.pagescms.org](https://app.pagescms.org), configurado em `.pages.yml`. O menu do editor tem dois grupos:
 
-- mudar preço, nome, descrição, calorias e "esgotado hoje";
-- criar e apagar bowls, toppings, adicionais, sabores, milkshakes, combos e bebidas. O código do item novo é criado a partir do nome;
-- trocar fotos. No build, uma foto nova vira webp e é cortada na proporção do lugar (`vite.config.js` usa o sharp);
-- dar um desenho a um ingrediente novo. Pode enviar uma imagem própria ou escolher "como vai no copo" (pedaços, salpicado, calda, creme) e a cor. Sem imagem, o site desenha o adesivo e o ingrediente no copo;
-- criar um sabor de gelato com a cor da massa.
+- **Cardápio:** Açaí da casa · Ingredientes · Monte seu Jambo · Gelato · Milkshakes · Combos · Bebidas
+- **Loja:** Dados, horário e pagamento · Textos da página
 
-O que vem do editor passa por `src/normalizar.js` antes de ser usado: item sem nome ou sem preço é ignorado, e ingrediente que não existe em "Ingredientes que voam" também. Assim um erro de digitação não trava o site.
+As listas fecham mostrando o nome e o preço de cada item. Os "Ingredientes que voam" de cada bowl são escolhidos numa lista com o nome dos ingredientes. Ingrediente novo pode ter um desenho próprio ou, sem desenho, um estilo (pedaços, salpicado, calda, creme) e uma cor. O site desenha o adesivo e o ingrediente dentro do copo. Foto nova vira webp e é cortada na proporção do lugar (sharp, no build).
 
-**Atenção:** ao salvar, o Pages CMS apaga do JSON todo campo que não estiver no `.pages.yml`. Campo novo nos dados precisa entrar lá também.
+### Travas para o site não cair
+
+1. **No editor:** campos obrigatórios, tamanho máximo dos textos, preço mínimo e máximo, formato do WhatsApp, do Instagram e do horário, e número mínimo e máximo de itens.
+2. **Antes de publicar:** `npm run build` roda `ferramentas/validar.mjs`. Ele confere tudo de novo, incluindo foto que não existe, ingrediente apagado, nome repetido, horário trocado e arquivo corrompido. Se houver erro, o build para, o Cloudflare não publica e **o site continua no ar com a versão anterior**. A mensagem diz onde está o problema e como resolver.
+3. **Aviso:** a ação "Conferir conteúdo" (`.github/workflows/conferir-conteudo.yml`) roda a mesma conferência a cada mudança. Quando falha, o GitHub manda e-mail para quem salvou, e o resumo da execução mostra o que corrigir.
+4. **No navegador:** `src/normalizar.js` arruma o que vier fora do padrão, e cada parte da página liga separada (`seguro()` em `src/main.js`). Assim, um erro numa parte não derruba as outras.
+
+Rodar a conferência à mão: `npm run validar`.
+
+**Atenção:** ao salvar, o Pages CMS apaga do JSON todo campo que não estiver no `.pages.yml`. Campo novo nos dados precisa entrar no `.pages.yml` e no `validar.mjs`.
 
 ## Estrutura
 

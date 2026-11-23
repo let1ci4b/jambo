@@ -1,0 +1,8 @@
+{
+  "nome": "Gotas de chocolate",
+  "tipo": "topping",
+  "ordem": 9,
+  "kcal": 75,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/gotas-chocolate.svg"
+}

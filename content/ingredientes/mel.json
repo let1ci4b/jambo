@@ -1,0 +1,8 @@
+{
+  "nome": "Mel",
+  "tipo": "adicional",
+  "ordem": 14,
+  "kcal": 45,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/mel.svg"
+}

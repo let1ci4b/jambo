@@ -1,0 +1,8 @@
+{
+  "nome": "Paçoca",
+  "tipo": "topping",
+  "ordem": 7,
+  "kcal": 95,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/pacoca.svg"
+}

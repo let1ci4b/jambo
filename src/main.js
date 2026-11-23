@@ -8,14 +8,19 @@ import { iniciarCombos } from './combo.js';
 import { iniciarAcessibilidade } from './acessibilidade.js';
 
 const $ = (s, el = document) => el.querySelector(s);
+// Cada parte da página liga sozinha: se uma der erro, as outras continuam funcionando
+// (o cardápio, os preços e o pedido já estão no HTML, mesmo sem JS).
+function seguro(nome, fn) {
+  try { const r = fn(); if (r?.catch) r.catch(e => console.error(`[JAMBO] ${nome}:`, e)); }
+  catch (e) { console.error(`[JAMBO] ${nome}:`, e); }
+}
 const raiz = document.documentElement;
 const reduzido = raiz.classList.contains('reduzido');
 
 // menu de acessibilidade primeiro: é o padrão de todo site
-iniciarAcessibilidade();
-mov.abertura({ reduzido });
-
-mov.cabecalho();
+seguro('acessibilidade', iniciarAcessibilidade);
+seguro('abertura', () => mov.abertura({ reduzido }));
+seguro('cabeçalho', () => mov.cabecalho());
 
 // ---------- "Adicionar" em qualquer item ----------
 document.addEventListener('click', e => {
@@ -27,10 +32,10 @@ document.addEventListener('click', e => {
 document.addEventListener('click', e => { if (e.target.closest('[aria-disabled="true"]')) e.preventDefault(); });
 
 // ---------- montador ----------
-iniciarMontador({ reduzido });
-iniciarLista();
-ligarAtalhos();
-iniciarCombos();
+seguro('montador', () => iniciarMontador({ reduzido }));
+seguro('lista do montador', iniciarLista);
+seguro('atalhos', ligarAtalhos);
+seguro('combos', iniciarCombos);
 
 // ---------- menu do celular ----------
 const menu = $('#menu-celular'), abrirMenu = $('#abrir-menu');
@@ -60,14 +65,14 @@ if (!reduzido) {
 }
 
 // ---------- movimentos de seção (GSAP só onde precisa, sem atrasar a abertura) ----------
-mov.quadroFinal();
+seguro('quadro final', () => mov.quadroFinal());
 if (!reduzido) {
-  mov.videoRolagem();
-  mov.shakes();
+  seguro('vídeo', () => mov.videoRolagem());
+  seguro('shakes', () => mov.shakes());
   Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([{ gsap }, { ScrollTrigger }]) => {
     gsap.registerPlugin(ScrollTrigger);
-    mov.acai(gsap, ScrollTrigger);
-    mov.gelato(gsap);
-    mov.combos(gsap, ScrollTrigger);
-  });
+    seguro('açaí', () => mov.acai(gsap, ScrollTrigger));
+    seguro('gelato', () => mov.gelato(gsap));
+    seguro('combos 3D', () => mov.combos(gsap, ScrollTrigger));
+  }).catch(e => console.error('[JAMBO] animações:', e));
 }

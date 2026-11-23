@@ -55,6 +55,27 @@ export function adesivoGerado(estilo, hex) {
   return 'data:image/svg+xml,' + encodeURIComponent(svg.replace(/\s+/g, ' '));
 }
 
+// caminho de uma referência do editor ("content/ingredientes/kiwi.json") → código ("kiwi")
+export const idDoArquivo = p => String(p ?? '').split('/').pop().replace(/\.json$/i, '');
+
+/**
+ * Junta os arquivos do editor no formato que o site usa.
+ * @param partes { acai, montador, gelato, milkshakes, combos, bebidas, ingredientes: { 'kiwi': {...}, ... } }
+ */
+export function montarCardapio(partes) {
+  const ing = Object.entries(partes.ingredientes ?? {}).map(([id, d]) => ({ ...d, id }))
+    .sort((a, b) => (num(a.ordem, 999) - num(b.ordem, 999)) || String(a.nome).localeCompare(String(b.nome), 'pt'));
+  const tipo = t => slug(t) === 'adicional' ? 'adicional' : 'topping';
+  return {
+    acai: (partes.acai?.itens ?? []).map(b => ({ ...b, ingredientes: (b.ingredientes ?? []).map(idDoArquivo) })),
+    montador: { ...partes.montador, toppings: ing.filter(i => tipo(i.tipo) === 'topping'), adicionais: ing.filter(i => tipo(i.tipo) === 'adicional') },
+    gelato: partes.gelato ?? {},
+    milkshakes: partes.milkshakes ?? {},
+    combos: partes.combos ?? {},
+    bebidas: partes.bebidas?.itens ?? []
+  };
+}
+
 // lista de itens com nome: dá id a quem não tem e tira repetidos
 function lista(itens, { precisaPreco = false } = {}) {
   const vistos = new Set();
@@ -70,24 +91,23 @@ function lista(itens, { precisaPreco = false } = {}) {
 }
 
 /**
- * @param c         conteúdo de content/cardapio.json
- * @param prontos   { id: nome } dos desenhos que já existem em public/assets/ingredientes (lista.json)
+ * @param c         cardápio montado por montarCardapio()
  * @param sabores   ids dos sabores de gelato que já têm cor desenhada (copo.js → SABOR)
  */
-export function normalizar(c, prontos = {}, sabores = []) {
+export function normalizar(c, sabores = []) {
   const m = c.montador ?? {};
   const ingrediente = it => {
     const hex = hexDe(it.cor) ?? '#C68A4C';
     const estilo = ESTILOS.find(e => e === slug(it.estilo)) ?? 'pedacos';
-    const desenho = texto(it.desenho) || (it.id in prontos ? `/assets/ingredientes/${it.id}.svg` : adesivoGerado(estilo, hex));
-    return { ...it, kcal: num(it.kcal, 0), estilo, hex, desenho, pronto: it.id in prontos };
+    const desenho = texto(it.desenho) || adesivoGerado(estilo, hex);
+    return { ...it, kcal: num(it.kcal, 0), estilo, hex, desenho };
   };
   const toppings = lista(m.toppings).map(ingrediente);
   const adicionais = lista(m.adicionais).map(ingrediente);
   const todos = [...toppings, ...adicionais];
   const acharIngrediente = s => {
     const k = slug(s);
-    return todos.find(t => t.id === k || slug(t.nome) === k) ?? (k in prontos ? { id: k, desenho: `/assets/ingredientes/${k}.svg` } : null);
+    return todos.find(t => t.id === k || slug(t.nome) === k) ?? null;
   };
 
   const bases = lista(m.bases).map(b => ({ ...b, kcal: { 300: num(b.kcal?.['300'], 0), 500: num(b.kcal?.['500'], 0), 700: num(b.kcal?.['700'], 0) } }));
@@ -98,7 +118,7 @@ export function normalizar(c, prontos = {}, sabores = []) {
     descricao: texto(b.descricao),
     kcal: num(b.kcal, null),
     imagem: texto(b.imagem) || texto(arr.find(x => texto(x.imagem))?.imagem) || '',
-    adesivos: (Array.isArray(b.adesivos) ? b.adesivos : []).map(acharIngrediente).filter(Boolean)
+    adesivos: (Array.isArray(b.ingredientes) ? b.ingredientes : []).map(acharIngrediente).filter(Boolean)
       .filter((x, k, a) => a.findIndex(y => y.id === x.id) === k)
   }));
 

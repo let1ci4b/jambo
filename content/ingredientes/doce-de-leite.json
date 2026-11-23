@@ -1,0 +1,8 @@
+{
+  "nome": "Doce de leite",
+  "tipo": "adicional",
+  "ordem": 15,
+  "kcal": 60,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/doce-de-leite.svg"
+}

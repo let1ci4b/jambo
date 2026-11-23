@@ -6,7 +6,8 @@
   "description": "JAMBO — Açaí & Gelato · site demonstrativo do portfólio de Letícia Beatriz",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "validar": "node ferramentas/validar.mjs",
+    "build": "node ferramentas/validar.mjs && vite build",
     "preview": "vite preview --port 4173"
   },
   "dependencies": {

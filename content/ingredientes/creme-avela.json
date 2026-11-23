@@ -1,0 +1,8 @@
+{
+  "nome": "Creme de avelã",
+  "tipo": "adicional",
+  "ordem": 10,
+  "kcal": 110,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/creme-avela.svg"
+}

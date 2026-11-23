@@ -215,8 +215,10 @@ function desenharCentro(id) {
 // ---------- ingredientes novos (criados pelo editor, sem desenho próprio) ----------
 // Cada um tem um jeito (estilo) e uma cor escolhidos no editor; o desenho sai daqui.
 const NOVOS = {}; // id → { estilo, hex }
+// ingredientes que já têm desenho feito à mão dentro do copo (o resto é desenhado pela cor e pelo estilo)
+export const COPO_PRONTO = [...FAIXA, ...SALPICO, ...CALDA, ...CENTRO, ...PO];
 export function registrarIngredientes(itens) {
-  for (const it of itens) if (!it.pronto && !(it.id in PECA) && ![...CALDA, ...CENTRO, ...PO].includes(it.id)) NOVOS[it.id] = { estilo: it.estilo, hex: it.hex };
+  for (const it of itens) if (!COPO_PRONTO.includes(it.id)) NOVOS[it.id] = { estilo: it.estilo, hex: it.hex };
 }
 const escuro = (hex, q = .25) => { const n = parseInt(hex.slice(1), 16), c = k => Math.round(((n >> k) & 255) * (1 - q)); return '#' + [16, 8, 0].map(k => c(k).toString(16).padStart(2, '0')).join(''); };
 

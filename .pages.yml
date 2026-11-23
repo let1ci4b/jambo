@@ -1,195 +1,355 @@
-# Pages CMS (app.pagescms.org): edição do cardápio e da loja pelo dono.
-# Só conteúdo: nada de cor de marca, fonte ou layout (RF-16). Cada salvamento gera um build novo no Cloudflare Pages.
+# Editor do dono da JAMBO (Pages CMS: app.pagescms.org).
+# Só conteúdo. Logo, cores, fontes e layout ficam fora do editor de propósito.
 #
-# IMPORTANTE para quem mexer aqui: o Pages CMS APAGA, ao salvar, qualquer dado do JSON que não esteja
-# listado nesta configuração. Todo campo novo em content/*.json precisa entrar aqui também.
-# O site arruma o que vier do editor em src/normalizar.js (item novo ganha código, desenho, cor etc.).
+# Para quem mexer neste arquivo:
+# - O Pages CMS APAGA, ao salvar, todo dado do JSON que não esteja listado aqui. Campo novo nos dados = campo novo aqui.
+# - Tudo o que o editor salva passa por ferramentas/validar.mjs antes de publicar. Se houver problema, o build para
+#   (o site continua no ar com a versão anterior) e o GitHub avisa por e-mail com o que corrigir.
+# - Os limites daqui (obrigatório, tamanho máximo, mínimo e máximo) são a primeira trava, dentro do próprio editor.
+#   A validação é a segunda. Ao mudar um limite, mude nos dois lugares.
+# - Componente (component:) não leva o nome junto: cada uso precisa do seu "name".
+# - Rótulos e descrições com vírgula ou dois-pontos precisam de aspas.
+
 media:
-  input: public/assets/img
-  output: /assets/img
-  extensions: [webp, jpg, jpeg, png, svg]
+  - name: fotos
+    label: Fotos
+    input: public/assets/img
+    output: /assets/img
+    extensions: [webp, jpg, jpeg, png]
+  - name: desenhos
+    label: Desenhos dos ingredientes
+    input: public/assets/ingredientes
+    output: /assets/ingredientes
+    extensions: [svg, webp, png]
+
+components:
+  codigo:
+    label: Código interno
+    type: string
+    hidden: true
+  esgotado:
+    label: Esgotado hoje
+    description: "Marcado: o item aparece riscado e não dá para pedir. Desmarque quando voltar."
+    type: boolean
+    default: false
+  preco:
+    label: "Preço (R$)"
+    description: "Só o número, com ponto nos centavos. Ex.: 26.90"
+    type: number
+    required: true
+    options: { min: 0.01, max: 499, step: 0.01 }
+  descricaoFoto:
+    label: Descrição da foto
+    description: "Uma frase dizendo o que aparece na foto. É o que o leitor de tela lê para quem não enxerga."
+    type: string
+    required: true
+    options: { maxlength: 160 }
+  cor:
+    label: Cor do desenho
+    type: select
+    options:
+      values: [Vermelho, Rosa, Laranja, Amarelo, Creme, Branco, Verde-claro, Verde, Roxo, Azul, Bege, Marrom-claro, Marrom, Chocolate, Preto]
 
 content:
   - name: cardapio
     label: Cardápio
-    type: file
-    path: content/cardapio.json
-    format: json
-    fields:
+    type: group
+    items:
       - name: acai
         label: Açaí da casa
-        type: object
-        list: true
+        type: file
+        path: content/cardapio/acai.json
+        format: json
         fields:
-          - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
-          - { name: nome, label: "Nome", type: string, required: true }
-          - { name: descricao, label: "Descrição (o que vai no bowl)", type: text, required: true }
-          - { name: preco, label: "Preço (R$; use ponto, ex. 26.90)", type: number, required: true }
-          - { name: kcal, label: "Calorias aproximadas (500 ml)", type: number }
-          - { name: imagem, label: "Foto (de preferência em pé, 4 por 5; o site corta o excesso)", type: image }
-          - { name: alt, label: "Descrição da foto (deixe vazio se o nome e a descrição já dizem tudo)", type: string }
-          - { name: esgotado, label: "Esgotado hoje", type: boolean }
-          - { name: adesivos, label: "Ingredientes que voam (nome de um topping ou adicional, ex. Kiwi; os 2 primeiros aparecem no celular)", type: string, list: true }
+          - name: itens
+            label: Bowls
+            type: object
+            list: { min: 1, max: 12, collapsible: { collapsed: true, summary: "{nome} · R$ {preco}" } }
+            fields:
+              - { name: id, component: codigo }
+              - { name: nome, label: Nome, type: string, required: true, options: { maxlength: 28 } }
+              - { name: descricao, label: Descrição, description: "O que vai no bowl.", type: text, required: true, options: { maxlength: 160 } }
+              - { name: preco, component: preco }
+              - { name: kcal, label: "Calorias (500 ml)", description: "Aproximadas. Sem elas, o site não mostra a estimativa.", type: number, options: { min: 0, max: 3000 } }
+              - { name: imagem, label: Foto, description: "Em pé, proporção 4 por 5. O site corta o que sobrar e deixa a foto leve.", type: image, required: true, options: { media: fotos } }
+              - { name: alt, label: Descrição da foto, description: "Pode ficar vazia: o nome e a descrição do bowl já aparecem ao lado.", type: string, options: { maxlength: 160 } }
+              - { name: esgotado, component: esgotado }
+              - name: ingredientes
+                label: Ingredientes que voam
+                description: "Até 4. Aparecem voando sobre a foto do bowl; os 2 primeiros também no celular."
+                type: reference
+                options: { collection: ingredientes, multiple: true, max: 4, value: "{path}", label: "{nome}", search: "nome" }
+
+      - name: ingredientes
+        label: Ingredientes (toppings e adicionais)
+        type: collection
+        path: content/ingredientes
+        format: json
+        filename: "{primary}.json"
+        view:
+          fields: [nome, tipo, esgotado]
+          primary: nome
+          sort: [ordem, nome]
+          default: { sort: ordem, order: asc }
+        fields:
+          - { name: nome, label: Nome, type: string, required: true, options: { maxlength: 28 } }
+          - name: tipo
+            label: Tipo
+            description: "Topping: entra nos inclusos. Adicional: sempre cobrado à parte (e é o que vai no gelato)."
+            type: select
+            required: true
+            options:
+              values: [{ value: topping, label: Topping }, { value: adicional, label: Adicional }]
+          - { name: ordem, label: Ordem na bancada, description: "1 aparece primeiro.", type: number, options: { min: 1, max: 99, step: 1 } }
+          - { name: kcal, label: Calorias da porção, type: number, options: { min: 0, max: 1000 } }
+          - { name: esgotado, component: esgotado }
+          - { name: desenho, label: Desenho, description: "Quadrado, com fundo transparente (SVG ou PNG). Sem desenho, o site cria um com o estilo e a cor abaixo.", type: image, options: { media: desenhos } }
+          - name: estilo
+            label: Como aparece no copo
+            description: "Para ingrediente novo. Os originais já têm desenho próprio dentro do copo."
+            type: select
+            options:
+              values: [{ value: pedacos, label: "Pedaços (frutas, cubos)" }, { value: salpicado, label: "Salpicado (farofa, granulado)" }, { value: calda, label: Calda }, { value: creme, label: "Creme (colherada)" }]
+          - name: cor
+            component: cor
+            description: "Para ingrediente novo: cor dos pedaços dentro do copo e do desenho criado pelo site."
 
       - name: montador
-        label: Monte seu Jambo
-        type: object
+        label: Monte seu Jambo (regras e preços)
+        type: file
+        path: content/cardapio/montador.json
+        format: json
         fields:
-          - { name: toppingsGratis, label: "Toppings inclusos", type: number }
-          - { name: precoExtra, label: "Preço do topping extra e de cada adicional (R$)", type: number }
+          - { name: toppingsGratis, label: Toppings inclusos, type: number, required: true, options: { min: 0, max: 10, step: 1 } }
+          - { name: precoExtra, label: "Preço do topping extra e de cada adicional (R$)", type: number, required: true, options: { min: 0, max: 99, step: 0.01 } }
           - name: bases
-            label: Bases (não crie novas; só mude nome e calorias)
+            label: Bases
+            description: "As 3 bases são fixas (o copo tem a cor de cada uma). Dá para mudar o nome e as calorias."
             type: object
-            list: true
+            list: { min: 3, max: 3, collapsible: { collapsed: true, summary: "{nome}" } }
             fields:
-              - { name: id, label: "Código (não mude)", type: string, readonly: true }
-              - { name: nome, label: "Nome", type: string }
+              - { name: id, component: codigo }
+              - { name: nome, label: Nome, type: string, required: true, options: { maxlength: 28 } }
               - name: kcal
                 label: Calorias por tamanho
                 type: object
                 fields:
-                  - { name: "300", label: "300 ml", type: number }
-                  - { name: "500", label: "500 ml", type: number }
-                  - { name: "700", label: "700 ml", type: number }
+                  - { name: "300", label: 300 ml, type: number, options: { min: 0, max: 3000 } }
+                  - { name: "500", label: 500 ml, type: number, options: { min: 0, max: 3000 } }
+                  - { name: "700", label: 700 ml, type: number, options: { min: 0, max: 3000 } }
           - name: tamanhos
-            label: Tamanhos (não crie novos; só mude o preço)
+            label: Tamanhos
+            description: "300, 500 e 700 ml são fixos. Dá para mudar o preço."
             type: object
-            list: true
+            list: { min: 3, max: 3, collapsible: { collapsed: true, summary: "{ml} ml · R$ {preco}" } }
             fields:
-              - { name: ml, label: "ml", type: number, readonly: true }
-              - { name: preco, label: "Preço (R$)", type: number }
-          - name: toppings
-            label: Toppings
-            type: object
-            list: true
-            fields: &ingrediente
-              - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
-              - { name: nome, label: "Nome", type: string, required: true }
-              - { name: kcal, label: "Calorias da porção", type: number }
-              - { name: esgotado, label: "Esgotado hoje", type: boolean }
-              - name: estilo
-                label: Como vai no copo (só para ingrediente novo)
-                type: select
-                options:
-                  values: [Pedaços, Salpicado, Calda, Creme]
-              - name: cor
-                label: Cor do desenho (só para ingrediente novo)
-                type: select
-                options:
-                  values: [Vermelho, Rosa, Laranja, Amarelo, Creme, Branco, Verde-claro, Verde, Roxo, Azul, Bege, Marrom-claro, Marrom, Chocolate, Preto]
-              - { name: desenho, label: "Desenho próprio (opcional; quadrado, fundo transparente; sem ele o site desenha pela cor)", type: image }
-          - { name: adicionais, label: "Adicionais", type: object, list: true, fields: *ingrediente }
+              - { name: ml, label: ml, type: number, readonly: true }
+              - { name: preco, component: preco }
 
       - name: gelato
         label: Gelato
-        type: object
+        type: file
+        path: content/cardapio/gelato.json
+        format: json
         fields:
-          - { name: imagem, label: "Foto (deitada e larga, 21 por 9; o site corta o excesso)", type: image }
-          - { name: alt, label: "Descrição da foto", type: string, required: true }
-          - { name: doisSabores, label: "Copinho 2 sabores (R$)", type: number }
-          - { name: tresSabores, label: "Copinho 3 sabores (R$)", type: number }
-          - { name: nota, label: "Observação (tamanho da bola etc.)", type: string }
+          - { name: imagem, label: Foto, description: "Deitada e bem larga (21 por 9). O site corta o que sobrar.", type: image, required: true, options: { media: fotos } }
+          - { name: alt, component: descricaoFoto }
+          - { name: doisSabores, label: "Copinho de 2 sabores (R$)", type: number, required: true, options: { min: 0.01, max: 499, step: 0.01 } }
+          - { name: tresSabores, label: "Copinho de 3 sabores (R$)", type: number, required: true, options: { min: 0.01, max: 499, step: 0.01 } }
+          - { name: nota, label: Observação, description: "Ex.: tamanho da bola.", type: string, options: { maxlength: 120 } }
           - name: sabores
             label: Sabores
             type: object
-            list: true
+            list: { min: 1, max: 12, collapsible: { collapsed: true, summary: "{nome} · R$ {preco}" } }
             fields:
-              - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
-              - { name: nome, label: "Nome", type: string, required: true }
-              - { name: preco, label: "Preço de 1 sabor (R$)", type: number, required: true }
-              - { name: kcal, label: "Calorias da bola", type: number }
-              - { name: esgotado, label: "Esgotado hoje", type: boolean }
-              - { name: cor, label: "Desenho pronto (não mude)", type: string, readonly: true }
-              - name: corMassa
-                label: Cor da massa (só para sabor novo)
-                type: select
-                options:
-                  values: [Vermelho, Rosa, Laranja, Amarelo, Creme, Branco, Verde-claro, Verde, Roxo, Azul, Bege, Marrom-claro, Marrom, Chocolate, Preto]
+              - { name: id, component: codigo }
+              - { name: nome, label: Nome, type: string, required: true, options: { maxlength: 24 } }
+              - { name: preco, component: preco, label: "Preço de 1 sabor (R$)" }
+              - { name: kcal, label: Calorias da bola, type: number, options: { min: 0, max: 1000 } }
+              - { name: esgotado, component: esgotado }
+              - { name: cor, label: Desenho pronto, type: string, hidden: true }
+              - { name: corMassa, component: cor, label: Cor da massa, description: "Para sabor novo. Os originais já têm cor própria." }
 
       - name: milkshakes
         label: Milkshakes
-        type: object
+        type: file
+        path: content/cardapio/milkshakes.json
+        format: json
         fields:
-          - { name: imagem, label: "Foto (em pé, 4 por 5)", type: image }
-          - { name: alt, label: "Descrição da foto", type: string, required: true }
-          - { name: tamanho, label: "Tamanho do copo (ex. 400 ml)", type: string }
+          - { name: imagem, label: Foto, description: "Em pé, proporção 4 por 5.", type: image, required: true, options: { media: fotos } }
+          - { name: alt, component: descricaoFoto }
+          - { name: tamanho, label: Tamanho do copo, description: "Ex.: 400 ml", type: string, required: true, options: { maxlength: 20 } }
           - name: itens
             label: Milkshakes
             type: object
-            list: true
-            fields: &produto
-              - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
-              - { name: nome, label: "Nome", type: string, required: true }
-              - { name: descricao, label: "Descrição", type: text }
-              - { name: preco, label: "Preço (R$)", type: number, required: true }
-              - { name: esgotado, label: "Esgotado hoje", type: boolean }
+            list: { min: 1, max: 12, collapsible: { collapsed: true, summary: "{nome} · R$ {preco}" } }
+            fields:
+              - { name: id, component: codigo }
+              - { name: nome, label: Nome, type: string, required: true, options: { maxlength: 28 } }
+              - { name: descricao, label: Descrição, type: text, required: true, options: { maxlength: 140 } }
+              - { name: preco, component: preco }
+              - { name: esgotado, component: esgotado }
 
       - name: combos
         label: Combos
-        type: object
+        type: file
+        path: content/cardapio/combos.json
+        format: json
         fields:
-          - { name: imagem, label: "Foto (quase quadrada, 5 por 4)", type: image }
-          - { name: alt, label: "Descrição da foto", type: string, required: true }
-          - { name: regra, label: "Regra que aparece ao montar o combo", type: text }
+          - { name: imagem, label: Foto, description: "Quase quadrada (5 por 4).", type: image, required: true, options: { media: fotos } }
+          - { name: alt, component: descricaoFoto }
+          - { name: regra, label: Regra, description: "Aparece embaixo dos combos e na hora de montar.", type: text, options: { maxlength: 200 } }
           - name: itens
             label: Combos
             type: object
-            list: true
+            list: { min: 1, max: 6, collapsible: { collapsed: true, summary: "{nome} · R$ {preco}" } }
             fields:
-              - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
-              - { name: nome, label: "Nome", type: string, required: true }
-              - { name: descricao, label: "Descrição", type: text }
-              - { name: preco, label: "Preço (R$)", type: number, required: true }
-              - { name: esgotado, label: "Esgotado hoje", type: boolean }
+              - { name: id, component: codigo }
+              - { name: nome, label: Nome, type: string, required: true, options: { maxlength: 24 } }
+              - { name: descricao, label: Descrição, description: "O que vem no combo.", type: text, required: true, options: { maxlength: 160 } }
+              - { name: preco, component: preco }
+              - { name: esgotado, component: esgotado }
               - name: partes
-                label: O que o cliente escolhe (sem nada aqui, o combo vai direto para o pedido)
+                label: O que o cliente escolhe
+                description: "Até 3 partes. Elas também decidem os copos 3D do combo. Sem nenhuma, o combo vai direto para o pedido."
                 type: object
-                list: true
+                list: { max: 3, collapsible: { collapsed: false, summary: "{tipo} {ml} {tamanho}" } }
                 fields:
                   - name: tipo
                     label: Tipo
                     type: select
+                    required: true
                     options:
-                      values: [acai, bebida, milkshake]
-                  - { name: ml, label: "Tamanho do açaí em ml (só para açaí)", type: number }
-                  - { name: tamanho, label: "Tamanho do milkshake (só para milkshake, ex. 300 ml)", type: string }
+                      values: [{ value: acai, label: Açaí }, { value: bebida, label: Bebida }, { value: milkshake, label: Milkshake }]
+                  - { name: ml, label: "Tamanho do açaí em ml (só para açaí)", description: "300, 500 ou 700", type: number, options: { min: 300, max: 700, step: 200 } }
+                  - { name: tamanho, label: "Tamanho do milkshake (só para milkshake)", description: "Ex.: 300 ml", type: string, options: { maxlength: 20 } }
 
       - name: bebidas
         label: Bebidas
-        type: object
-        list: true
+        type: file
+        path: content/cardapio/bebidas.json
+        format: json
         fields:
-          - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
-          - { name: nome, label: "Nome", type: string, required: true }
-          - { name: preco, label: "Preço (R$)", type: number, required: true }
-          - { name: esgotado, label: "Esgotado hoje", type: boolean }
+          - name: itens
+            label: Bebidas
+            type: object
+            list: { min: 1, max: 20, collapsible: { collapsed: true, summary: "{nome} · R$ {preco}" } }
+            fields:
+              - { name: id, component: codigo }
+              - { name: nome, label: Nome, type: string, required: true, options: { maxlength: 32 } }
+              - { name: preco, component: preco }
+              - { name: esgotado, component: esgotado }
 
   - name: loja
     label: Loja
-    type: file
-    path: content/loja.json
-    format: json
-    fields:
-      - { name: nome, label: "Nome da loja", type: string }
-      - { name: frase, label: "Frase de destaque", type: string }
-      - { name: endereco, label: "Endereço completo", type: string }
-      - { name: rua, label: "Rua e número", type: string }
-      - { name: bairro, label: "Bairro", type: string }
-      - { name: cidade, label: "Cidade", type: string }
-      - { name: uf, label: "UF", type: string }
-      - { name: whatsapp, label: "WhatsApp dos pedidos (só números, com 55 e DDD)", type: string }
-      - { name: whatsappTexto, label: "WhatsApp como aparece no site", type: string }
-      - { name: instagram, label: "Instagram", type: string }
-      - { name: entrega, label: "Bairros e taxa de entrega", type: text }
-      - name: horario
-        label: Horário (domingo primeiro)
-        type: object
-        list: true
+    type: group
+    items:
+      - name: dados
+        label: Dados, horário e pagamento
+        type: file
+        path: content/loja.json
+        format: json
         fields:
-          - { name: dia, label: "Dia", type: string, readonly: true }
-          - { name: abre, label: "Abre (hh:mm)", type: string }
-          - { name: fecha, label: "Fecha (hh:mm)", type: string }
-      - { name: compartilharTexto, label: "Texto do card de compartilhamento (WhatsApp, Instagram)", type: text }
-      - { name: compartilharAlt, label: "Descrição da imagem do card de compartilhamento", type: string }
-      - { name: site, label: "Endereço do site (não mude)", type: string, readonly: true }
-      - { name: whatsappLeticia, label: WhatsApp do botão "Quero um site assim" (não mude), type: string, readonly: true }
+          - { name: nome, label: Nome da loja, type: string, required: true, options: { maxlength: 60 } }
+          - { name: endereco, label: Endereço completo, description: "Como aparece no site e no mapa. Ex.: Rua Bocaiúva, 1842 — Centro, Florianópolis/SC", type: string, required: true, options: { maxlength: 120 } }
+          - { name: rua, label: Rua e número, type: string, required: true, options: { maxlength: 80 } }
+          - { name: bairro, label: Bairro, type: string, required: true, options: { maxlength: 60 } }
+          - { name: cidade, label: Cidade, type: string, required: true, options: { maxlength: 60 } }
+          - { name: uf, label: UF, type: string, required: true, pattern: { regex: "^[A-Z]{2}$", message: "Use a sigla com 2 letras maiúsculas. Ex.: SC" } }
+          - { name: whatsapp, label: WhatsApp dos pedidos, description: "Só números, com 55 e o DDD. Ex.: 5548999990000", type: string, required: true, pattern: { regex: "^55[0-9]{10,11}$", message: "Só números, começando com 55 e o DDD. Ex.: 5548999990000" } }
+          - { name: whatsappTexto, label: WhatsApp como aparece no site, description: "Ex.: (48) 99999-0000", type: string, required: true, options: { maxlength: 24 } }
+          - { name: instagram, label: Instagram, description: "Com @. Ex.: @jambo.gelato", type: string, required: true, pattern: { regex: "^@[A-Za-z0-9._]{1,30}$", message: "Use o @ e o nome do perfil, sem espaço. Ex.: @jambo.gelato" } }
+          - { name: entrega, label: Entrega, description: "Bairros atendidos e taxa.", type: text, required: true, options: { maxlength: 200 } }
+          - name: pagamentos
+            label: Formas de pagamento
+            description: "Aparecem no pedido, nesta ordem. A primeira já vem marcada."
+            type: string
+            list: { min: 1, max: 6 }
+            options: { maxlength: 30 }
+          - name: horario
+            label: Horário
+            description: "Os 7 dias, de domingo a sábado. Fecha à meia-noite? Use 00:00."
+            type: object
+            list: { min: 7, max: 7, collapsible: { collapsed: true, summary: "{dia}: {abre}–{fecha}" } }
+            fields:
+              - { name: dia, label: Dia, type: string, readonly: true }
+              - { name: fechado, label: Fechado neste dia, type: boolean, default: false }
+              - { name: abre, label: Abre, description: "Ex.: 13:00", type: string, pattern: { regex: "^([01][0-9]|2[0-3]):[0-5][0-9]$", message: "Use o formato 13:00" } }
+              - { name: fecha, label: Fecha, description: "Ex.: 22:00", type: string, pattern: { regex: "^([01][0-9]|2[0-3]):[0-5][0-9]$", message: "Use o formato 22:00" } }
+          - { name: fotosIlustrativas, label: "Mostrar o aviso \"Imagem ilustrativa\"", description: "Desmarque quando todas as fotos forem da loja de verdade.", type: boolean, default: true }
+          - { name: compartilharTexto, label: Texto do card de compartilhamento, description: "Aparece quando o link é mandado no WhatsApp ou nas redes.", type: text, required: true, options: { maxlength: 200 } }
+          - { name: compartilharAlt, label: Descrição da imagem do card, type: string, required: true, options: { maxlength: 200 } }
+          - { name: site, label: Endereço do site, type: string, readonly: true }
+          - { name: whatsappLeticia, label: "WhatsApp do botão \"Quero um site assim\"", type: string, hidden: true }
+
+      - name: textos
+        label: Textos da página
+        type: file
+        path: content/textos.json
+        format: json
+        fields:
+          - name: seo
+            label: Busca do Google
+            type: object
+            fields:
+              - { name: titulo, label: Título na busca, type: string, required: true, options: { maxlength: 70 } }
+              - { name: descricao, label: Descrição na busca, type: text, required: true, options: { maxlength: 200 } }
+          - name: inicio
+            label: Abertura
+            type: object
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 40 } }
+              - { name: texto, label: Texto, type: text, required: true, options: { maxlength: 180 } }
+              - { name: botaoCardapio, label: Botão do cardápio, type: string, required: true, options: { maxlength: 24 } }
+              - { name: botaoMontar, label: Botão de montar, type: string, required: true, options: { maxlength: 24 } }
+          - name: acai
+            label: Açaí
+            type: object
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 50 } }
+              - { name: chamada, label: Chamada para montar, type: text, required: true, options: { maxlength: 120 } }
+              - { name: botao, label: Botão, type: string, required: true, options: { maxlength: 24 } }
+          - name: gelato
+            label: Gelato
+            type: object
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 40 } }
+              - { name: botao, label: Botão, type: string, required: true, options: { maxlength: 24 } }
+          - name: monte
+            label: Monte seu Jambo
+            type: object
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 60 } }
+          - name: milkshakes
+            label: Milkshakes
+            type: object
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 70 } }
+          - name: bebidas
+            label: Bebidas
+            type: object
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 40 } }
+          - name: final
+            label: Fim da página
+            type: object
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 40 } }
+              - { name: botao, label: Botão, type: string, required: true, options: { maxlength: 24 } }
+          - name: visite
+            label: Visite
+            type: object
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 50 } }
+              - { name: texto, label: Texto, description: "Se o endereço mudar, confira este texto.", type: text, required: true, options: { maxlength: 240 } }
+              - { name: foto1, label: Foto 1, description: "Deitada (3 por 2).", type: image, options: { media: fotos } }
+              - { name: foto1Descricao, label: Descrição da foto 1, type: string, options: { maxlength: 160 } }
+              - { name: foto1Legenda, label: Legenda da foto 1, type: string, options: { maxlength: 140 } }
+              - { name: foto2, label: Foto 2, description: "Deitada (3 por 2).", type: image, options: { media: fotos } }
+              - { name: foto2Descricao, label: Descrição da foto 2, type: string, options: { maxlength: 160 } }
+              - { name: foto2Legenda, label: Legenda da foto 2, type: string, options: { maxlength: 140 } }
+          - name: pedido
+            label: Pedido
+            type: object
+            fields:
+              - { name: privacidade, label: Aviso de privacidade, type: text, required: true, options: { maxlength: 160 } }

@@ -1,0 +1,47 @@
+{
+  "toppingsGratis": 3,
+  "precoExtra": 3,
+  "bases": [
+    {
+      "id": "tradicional",
+      "nome": "Tradicional",
+      "kcal": {
+        "300": 265,
+        "500": 440,
+        "700": 615
+      }
+    },
+    {
+      "id": "zero",
+      "nome": "Zero açúcar",
+      "kcal": {
+        "300": 140,
+        "500": 230,
+        "700": 325
+      }
+    },
+    {
+      "id": "cupuacu",
+      "nome": "Açaí + cupuaçu",
+      "kcal": {
+        "300": 245,
+        "500": 405,
+        "700": 570
+      }
+    }
+  ],
+  "tamanhos": [
+    {
+      "ml": 300,
+      "preco": 18.9
+    },
+    {
+      "ml": 500,
+      "preco": 24.9
+    },
+    {
+      "ml": 700,
+      "preco": 31.9
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "nome": "Pasta de amendoim",
+  "tipo": "adicional",
+  "ordem": 11,
+  "kcal": 90,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/pasta-amendoim.svg"
+}

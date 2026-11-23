@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JAMBO — Açaí &amp; Gelato · Cardápio (site demonstrativo)</title>
-<meta name="description" content="Cardápio da JAMBO — Açaí &amp; Gelato, no Centro de Florianópolis: bowls de açaí, monte o seu, gelato, milkshakes e combos, com pedido pelo WhatsApp. Site demonstrativo de portfólio; marca fictícia.">
+<title><!--@T:seo.titulo--></title>
+<meta name="description" content="<!--@T:seo.descricao-->">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#40204F">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -72,14 +72,14 @@
     <video class="hero-video" muted playsinline preload="none" width="1280" height="720"></video>
   </div>
   <div class="hero-texto">
-    <h1 class="marca-frase" id="abertura-t">Seu verão, do seu jeito.</h1>
-    <p class="hero-sub">Açaí e gelato no Centro de Florianópolis. Escolha um bowl da casa ou monte o seu, e peça pelo WhatsApp.</p>
+    <h1 class="marca-frase" id="abertura-t"><!--@T:inicio.titulo--></h1>
+    <p class="hero-sub"><!--@T:inicio.texto--></p>
     <div class="hero-acoes">
-      <a class="btn btn--claro" href="#acai">Ver o cardápio</a>
-      <a class="btn btn--contorno-claro ir-montar" href="#montador" data-produto="acai">Montar o meu</a>
+      <a class="btn btn--claro" href="#acai"><!--@T:inicio.botaoCardapio--></a>
+      <a class="btn btn--contorno-claro ir-montar" href="#montador" data-produto="acai"><!--@T:inicio.botaoMontar--></a>
     </div>
   </div>
-  <p class="pilula-ilustrativa hero-aviso">Imagem ilustrativa</p>
+  <p class="pilula-ilustrativa hero-aviso" data-ilustrativa>Imagem ilustrativa</p>
 </section>
 <button class="btn btn--contorno pular-abertura" id="pular" type="button" hidden>Pular</button>
 
@@ -87,35 +87,35 @@
 <section class="acai" id="acai" aria-labelledby="acai-t">
   <div class="cabeca">
     <p class="sobre">01 · Açaí</p>
-    <h2 id="acai-t" tabindex="-1">Seu bowl, suas regras.</h2>
+    <h2 id="acai-t" tabindex="-1"><!--@T:acai.titulo--></h2>
   </div>
   <div class="acai-grade">
     <div class="palco-foto" aria-hidden="true">
       <div class="moldura"><div class="fotos" id="fotos"></div></div>
       <div class="adesivos" id="adesivos"></div>
-      <p class="legenda ilustrativa">Imagem ilustrativa</p>
+      <p class="legenda ilustrativa" data-ilustrativa>Imagem ilustrativa</p>
     </div>
     <ol class="lista-bowls" id="lista-bowls">
 <!--@ACAI-->
     </ol>
   </div>
   <div class="produto-pe">
-    <p>Prefere do seu jeito? Escolha a base, o tamanho e os toppings.</p>
-    <a class="btn ir-montar" href="#montador" data-produto="acai">Montar meu açaí</a>
+    <p><!--@T:acai.chamada--></p>
+    <a class="btn ir-montar" href="#montador" data-produto="acai"><!--@T:acai.botao--></a>
   </div>
 </section>
 
 <!-- 3.2 Gelato (cardápio de sabores) -->
 <section class="gelato" id="gelato" aria-labelledby="gelato-t">
-  <figure class="faixa-foto"><!--@GELATO_IMG--><figcaption class="pilula-ilustrativa">Imagem ilustrativa</figcaption></figure>
+  <figure class="faixa-foto"><!--@GELATO_IMG--><figcaption class="pilula-ilustrativa" data-ilustrativa>Imagem ilustrativa</figcaption></figure>
   <div class="cabeca">
     <p class="sobre">02 · Gelato</p>
-    <h2 id="gelato-t"><span class="so-leitor">O clima pede JAMBO.</span><span aria-hidden="true"><!--@GELATO_H2--></span></h2>
+    <h2 id="gelato-t"><span class="so-leitor"><!--@T:gelato.titulo--></span><span aria-hidden="true"><!--@GELATO_H2--></span></h2>
   </div>
   <ul class="sabores"><!--@GELATO_LISTA--></ul>
   <div class="gelato-pe">
     <p class="faixa-preco"><!--@GELATO_FAIXA--></p>
-    <a class="btn ir-montar" href="#montador" data-produto="gelato">Montar meu copinho</a>
+    <a class="btn ir-montar" href="#montador" data-produto="gelato"><!--@T:gelato.botao--></a>
   </div>
 </section>
 
@@ -125,11 +125,11 @@
     <div class="video-palco">
       <div class="video-texto">
         <p class="sobre">03 · Monte seu Jambo</p>
-        <h2 id="monte-t">A felicidade vem com topping extra.</h2>
+        <h2 id="monte-t"><!--@T:monte.titulo--></h2>
         <ol class="etapas">
           <li class="ativa">Açaí</li><li>Frutas</li><li>Granola</li><li>Sua vez</li>
         </ol>
-        <p class="legenda"><span class="so-video">Role para montar · </span>Imagem ilustrativa</p>
+        <p class="legenda"><span class="so-video">Role para montar<span data-ilustrativa> · </span></span><span data-ilustrativa>Imagem ilustrativa</span></p>
       </div>
       <div class="video-quadro">
         <canvas id="video-canvas" aria-hidden="true"></canvas>
@@ -209,10 +209,10 @@
 
 <!-- 3.4 Milkshakes -->
 <section class="shakes" id="shakes" aria-labelledby="shakes-t">
-  <figure class="shakes-foto"><!--@SHAKES_IMG--><figcaption class="legenda">Imagem ilustrativa</figcaption></figure>
+  <figure class="shakes-foto"><!--@SHAKES_IMG--><figcaption class="legenda" data-ilustrativa>Imagem ilustrativa</figcaption></figure>
   <div class="shakes-texto">
     <p class="sobre">04 · Milkshakes</p>
-    <h2 id="shakes-t">POV: você disse que só ia tomar um sorvete.</h2>
+    <h2 id="shakes-t"><!--@T:milkshakes.titulo--></h2>
     <ul class="lista-shakes"><!--@SHAKES--></ul>
   </div>
 </section>
@@ -231,20 +231,20 @@
       <div class="regua" aria-hidden="true"><!--@COMBOS_REGUA--></div>
     </div>
   </div>
-  <figure class="combos-foto"><!--@COMBOS_IMG--><figcaption class="legenda">Imagem ilustrativa</figcaption></figure>
+  <figure class="combos-foto"><!--@COMBOS_IMG--><figcaption class="legenda" data-ilustrativa>Imagem ilustrativa</figcaption></figure>
 </section>
 
 <!-- 3.6 Bebidas -->
 <section class="bebidas" id="bebidas" aria-labelledby="bebidas-t">
   <p class="sobre">06 · Bebidas</p>
-  <h2 id="bebidas-t">Pra acompanhar.</h2>
+  <h2 id="bebidas-t"><!--@T:bebidas.titulo--></h2>
   <ul class="lista-bebidas"><!--@BEBIDAS--></ul>
 </section>
 
 <!-- 3.7 Final -->
 <section class="final" id="final" aria-labelledby="final-t">
-  <h2 id="final-t" class="gigante">Seu verão começa aqui.</h2>
-  <button class="btn btn--grande abre-carrinho" type="button"><!--@ICO_WHATS-->Pedir pelo WhatsApp</button>
+  <h2 id="final-t" class="gigante"><!--@T:final.titulo--></h2>
+  <button class="btn btn--grande abre-carrinho" type="button"><!--@ICO_WHATS--><!--@T:final.botao--></button>
   <canvas class="onda-final" id="onda-final" aria-hidden="true"></canvas>
 </section>
 </main>
@@ -253,13 +253,12 @@
 <footer class="rodape" id="visite" aria-labelledby="visite-t">
   <div class="visite-cabeca">
     <p class="sobre">07 · Visite</p>
-    <h2 id="visite-t">Passa aqui depois da praia.</h2>
-    <p class="visite-intro">A loja fica na Rua Bocaiúva, no Centro de Florianópolis. Dá para montar o bowl no balcão, escolher o gelato na vitrine ou pedir para levar.</p>
+    <h2 id="visite-t"><!--@T:visite.titulo--></h2>
+    <p class="visite-intro"><!--@T:visite.texto--></p>
   </div>
   <div class="ambiente">
-    <figure><img src="/assets/img/ambiente-balcao-800.webp" srcset="/assets/img/ambiente-balcao-800.webp 800w, /assets/img/ambiente-balcao.webp 1264w" sizes="(min-width: 768px) 50vw, 100vw" alt="Balcão da loja com os copos roxos empilhados e a vitrine de gelatos." width="1264" height="848" loading="lazy" decoding="async"><figcaption>O balcão: os bowls são montados na hora, na sua frente, e a vitrine mostra os 8 sabores de gelato.</figcaption></figure>
-    <figure><img src="/assets/img/ambiente-sol-800.webp" srcset="/assets/img/ambiente-sol-800.webp 800w, /assets/img/ambiente-sol.webp 1264w" sizes="(min-width: 768px) 50vw, 100vw" alt="Mão segurando um copo de açaí roxo da JAMBO na calçada ensolarada." width="1264" height="848" loading="lazy" decoding="async"><figcaption>Para levar: o bowl vai com você até a Beira-Mar.</figcaption></figure>
-    <p class="legenda">Imagens ilustrativas · lugar fictício</p>
+    <!--@VISITE_FOTOS-->
+    <!--@ILUSTRATIVAS_LUGAR-->
   </div>
   <div class="colunas" id="info">
     <div><h3>Horário</h3><ul class="horario" id="horario"><!--@HORARIO--></ul></div>
@@ -270,7 +269,7 @@
     </div>
     <div><h3>Pedidos</h3>
       <p><a class="link" href="<!--@WHATS-->" target="_blank" rel="noopener">WhatsApp <!--@WHATS_TEXTO--><span class="so-leitor"> (abre em nova aba)</span></a></p>
-      <p><a class="link" href="#">Instagram <!--@INSTAGRAM--></a></p>
+      <p><a class="link" href="<!--@INSTAGRAM_URL-->" target="_blank" rel="noopener">Instagram <!--@INSTAGRAM--><span class="so-leitor"> (abre em nova aba)</span></a></p>
       <p class="legenda-rodape">Entrega: <!--@ENTREGA--></p>
     </div>
     <div><h3>Cardápio no celular</h3><!--@QR--><p class="legenda-rodape">Aponte a câmera para abrir o cardápio</p></div>
@@ -302,12 +301,10 @@
     </fieldset>
     <div class="campo" id="campo-endereco"><label for="f-endereco">Endereço</label><input type="text" id="f-endereco" name="endereco" autocomplete="address-line1" aria-describedby="e-endereco"><p class="erro" id="e-endereco" hidden>Escreva o endereço com número para a entrega.</p></div>
     <fieldset class="campo"><legend>Pagamento</legend>
-      <label class="caixa"><input type="radio" name="pagamento" value="Pix" checked><span>Pix</span></label>
-      <label class="caixa"><input type="radio" name="pagamento" value="Cartão na entrega"><span>Cartão na entrega</span></label>
-      <label class="caixa"><input type="radio" name="pagamento" value="Dinheiro"><span>Dinheiro</span></label>
+      <!--@PAGAMENTOS-->
     </fieldset>
     <div class="campo"><label for="f-obs">Observações</label><textarea id="f-obs" name="obs" rows="2"></textarea></div>
-    <p class="legenda privacidade-aviso">Seus dados vão só na mensagem do WhatsApp para a JAMBO. O site não guarda nada.</p>
+    <p class="legenda privacidade-aviso"><!--@T:pedido.privacidade--></p>
     <button class="btn btn--claro btn--grande" type="submit"><!--@ICO_WHATS-->Pedir pelo WhatsApp</button>
   </form>
 </dialog>

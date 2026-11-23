@@ -1,0 +1,73 @@
+{
+  "imagem": "/assets/img/gelatos-montagem-21x9.webp",
+  "alt": "Quatro copinhos roxos da JAMBO com gelato de pistache, ninho com morango, chocolate e doce de leite.",
+  "doisSabores": 16.9,
+  "tresSabores": 21.9,
+  "nota": "Bola de cerca de 80 g. Adicionais no gelato: R$ 3,00 cada.",
+  "sabores": [
+    {
+      "id": "pistache",
+      "nome": "Pistache",
+      "preco": 12.9,
+      "kcal": 190,
+      "esgotado": false,
+      "cor": "pistache"
+    },
+    {
+      "id": "ninho-morango",
+      "nome": "Ninho & Morango",
+      "preco": 11.9,
+      "kcal": 175,
+      "esgotado": false,
+      "cor": "ninho-morango"
+    },
+    {
+      "id": "chocolate-belga",
+      "nome": "Chocolate Belga",
+      "preco": 11.9,
+      "kcal": 200,
+      "esgotado": false,
+      "cor": "chocolate-belga"
+    },
+    {
+      "id": "doce-de-leite",
+      "nome": "Doce de Leite",
+      "preco": 10.9,
+      "kcal": 185,
+      "esgotado": false,
+      "cor": "doce-de-leite"
+    },
+    {
+      "id": "maracuja",
+      "nome": "Maracujá",
+      "preco": 10.9,
+      "kcal": 120,
+      "esgotado": false,
+      "cor": "maracuja"
+    },
+    {
+      "id": "cookies-cream",
+      "nome": "Cookies & Cream",
+      "preco": 11.9,
+      "kcal": 190,
+      "esgotado": false,
+      "cor": "cookies-cream"
+    },
+    {
+      "id": "fior-di-latte",
+      "nome": "Fior di Latte",
+      "preco": 10.9,
+      "kcal": 160,
+      "esgotado": false,
+      "cor": "fior-di-latte"
+    },
+    {
+      "id": "limao-siciliano",
+      "nome": "Limão Siciliano",
+      "preco": 10.9,
+      "kcal": 110,
+      "esgotado": false,
+      "cor": "limao-siciliano"
+    }
+  ]
+}

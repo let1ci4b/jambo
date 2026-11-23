@@ -1,0 +1,8 @@
+{
+  "nome": "Pistache",
+  "tipo": "adicional",
+  "ordem": 13,
+  "kcal": 85,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/pistache.svg"
+}

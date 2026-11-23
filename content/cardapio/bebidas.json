@@ -1,0 +1,40 @@
+{
+  "itens": [
+    {
+      "id": "agua",
+      "nome": "Água",
+      "preco": 4,
+      "esgotado": false
+    },
+    {
+      "id": "agua-gas",
+      "nome": "Água com gás",
+      "preco": 5,
+      "esgotado": false
+    },
+    {
+      "id": "coca",
+      "nome": "Coca-Cola / Coca Zero",
+      "preco": 6,
+      "esgotado": false
+    },
+    {
+      "id": "guarana",
+      "nome": "Guaraná",
+      "preco": 6,
+      "esgotado": false
+    },
+    {
+      "id": "suco-laranja",
+      "nome": "Suco de laranja",
+      "preco": 9.9,
+      "esgotado": false
+    },
+    {
+      "id": "limonada",
+      "nome": "Limonada",
+      "preco": 8.9,
+      "esgotado": false
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "nome": "Kiwi",
+  "tipo": "topping",
+  "ordem": 4,
+  "kcal": 15,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/kiwi.svg"
+}

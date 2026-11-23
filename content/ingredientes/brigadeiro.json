@@ -1,0 +1,8 @@
+{
+  "nome": "Brigadeiro",
+  "tipo": "adicional",
+  "ordem": 12,
+  "kcal": 90,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/brigadeiro.svg"
+}

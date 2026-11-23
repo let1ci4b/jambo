@@ -1,0 +1,8 @@
+{
+  "nome": "Manga",
+  "tipo": "topping",
+  "ordem": 3,
+  "kcal": 26,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/manga.svg"
+}

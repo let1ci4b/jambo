@@ -1,0 +1,8 @@
+{
+  "nome": "Banana",
+  "tipo": "topping",
+  "ordem": 1,
+  "kcal": 40,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/banana.svg"
+}

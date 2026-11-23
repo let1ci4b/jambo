@@ -1,0 +1,8 @@
+{
+  "nome": "Creme de ninho",
+  "tipo": "adicional",
+  "ordem": 16,
+  "kcal": 100,
+  "esgotado": false,
+  "desenho": "/assets/ingredientes/creme-ninho.svg"
+}

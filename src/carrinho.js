@@ -32,13 +32,19 @@ function agoraLoja() {
 }
 const emMin = h => { const [a, b] = h.split(':').map(Number); return a * 60 + b; };
 const hora = h => h.replace(':00', 'h').replace(':', 'h');
+const fechaMin = h => (h === '00:00' ? 1440 : emMin(h)); // fecha à meia-noite
 export function situacao() {
   const { dia, min } = agoraLoja();
   const hoje = loja.horario[dia];
-  if (min >= emMin(hoje.abre) && min < emMin(hoje.fecha)) return { aberto: true, dia };
-  if (min < emMin(hoje.abre)) return { aberto: false, dia, texto: `Abrimos hoje às ${hora(hoje.abre)}.` };
-  const amanha = loja.horario[(dia + 1) % 7];
-  return { aberto: false, dia, texto: `Abrimos amanhã às ${hora(amanha.abre)}.` };
+  if (!hoje.fechado && min >= emMin(hoje.abre) && min < fechaMin(hoje.fecha)) return { aberto: true, dia };
+  if (!hoje.fechado && min < emMin(hoje.abre)) return { aberto: false, dia, texto: `Abrimos hoje às ${hora(hoje.abre)}.` };
+  // próximo dia aberto (pula dias marcados como fechados)
+  const nomes = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+  for (let k = 1; k <= 7; k++) {
+    const d = (dia + k) % 7, h = loja.horario[d];
+    if (h && !h.fechado) return { aberto: false, dia, texto: k === 1 ? `Abrimos amanhã às ${hora(h.abre)}.` : `Abrimos ${nomes[d] === 'sábado' || nomes[d] === 'domingo' ? 'no' : 'na'} ${nomes[d]} às ${hora(h.abre)}.` };
+  }
+  return { aberto: false, dia, texto: '' };
 }
 
 // ---------- itens ----------
