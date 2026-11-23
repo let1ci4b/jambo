@@ -29,9 +29,9 @@ function textoObrigatorio(onde, campo, valor, max, dica = '') {
   return t;
 }
 function preco(onde, valor, campo = 'Preço') {
-  if (!ehNumero(valor)) erro(onde, `O campo "${campo}" está vazio ou não é um número.`, `Escreva só o número, com ponto nos centavos (ex.: 26.90).`);
+  if (!ehNumero(valor)) erro(onde, `O campo "${campo}" está vazio ou não é um número.`, `Escreva só o número, com os centavos (ex.: 26,90).`);
   else if (valor <= 0) erro(onde, `O "${campo}" está zerado ou negativo (${valor}).`, `Coloque o preço de venda. Para tirar o item do ar por um dia, use "Esgotado hoje".`);
-  else if (valor >= 500) erro(onde, `O "${campo}" está muito alto (R$ ${valor}).`, `Confira se não faltou o ponto (ex.: 26.90 e não 2690).`);
+  else if (valor >= 500) erro(onde, `O "${campo}" está muito alto (R$ ${String(valor).replace(".", ",")}).`, `Confira se não faltou a vírgula dos centavos (ex.: 26,90 e não 2690).`);
 }
 function kcal(onde, valor, max = 3000) {
   if (valor === undefined || valor === null || valor === '') { aviso(onde, 'Sem calorias.', 'Preencha as calorias aproximadas, se souber. Sem elas, o site não mostra a estimativa.'); return; }
