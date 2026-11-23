@@ -7,13 +7,13 @@
       "preco": 24.9,
       "kcal": 680,
       "imagem": "/assets/img/bowl-jambo-classic.webp",
-      "alt": "",
       "esgotado": false,
       "adesivos": [
         "banana",
         "morango",
         "granola",
-        "leite-em-po"
+        "leite-em-po",
+        "kiwi"
       ]
     },
     {
@@ -23,7 +23,6 @@
       "preco": 27.9,
       "kcal": 775,
       "imagem": "/assets/img/bowl-pacoca-club.webp",
-      "alt": "",
       "esgotado": false,
       "adesivos": [
         "pacoca",
@@ -39,7 +38,6 @@
       "preco": 29.9,
       "kcal": 690,
       "imagem": "/assets/img/bowl-tropical-vibe.webp",
-      "alt": "",
       "esgotado": false,
       "adesivos": [
         "manga",
@@ -55,7 +53,6 @@
       "preco": 29.9,
       "kcal": 710,
       "imagem": "/assets/img/bowl-choco-crush.webp",
-      "alt": "",
       "esgotado": false,
       "adesivos": [
         "creme-avela",
@@ -71,7 +68,6 @@
       "preco": 28.9,
       "kcal": 620,
       "imagem": "/assets/img/bowl-berry-mood.webp",
-      "alt": "",
       "esgotado": false,
       "adesivos": [
         "morango",
@@ -86,7 +82,6 @@
       "preco": 32.9,
       "kcal": 755,
       "imagem": "/assets/img/bowl-pistachio-dream.webp",
-      "alt": "",
       "esgotado": false,
       "adesivos": [
         "pistache",
@@ -97,7 +92,7 @@
   ],
   "montador": {
     "toppingsGratis": 3,
-    "precoExtra": 3.0,
+    "precoExtra": 3,
     "bases": [
       {
         "id": "tradicional",
@@ -152,7 +147,7 @@
         "id": "morango",
         "nome": "Morango",
         "kcal": 12,
-        "esgotado": false
+        "esgotado": true
       },
       {
         "id": "manga",
@@ -253,67 +248,58 @@
         "nome": "Pistache",
         "preco": 12.9,
         "cor": "pistache",
-        "esgotado": false,
-        "kcal": 190
+        "esgotado": false
       },
       {
         "id": "ninho-morango",
         "nome": "Ninho & Morango",
         "preco": 11.9,
         "cor": "ninho-morango",
-        "esgotado": false,
-        "kcal": 175
+        "esgotado": false
       },
       {
         "id": "chocolate-belga",
         "nome": "Chocolate Belga",
         "preco": 11.9,
         "cor": "chocolate-belga",
-        "esgotado": false,
-        "kcal": 200
+        "esgotado": false
       },
       {
         "id": "doce-de-leite",
         "nome": "Doce de Leite",
         "preco": 10.9,
         "cor": "doce-de-leite",
-        "esgotado": false,
-        "kcal": 185
+        "esgotado": false
       },
       {
         "id": "maracuja",
         "nome": "Maracujá",
         "preco": 10.9,
         "cor": "maracuja",
-        "esgotado": false,
-        "kcal": 120
+        "esgotado": false
       },
       {
         "id": "cookies-cream",
         "nome": "Cookies & Cream",
         "preco": 11.9,
         "cor": "cookies-cream",
-        "esgotado": false,
-        "kcal": 190
+        "esgotado": false
       },
       {
         "id": "fior-di-latte",
         "nome": "Fior di Latte",
         "preco": 10.9,
         "cor": "fior-di-latte",
-        "esgotado": false,
-        "kcal": 160
+        "esgotado": false
       },
       {
         "id": "limao-siciliano",
         "nome": "Limão Siciliano",
         "preco": 10.9,
         "cor": "limao-siciliano",
-        "esgotado": false,
-        "kcal": 110
+        "esgotado": true
       }
-    ],
-    "nota": "Bola de cerca de 80 g. Adicionais no gelato: R$ 3,00 cada."
+    ]
   },
   "milkshakes": {
     "imagem": "/assets/img/milkshakes-montagem.webp",
@@ -347,8 +333,7 @@
         "preco": 24.9,
         "esgotado": false
       }
-    ],
-    "tamanho": "400 ml"
+    ]
   },
   "combos": {
     "imagem": "/assets/img/combos.webp",
@@ -359,77 +344,47 @@
         "nome": "Solo Sun",
         "descricao": "Açaí de 300 ml com até 3 toppings + uma bebida à escolha.",
         "preco": 25.9,
-        "esgotado": false,
-        "partes": [
-          {
-            "tipo": "acai",
-            "ml": 300
-          },
-          {
-            "tipo": "bebida"
-          }
-        ]
+        "esgotado": false
       },
       {
         "id": "double-trouble",
         "nome": "Double Trouble",
         "descricao": "Dois açaís de 300 ml, cada um com até 3 toppings. Bom para dividir (ou não).",
         "preco": 35.9,
-        "esgotado": false,
-        "partes": [
-          {
-            "tipo": "acai",
-            "ml": 300
-          },
-          {
-            "tipo": "acai",
-            "ml": 300
-          }
-        ]
+        "esgotado": false
       },
       {
         "id": "sweet-escape",
         "nome": "Sweet Escape",
         "descricao": "Açaí de 500 ml com até 3 toppings + milkshake pequeno (300 ml) do sabor que quiser.",
         "preco": 39.9,
-        "esgotado": false,
-        "partes": [
-          {
-            "tipo": "acai",
-            "ml": 500
-          },
-          {
-            "tipo": "milkshake",
-            "tamanho": "300 ml"
-          }
-        ]
+        "esgotado": false
       }
-    ],
-    "regra": "Cada açaí do combo vem com até 3 toppings. Topping extra e adicionais: R$ 3,00 cada."
+    ]
   },
   "bebidas": [
     {
       "id": "agua",
       "nome": "Água",
-      "preco": 4.0,
+      "preco": 4,
       "esgotado": false
     },
     {
       "id": "agua-gas",
       "nome": "Água com gás",
-      "preco": 5.0,
+      "preco": 5,
       "esgotado": false
     },
     {
       "id": "coca",
       "nome": "Coca-Cola / Coca Zero",
-      "preco": 6.0,
+      "preco": 6,
       "esgotado": false
     },
     {
       "id": "guarana",
       "nome": "Guaraná",
-      "preco": 6.0,
+      "preco": 6,
       "esgotado": false
     },
     {
@@ -442,6 +397,11 @@
       "id": "limonada",
       "nome": "Limonada",
       "preco": 8.9,
+      "esgotado": false
+    },
+    {
+      "nome": "teste",
+      "preco": 23,
       "esgotado": false
     }
   ]
