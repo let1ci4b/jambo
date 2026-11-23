@@ -398,25 +398,6 @@
           {
             "tipo": "milkshake",
             "tamanho": "300 ml"
-          },
-          {
-            "tipo": "bebida"
-          }
-        ]
-      },
-      {
-        "nome": "novo combo",
-        "descricao": "...",
-        "preco": 42,
-        "esgotado": false,
-        "partes": [
-          {
-            "tipo": "acai",
-            "ml": 300
-          },
-          {
-            "tipo": "acai",
-            "ml": 700
           }
         ]
       }
