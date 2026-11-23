@@ -75,3 +75,81 @@ export async function criarCena(canvas, { itens, base = 'assets/3d/', fundo = nu
     renderizar() { aplicar(); renderer.render(cena, cam); }
   };
 }
+
+// ---------- palco dos combos: UM renderer para todos os combos ----------
+// Antes era um canvas (e um contexto WebGL) por combo, todos desenhando ao mesmo tempo, e o site
+// travava ao chegar perto dos combos. Agora: um só contexto, um só ambiente de luz, os modelos
+// carregados uma vez, os shaders compilados sem travar (compileAsync) e só o combo da vez é desenhado.
+export async function criarPalco(canvas, { grupos, base = 'assets/3d/', camera: camCfg = {} }) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 1;
+  const cena = new THREE.Scene();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  cena.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
+  pmrem.dispose();
+  const sol = new THREE.DirectionalLight('#FFD6A0', 2.4); sol.position.set(-.4, .6, .5); cena.add(sol);
+  const rebate = new THREE.DirectionalLight('#C45AA8', .9); rebate.position.set(.5, .1, -.3); cena.add(rebate);
+  cena.add(new THREE.HemisphereLight('#F5EBDD', '#40204F', .6));
+  const cam = new THREE.PerspectiveCamera(camCfg.fov ?? 28, 1, .01, 10);
+  cam.position.set(0, camCfg.y ?? .16, camCfg.z ?? .42); cam.lookAt(0, camCfg.alvoY ?? .055, 0);
+
+  const palcos = await Promise.all(grupos.map(async itens => {
+    const g = new THREE.Group(); g.visible = false; cena.add(g);
+    const objetos = await Promise.all(itens.map(async it => {
+      const o = await carregar(base + it.arquivo);
+      const h = new THREE.Group(); h.add(o); g.add(h);
+      h.userData = it; h.position.set(...(it.pos ?? [0, 0, 0])); h.rotation.y = it.rotY ?? 0; h.scale.setScalar(it.escala ?? 1);
+      return h;
+    }));
+    return { g, objetos, progresso: 0 };
+  }));
+
+  let largura = 0, altura = 0, pedir = true, giro = 0, naTela = false, rodando = false, ultimo = 0;
+  const reduzido = matchMedia('(prefers-reduced-motion: reduce)');
+  function medir() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h || (w === largura && h === altura)) return;
+    largura = w; altura = h; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); pedir = true; ligar();
+  }
+  function aplicar(p) {
+    for (const o of p.objetos) {
+      const { de, pos = [0, 0, 0], atraso = 0 } = o.userData;
+      const t = Math.min(1, Math.max(0, (p.progresso - atraso) / (1 - atraso)));
+      const e = 1 - Math.pow(1 - t, 3);
+      if (de) o.position.set(...de.map((v, i) => v + (pos[i] - v) * e));
+      o.rotation.y = (o.userData.rotY ?? 0) + (1 - e) * 1.6;
+      o.children[0].rotation.y = giro;
+    }
+  }
+  const algumVisivel = () => palcos.some(p => p.g.visible);
+  function quadro(agora) {
+    if (!naTela || !algumVisivel()) { rodando = false; return; }
+    const dt = Math.min(.05, (agora - ultimo) / 1000 || 0); ultimo = agora;
+    if (!reduzido.matches) { giro += dt * .35; pedir = true; }
+    if (pedir) { for (const p of palcos) if (p.g.visible) aplicar(p); renderer.render(cena, cam); pedir = false; }
+    requestAnimationFrame(quadro);
+  }
+  function ligar() { if (rodando || !naTela) return; rodando = true; ultimo = performance.now(); requestAnimationFrame(quadro); }
+  new ResizeObserver(medir).observe(canvas); medir();
+  new IntersectionObserver(([e]) => { naTela = e.isIntersecting; if (naTela) { pedir = true; ligar(); } }).observe(canvas);
+
+  // compila os materiais sem travar a página (deixa todos visíveis só durante a compilação)
+  palcos.forEach(p => { p.g.visible = true; });
+  if (renderer.compileAsync) await renderer.compileAsync(cena, cam); else renderer.compile(cena, cam);
+  palcos.forEach(p => { p.g.visible = false; });
+
+  return {
+    // progressos: { índice do combo: 0–1 }; quem não está na lista fica escondido
+    mostrar(progressos) {
+      palcos.forEach((p, k) => {
+        const v = progressos[k];
+        p.g.visible = v !== undefined;
+        if (v !== undefined) p.progresso = v;
+      });
+      pedir = true; ligar();
+      if (!rodando) { for (const p of palcos) if (p.g.visible) aplicar(p); renderer.render(cena, cam); }
+    }
+  };
+}

@@ -233,24 +233,24 @@ function itens3d(combo) {
 }
 export function combos(gsap, ScrollTrigger) {
   const trilha = $('#combos-trilha');
-  const canvases = [...document.querySelectorAll('.combos-3d canvas')];
+  const canvas = $('.combos-3d canvas');
   const textos = [...document.querySelectorAll('.combo')];
   const marcas = [...document.querySelectorAll('.regua i')];
-  const cenas = [];
-  let combo = -1, carregado = false;
+  let palco = null, combo = -1, pedido = false;
   const mm = gsap.matchMedia();
   mm.add('(min-width: 768px)', () => {
-    const io = new IntersectionObserver(async ([e]) => {
-      if (!e.isIntersecting || carregado) return;
-      carregado = true; io.disconnect();
-      const { criarCena } = await importar('js/cena3d.js');
-      cardapio.combos.itens.forEach((combo, i) => { if (canvases[i]) cenas[i] = criarCena(canvases[i], { itens: itens3d(combo), base: pastaAssets + '3d/', camera: { y: .16, z: .62, alvoY: .06, fov: 24 } }); });
-      atualizar(st.progress);
-    }, { rootMargin: '100% 0px' });
-    io.observe(trilha);
     const N = Math.max(1, textos.length);
     trilha.style.setProperty('--n', N); // altura da trilha e régua: um trecho por combo
-    async function atualizar(p) {
+    // o 3D começa a carregar quando a página está parada (ou quando os combos se aproximam), sem disputar com a rolagem
+    function carregar() {
+      if (pedido) return; pedido = true; io.disconnect();
+      importar('js/cena3d.js').then(({ criarPalco }) => criarPalco(canvas, { grupos: cardapio.combos.itens.map(itens3d), base: pastaAssets + '3d/', camera: { y: .16, z: .62, alvoY: .06, fov: 24 } }))
+        .then(p => { palco = p; canvas.classList.add('ativo'); atualizar(proxy.p); });
+    }
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && carregar(), { rootMargin: '150% 0px' });
+    io.observe(trilha);
+    const ocioso = window.requestIdleCallback ? requestIdleCallback(carregar, { timeout: 6000 }) : setTimeout(carregar, 3000);
+    function atualizar(p) {
       const i = Math.min(N - 1, Math.floor(p * N));
       const local = p * N - i;
       if (i !== combo) {
@@ -258,12 +258,10 @@ export function combos(gsap, ScrollTrigger) {
         textos.forEach((t, k) => t.classList.toggle('ativo', k === i));
         marcas.forEach((m, k) => m.classList.toggle('on', k === i));
       }
-      if (!cenas.length) return;
+      if (!palco) return;
       const saindo = i > 0 && local < .2;
-      canvases.forEach((c, k) => c.classList.toggle('ativo', saindo ? k === i - 1 : k === i));
-      if (saindo) (await cenas[i - 1]).definirProgresso(1 - local / .2); // os copos do combo anterior saem para os lados
-      (await cenas[i]).definirProgresso(Math.min(1, Math.max(0, (local - .2) / .4)));
-      for (let k = i + 1; k < cenas.length; k++) (await cenas[k]).definirProgresso(0);
+      // os copos do combo anterior saem para os lados; depois entram os do combo da vez
+      palco.mostrar(saindo ? { [i - 1]: 1 - local / .2 } : { [i]: Math.min(1, Math.max(0, (local - .2) / .4)) });
     }
     // Tab num combo que não está na tela: rola até ele (assim o texto visível é sempre o do foco)
     textos.forEach((t, k) => t.addEventListener('focusin', () => {
@@ -273,8 +271,7 @@ export function combos(gsap, ScrollTrigger) {
     }));
     const proxy = { p: 0 };
     const tw = gsap.to(proxy, { p: 1, ease: 'none', onUpdate: () => atualizar(proxy.p), scrollTrigger: { trigger: trilha, start: 'top top', end: 'bottom bottom', scrub: .5 } });
-    const st = { get progress() { return proxy.p; } };
     atualizar(0);
-    return () => { io.disconnect(); tw.scrollTrigger?.kill(); tw.kill(); combo = -1; textos.forEach((t, k) => t.classList.toggle('ativo', k === 0)); };
+    return () => { io.disconnect(); window.cancelIdleCallback?.(ocioso); tw.scrollTrigger?.kill(); tw.kill(); combo = -1; textos.forEach((t, k) => t.classList.toggle('ativo', k === 0)); };
   });
 }
