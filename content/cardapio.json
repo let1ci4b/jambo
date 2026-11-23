@@ -89,6 +89,20 @@
         "morango",
         "granola"
       ]
+    },
+    {
+      "nome": "novo teste",
+      "descricao": "morango, manga, kiwi e coco",
+      "preco": 25,
+      "kcal": 400,
+      "esgotado": false,
+      "adesivos": [
+        "kiwi",
+        "manga",
+        "morango",
+        "coco",
+        "rapadura"
+      ]
     }
   ],
   "montador": {
