@@ -4,7 +4,7 @@
       "id": "jambo-classic",
       "nome": "Jambo Classic",
       "descricao": "Banana, morango, granola e leite em pó.",
-      "preco": 24.9,
+      "preco": 25.9,
       "kcal": 680,
       "imagem": "/assets/img/bowl-jambo-classic.webp",
       "esgotado": false,
@@ -189,6 +189,11 @@
         "id": "gotas-chocolate",
         "nome": "Gotas de chocolate",
         "kcal": 75,
+        "esgotado": false
+      },
+      {
+        "nome": "Amendoim",
+        "kcal": 60,
         "esgotado": false
       }
     ],
