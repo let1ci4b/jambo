@@ -34,7 +34,7 @@ components:
     default: false
   preco:
     label: "Preço (R$)"
-    description: "Só o número, com ponto nos centavos. Ex.: 26.90"
+    description: "Só o número, com os centavos. Ex.: 26,90"
     type: number
     required: true
     options: { min: 0.01, max: 499, step: 0.01 }
@@ -123,8 +123,7 @@ content:
           - { name: toppingsGratis, label: Toppings inclusos, type: number, required: true, options: { min: 0, max: 10, step: 1 } }
           - { name: precoExtra, label: "Preço do topping extra e de cada adicional (R$)", type: number, required: true, options: { min: 0, max: 99, step: 0.01 } }
           - name: bases
-            label: Bases
-            description: "As 3 bases são fixas (o copo tem a cor de cada uma). Dá para mudar o nome e as calorias."
+            label: "Bases (fixas: dá para mudar o nome e as calorias)"
             type: object
             list: { min: 3, max: 3, collapsible: { collapsed: true, summary: "{nome}" } }
             fields:
@@ -138,8 +137,7 @@ content:
                   - { name: "500", label: 500 ml, type: number, options: { min: 0, max: 3000 } }
                   - { name: "700", label: 700 ml, type: number, options: { min: 0, max: 3000 } }
           - name: tamanhos
-            label: Tamanhos
-            description: "300, 500 e 700 ml são fixos. Dá para mudar o preço."
+            label: "Tamanhos (fixos: dá para mudar o preço)"
             type: object
             list: { min: 3, max: 3, collapsible: { collapsed: true, summary: "{ml} ml · R$ {preco}" } }
             fields:
@@ -210,13 +208,13 @@ content:
               - { name: preco, component: preco }
               - { name: esgotado, component: esgotado }
               - name: partes
-                label: O que o cliente escolhe
-                description: "Até 3 partes. Elas também decidem os copos 3D do combo. Sem nenhuma, o combo vai direto para o pedido."
+                label: "O que o cliente escolhe (até 3; sem nenhuma, o combo vai direto para o pedido)"
                 type: object
                 list: { max: 3, collapsible: { collapsed: false, summary: "{tipo} {ml} {tamanho}" } }
                 fields:
                   - name: tipo
                     label: Tipo
+                    description: "As partes também decidem os copos 3D do combo."
                     type: select
                     required: true
                     options:
@@ -261,21 +259,19 @@ content:
           - { name: instagram, label: Instagram, description: "Com @. Ex.: @jambo.gelato", type: string, required: true, pattern: { regex: "^@[A-Za-z0-9._]{1,30}$", message: "Use o @ e o nome do perfil, sem espaço. Ex.: @jambo.gelato" } }
           - { name: entrega, label: Entrega, description: "Bairros atendidos e taxa.", type: text, required: true, options: { maxlength: 200 } }
           - name: pagamentos
-            label: Formas de pagamento
-            description: "Aparecem no pedido, nesta ordem. A primeira já vem marcada."
+            label: "Formas de pagamento (aparecem no pedido nesta ordem; a primeira já vem marcada)"
             type: string
             list: { min: 1, max: 6 }
             options: { maxlength: 30 }
           - name: horario
             label: Horário
-            description: "Os 7 dias, de domingo a sábado. Fecha à meia-noite? Use 00:00."
             type: object
             list: { min: 7, max: 7, collapsible: { collapsed: true, summary: "{dia}: {abre}–{fecha}" } }
             fields:
               - { name: dia, label: Dia, type: string, readonly: true }
               - { name: fechado, label: Fechado neste dia, type: boolean, default: false }
               - { name: abre, label: Abre, description: "Ex.: 13:00", type: string, pattern: { regex: "^([01][0-9]|2[0-3]):[0-5][0-9]$", message: "Use o formato 13:00" } }
-              - { name: fecha, label: Fecha, description: "Ex.: 22:00", type: string, pattern: { regex: "^([01][0-9]|2[0-3]):[0-5][0-9]$", message: "Use o formato 22:00" } }
+              - { name: fecha, label: Fecha, description: "Ex.: 22:00. Fecha à meia-noite? Use 00:00.", type: string, pattern: { regex: "^([01][0-9]|2[0-3]):[0-5][0-9]$", message: "Use o formato 22:00" } }
           - { name: fotosIlustrativas, label: "Mostrar o aviso \"Imagem ilustrativa\"", description: "Desmarque quando todas as fotos forem da loja de verdade.", type: boolean, default: true }
           - { name: compartilharTexto, label: Texto do card de compartilhamento, description: "Aparece quando o link é mandado no WhatsApp ou nas redes.", type: text, required: true, options: { maxlength: 200 } }
           - { name: compartilharAlt, label: Descrição da imagem do card, type: string, required: true, options: { maxlength: 200 } }
