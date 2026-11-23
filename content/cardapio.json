@@ -196,8 +196,15 @@
         "nome": "Amendoim",
         "kcal": 60,
         "esgotado": false,
-        "estilo": "salpicado",
+        "estilo": "Salpicado",
         "cor": "Marrom-claro"
+      },
+      {
+        "nome": "Nozes",
+        "kcal": 80,
+        "esgotado": false,
+        "estilo": "Pedaços",
+        "cor": "Bege"
       }
     ],
     "adicionais": [
@@ -250,77 +257,78 @@
     "alt": "Quatro copinhos roxos da JAMBO com gelato de pistache, ninho com morango, chocolate e doce de leite.",
     "doisSabores": 16.9,
     "tresSabores": 21.9,
+    "nota": "Bola de cerca de 80 g. Adicionais no gelato: R$ 3,00 cada.",
     "sabores": [
       {
         "id": "pistache",
         "nome": "Pistache",
         "preco": 12.9,
-        "cor": "pistache",
+        "kcal": 190,
         "esgotado": false,
-        "kcal": 190
+        "cor": "pistache"
       },
       {
         "id": "ninho-morango",
         "nome": "Ninho & Morango",
         "preco": 11.9,
-        "cor": "ninho-morango",
+        "kcal": 175,
         "esgotado": false,
-        "kcal": 175
+        "cor": "ninho-morango"
       },
       {
         "id": "chocolate-belga",
         "nome": "Chocolate Belga",
         "preco": 11.9,
-        "cor": "chocolate-belga",
+        "kcal": 200,
         "esgotado": false,
-        "kcal": 200
+        "cor": "chocolate-belga"
       },
       {
         "id": "doce-de-leite",
         "nome": "Doce de Leite",
         "preco": 10.9,
-        "cor": "doce-de-leite",
+        "kcal": 185,
         "esgotado": false,
-        "kcal": 185
+        "cor": "doce-de-leite"
       },
       {
         "id": "maracuja",
         "nome": "Maracujá",
         "preco": 10.9,
-        "cor": "maracuja",
+        "kcal": 120,
         "esgotado": false,
-        "kcal": 120
+        "cor": "maracuja"
       },
       {
         "id": "cookies-cream",
         "nome": "Cookies & Cream",
         "preco": 11.9,
-        "cor": "cookies-cream",
+        "kcal": 190,
         "esgotado": false,
-        "kcal": 190
+        "cor": "cookies-cream"
       },
       {
         "id": "fior-di-latte",
         "nome": "Fior di Latte",
         "preco": 10.9,
-        "cor": "fior-di-latte",
+        "kcal": 160,
         "esgotado": false,
-        "kcal": 160
+        "cor": "fior-di-latte"
       },
       {
         "id": "limao-siciliano",
         "nome": "Limão Siciliano",
         "preco": 10.9,
-        "cor": "limao-siciliano",
+        "kcal": 110,
         "esgotado": true,
-        "kcal": 110
+        "cor": "limao-siciliano"
       }
-    ],
-    "nota": "Bola de cerca de 80 g. Adicionais no gelato: R$ 3,00 cada."
+    ]
   },
   "milkshakes": {
     "imagem": "/assets/img/milkshakes-montagem.webp",
     "alt": "Quatro milkshakes com chantili em copos transparentes com a logo JAMBO.",
+    "tamanho": "400 ml",
     "itens": [
       {
         "id": "freak-choc",
@@ -350,12 +358,12 @@
         "preco": 24.9,
         "esgotado": false
       }
-    ],
-    "tamanho": "400 ml"
+    ]
   },
   "combos": {
     "imagem": "/assets/img/combos.webp",
     "alt": "Um açaí com frutas e um milkshake de morango lado a lado.",
+    "regra": "Cada açaí do combo vem com até 3 toppings. Topping extra e adicionais: R$ 3,00 cada.",
     "itens": [
       {
         "id": "solo-sun",
@@ -404,11 +412,29 @@
           {
             "tipo": "milkshake",
             "tamanho": "300 ml"
+          },
+          {
+            "tipo": "bebida"
+          }
+        ]
+      },
+      {
+        "nome": "novo combo",
+        "descricao": "...",
+        "preco": 42,
+        "esgotado": false,
+        "partes": [
+          {
+            "tipo": "acai",
+            "ml": 300
+          },
+          {
+            "tipo": "acai",
+            "ml": 700
           }
         ]
       }
-    ],
-    "regra": "Cada açaí do combo vem com até 3 toppings. Topping extra e adicionais: R$ 3,00 cada."
+    ]
   },
   "bebidas": [
     {
