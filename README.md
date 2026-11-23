@@ -106,6 +106,20 @@ Para ver a versão final, rode `npm run build` e depois `npm run preview` (http:
 | Abertura | `public/assets/js/abertura.js` e `public/assets/video/hero/` |
 | Textos legais | `privacidade.html` e `acessibilidade.html` |
 
+### Edição pelo Pages CMS
+
+O dono edita o cardápio e a loja em [app.pagescms.org](https://app.pagescms.org), configurado em `.pages.yml`. Pelo editor dá para:
+
+- mudar preço, nome, descrição, calorias e "esgotado hoje";
+- criar e apagar bowls, toppings, adicionais, sabores, milkshakes, combos e bebidas. O código do item novo é criado a partir do nome;
+- trocar fotos. No build, uma foto nova vira webp e é cortada na proporção do lugar (`vite.config.js` usa o sharp);
+- dar um desenho a um ingrediente novo. Pode enviar uma imagem própria ou escolher "como vai no copo" (pedaços, salpicado, calda, creme) e a cor. Sem imagem, o site desenha o adesivo e o ingrediente no copo;
+- criar um sabor de gelato com a cor da massa.
+
+O que vem do editor passa por `src/normalizar.js` antes de ser usado: item sem nome ou sem preço é ignorado, e ingrediente que não existe em "Ingredientes que voam" também. Assim um erro de digitação não trava o site.
+
+**Atenção:** ao salvar, o Pages CMS apaga do JSON todo campo que não estiver no `.pages.yml`. Campo novo nos dados precisa entrar lá também.
+
 ## Estrutura
 
 ```

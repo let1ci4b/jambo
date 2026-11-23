@@ -1,6 +1,7 @@
 // Monte seu Jambo: arrastar e soltar (eventos de ponteiro: mouse e dedo), toque simples e teclado.
 // O mesmo cálculo serve para o montador por lista (RF-13).
-import cardapio from '../content/cardapio.json';
+import cardapio from './dados.js';
+import { corSabor } from './normalizar.js';
 import { calcularMontador, calcularGelato, reais } from './calculo.js';
 import { adicionar, avisar } from './carrinho.js';
 import { camadas, camadasGelato } from './copo.js';
@@ -9,7 +10,10 @@ const M = cardapio.montador;
 const G = cardapio.gelato;
 const $ = (s, el = document) => el.querySelector(s);
 const ehSabor = id => id.startsWith('g-');
-const nomeDe = id => ehSabor(id) ? G.sabores.find(s => 'g-' + s.id === id).nome : (M.toppings.find(t => t.id === id) ?? M.adicionais.find(a => a.id === id)).nome;
+const achar = id => ehSabor(id) ? G.sabores.find(s => 'g-' + s.id === id) : (M.toppings.find(t => t.id === id) ?? M.adicionais.find(a => a.id === id));
+const nomeDe = id => achar(id)?.nome ?? id;
+// o desenho já otimizado no build está no próprio botão da bancada
+const desenhoDe = id => document.querySelector(`#montador .adesivo-btn[data-ing="${CSS.escape(id)}"] img`)?.getAttribute('src') ?? achar(id)?.desenho ?? '';
 const tipoDe = id => ehSabor(id) ? 'sabores' : (M.toppings.some(t => t.id === id) ? 'toppings' : 'adicionais');
 
 // ---------- painel do total (usado nos dois montadores) ----------
@@ -65,7 +69,7 @@ export function iniciarMontador({ reduzido }) {
     const lista = noCopo();
     const c = produto === 'acai' ? camadas(lista) : camadasGelato(gelato.sabores.map(id => id.slice(2)), gelato.adicionais);
     cob().innerHTML = c.map(x => `<g data-ing="${x.id}">${x.svg}</g>`).join('');
-    chips.innerHTML = lista.map(id => `<li><button type="button" data-ing="${id}" aria-label="Tirar ${nomeDe(id).toLowerCase()} do ${produto === 'acai' ? 'copo' : 'copinho'}">${ehSabor(id) ? `<span class="chip-bola sabor-${G.sabores.find(s => 'g-' + s.id === id).cor}" aria-hidden="true"></span>` : `<img src="/assets/ingredientes/${id}.svg" alt="" width="28" height="28">`}${nomeDe(id)}<span class="x" aria-hidden="true">×</span></button></li>`).join('');
+    chips.innerHTML = lista.map(id => `<li><button type="button" data-ing="${id}" aria-label="Tirar ${nomeDe(id).toLowerCase()} do ${produto === 'acai' ? 'copo' : 'copinho'}">${ehSabor(id) ? `<span class="chip-bola${corSabor(achar(id))} aria-hidden="true"></span>` : `<img src="${desenhoDe(id)}" alt="" width="28" height="28">`}${nomeDe(id)}<span class="x" aria-hidden="true">×</span></button></li>`).join('');
     chips.dataset.vazio = produto === 'acai' ? 'Seu copo está só com o açaí. Toque nos ingredientes para colocar.' : 'Escolha de 1 a 3 sabores para o seu copinho.';
     if (!novo || reduzido) return;
     const g = cob().querySelector(`g[data-ing="${novo}"]`);
@@ -95,8 +99,9 @@ export function iniciarMontador({ reduzido }) {
     const anuncio = painel.querySelector('.anuncio');
     if (lista.includes(id)) { anuncio.textContent = `${nomeDe(id)} já está no ${produto === 'acai' ? 'copo' : 'copinho'}.`; return false; }
     if (ehSabor(id) && gelato.sabores.length >= 3) { anuncio.textContent = 'O copinho já tem 3 sabores. Tire um para trocar.'; avisar('O copinho vai até 3 sabores'); return false; }
-    lista.push(id);
     const alvo = produto === 'acai' ? estado : gelato;
+    if (!alvo[tipoDe(id)] || !achar(id)) return false; // ex.: topping no copinho de gelato
+    lista.push(id);
     alvo[tipoDe(id)].push(id);
     desenharCopo(id, de);
     render();
@@ -138,7 +143,7 @@ export function iniciarMontador({ reduzido }) {
     if (noCopo().includes(arrasto.id)) { arrasto = null; return; }
     let c;
     if (ehSabor(arrasto.id)) { c = document.createElement('div'); c.innerHTML = arrasto.btn.querySelector('.bola-ico').innerHTML; }
-    else { c = document.createElement('img'); c.src = `/assets/ingredientes/${arrasto.id}.svg`; c.alt = ''; }
+    else { c = document.createElement('img'); c.src = desenhoDe(arrasto.id); c.alt = ''; }
     c.className = 'clone';
     document.body.appendChild(c);
     arrasto.clone = c; arrasto.btn.classList.remove('segurando');

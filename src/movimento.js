@@ -1,7 +1,7 @@
 // Movimento: cabeçalho, açaí (bowls revelados + frutas entrando), o bowl se monta
 // (vídeo pela rolagem), gelato (palavras), shakes (fade), combos montados (3D) e o quadro final.
 // Com movimento reduzido nada disso roda: o CSS mostra tudo parado.
-import cardapio from '../content/cardapio.json';
+import cardapio from './dados.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const pastaAssets = new URL('/assets/', location.href).href;
@@ -163,9 +163,9 @@ export function acai(gsap, ScrollTrigger) {
       onComplete: () => { while (fotos.children.length > 1 && fotos.firstChild !== img) fotos.firstChild.remove(); }
     });
     for (const a of [...adesivos.children]) gsap.to(a, { opacity: 0, scale: .6, duration: .3, onComplete: () => a.remove() });
-    const frutas = li.dataset.frutas.split(',').slice(0, 4);
+    const frutas = (li.dataset.frutas || '').split('|').filter(Boolean).slice(0, 4);
     frutas.forEach((n, i) => {
-      const s = new Image(); s.src = pastaAssets + `ingredientes/${n}.svg`; s.alt = '';
+      const s = new Image(); s.src = n; s.alt = '';
       const [x, y, r] = POS[i];
       s.style.left = x * 100 + '%'; s.style.top = y * 100 + '%';
       adesivos.appendChild(s);

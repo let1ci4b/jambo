@@ -195,7 +195,9 @@
       {
         "nome": "Amendoim",
         "kcal": 60,
-        "esgotado": false
+        "esgotado": false,
+        "estilo": "salpicado",
+        "cor": "Marrom-claro"
       }
     ],
     "adicionais": [
@@ -254,58 +256,67 @@
         "nome": "Pistache",
         "preco": 12.9,
         "cor": "pistache",
-        "esgotado": false
+        "esgotado": false,
+        "kcal": 190
       },
       {
         "id": "ninho-morango",
         "nome": "Ninho & Morango",
         "preco": 11.9,
         "cor": "ninho-morango",
-        "esgotado": false
+        "esgotado": false,
+        "kcal": 175
       },
       {
         "id": "chocolate-belga",
         "nome": "Chocolate Belga",
         "preco": 11.9,
         "cor": "chocolate-belga",
-        "esgotado": false
+        "esgotado": false,
+        "kcal": 200
       },
       {
         "id": "doce-de-leite",
         "nome": "Doce de Leite",
         "preco": 10.9,
         "cor": "doce-de-leite",
-        "esgotado": false
+        "esgotado": false,
+        "kcal": 185
       },
       {
         "id": "maracuja",
         "nome": "Maracujá",
         "preco": 10.9,
         "cor": "maracuja",
-        "esgotado": false
+        "esgotado": false,
+        "kcal": 120
       },
       {
         "id": "cookies-cream",
         "nome": "Cookies & Cream",
         "preco": 11.9,
         "cor": "cookies-cream",
-        "esgotado": false
+        "esgotado": false,
+        "kcal": 190
       },
       {
         "id": "fior-di-latte",
         "nome": "Fior di Latte",
         "preco": 10.9,
         "cor": "fior-di-latte",
-        "esgotado": false
+        "esgotado": false,
+        "kcal": 160
       },
       {
         "id": "limao-siciliano",
         "nome": "Limão Siciliano",
         "preco": 10.9,
         "cor": "limao-siciliano",
-        "esgotado": true
+        "esgotado": true,
+        "kcal": 110
       }
-    ]
+    ],
+    "nota": "Bola de cerca de 80 g. Adicionais no gelato: R$ 3,00 cada."
   },
   "milkshakes": {
     "imagem": "/assets/img/milkshakes-montagem.webp",
@@ -339,7 +350,8 @@
         "preco": 24.9,
         "esgotado": false
       }
-    ]
+    ],
+    "tamanho": "400 ml"
   },
   "combos": {
     "imagem": "/assets/img/combos.webp",
@@ -350,23 +362,53 @@
         "nome": "Solo Sun",
         "descricao": "Açaí de 300 ml com até 3 toppings + uma bebida à escolha.",
         "preco": 25.9,
-        "esgotado": false
+        "esgotado": false,
+        "partes": [
+          {
+            "tipo": "acai",
+            "ml": 300
+          },
+          {
+            "tipo": "bebida"
+          }
+        ]
       },
       {
         "id": "double-trouble",
         "nome": "Double Trouble",
         "descricao": "Dois açaís de 300 ml, cada um com até 3 toppings. Bom para dividir (ou não).",
         "preco": 35.9,
-        "esgotado": false
+        "esgotado": false,
+        "partes": [
+          {
+            "tipo": "acai",
+            "ml": 300
+          },
+          {
+            "tipo": "acai",
+            "ml": 300
+          }
+        ]
       },
       {
         "id": "sweet-escape",
         "nome": "Sweet Escape",
         "descricao": "Açaí de 500 ml com até 3 toppings + milkshake pequeno (300 ml) do sabor que quiser.",
         "preco": 39.9,
-        "esgotado": false
+        "esgotado": false,
+        "partes": [
+          {
+            "tipo": "acai",
+            "ml": 500
+          },
+          {
+            "tipo": "milkshake",
+            "tamanho": "300 ml"
+          }
+        ]
       }
-    ]
+    ],
+    "regra": "Cada açaí do combo vem com até 3 toppings. Topping extra e adicionais: R$ 3,00 cada."
   },
   "bebidas": [
     {
@@ -403,11 +445,6 @@
       "id": "limonada",
       "nome": "Limonada",
       "preco": 8.9,
-      "esgotado": false
-    },
-    {
-      "nome": "teste",
-      "preco": 23,
       "esgotado": false
     }
   ]

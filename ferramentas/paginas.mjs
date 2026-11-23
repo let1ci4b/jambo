@@ -4,12 +4,39 @@ import fs from 'node:fs';
 import path from 'node:path';
 import QRCode from 'qrcode';
 import { reais, centavos } from '../src/calculo.js';
-import { adesivoSabor } from '../src/copo.js';
+import { adesivoSabor, SABORES_PRONTOS, registrarIngredientes, registrarSabores } from '../src/copo.js';
+import { normalizar, corSabor } from '../src/normalizar.js';
 
 const raiz = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const ler = f => fs.readFileSync(path.join(raiz, f), 'utf8');
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const r = v => reais(centavos(v));
+// ---------- fotos ----------
+// As fotos originais já estão otimizadas (webp + versões menores "-640", "-960"). Uma foto nova, enviada
+// pelo editor, pode ser grande (foto de celular): no build ela vira webp nas larguras pedidas.
+// As conversões são feitas pelo vite.config.js (sharp), depois do build, direto na pasta dist.
+let modo = 'build';
+export const tarefasDeImagem = new Map(); // caminho de saída → { origem, largura }
+const existe = url => fs.existsSync(path.join(raiz, 'public', decodeURI(url)));
+function foto(src, larguras, proporcao = null) { // proporcao = largura / altura (a foto é cortada no centro)
+  const out = {};
+  const nome = path.basename(src).replace(/\.[a-z0-9]+$/i, '');
+  const variante = w => src.replace(/\.webp$/i, `-${w}.webp`);
+  const original = /\.webp$/i.test(src) && existe(variante(larguras[0])); // fotos que vieram com o site
+  if (original) { for (const w of larguras) out[w] = existe(variante(w)) ? variante(w) : src; out.original = true; return out; }
+  for (const w of larguras) {
+    if (modo === 'serve' || !existe(src)) out[w] = src;
+    else { const o = `/assets/img/otimizadas/${nome}-${w}${proporcao ? `x${Math.round(w / proporcao)}` : ""}.webp`; tarefasDeImagem.set(o, { origem: path.join(raiz, 'public', decodeURI(src)), largura: w, altura: proporcao ? Math.round(w / proporcao) : null }); out[w] = o; }
+  }
+  out.original = original;
+  return out;
+}
+// desenho de ingrediente enviado pelo editor: svg fica como está; foto vira webp pequeno
+function desenho(src) {
+  if (!src || src.startsWith('data:') || /\.svg$/i.test(src) || src.startsWith('/assets/ingredientes/')) return src;
+  return foto(src, [176], 1)[176];
+}
+
 const preencher = s => esc(s).replace(/\[preencher[^\]]*\]/g, m => `<mark class="preencher">${m}</mark>`);
 
 export const ICONE = {
@@ -31,12 +58,13 @@ function svgInline(arquivo, classe, extra = '') {
 function acai(c) {
   const linhas = c.acai.map((b, i) => {
     const esg = b.esgotado;
-    const m = b.imagem.replace('.webp', '-640.webp');
-    const ades = b.adesivos.slice(0, 2).map((a, k) => `<img class="adesivo-fixo a${k}" src="/assets/ingredientes/${a}.svg" alt="" width="64" height="64" loading="lazy">`).join('');
-    return `<li class="bowl${esg ? ' esgotado' : ''}" data-foto="${esc(b.imagem)}" data-frutas="${b.adesivos.join(',')}" data-i="${i}">
-  <div class="foto-celular" aria-hidden="true"><div class="moldura-c"><img src="${m}" alt="" width="640" height="800" loading="lazy" decoding="async"></div>${ades}</div>
+    const ft = foto(b.imagem, [640, 1100], 640 / 800);
+    const m = ft[640], grande = ft.original ? b.imagem : ft[1100];
+    const ades = b.adesivos.slice(0, 2).map((a, k) => `<img class="adesivo-fixo a${k}" src="${esc(desenho(a.desenho))}" alt="" width="64" height="64" loading="lazy">`).join('');
+    return `<li class="bowl${esg ? ' esgotado' : ''}" data-foto="${esc(grande)}" data-frutas="${esc(b.adesivos.map(a => desenho(a.desenho)).join('|'))}" data-i="${i}">
+  <div class="foto-celular" aria-hidden="true"><div class="moldura-c"><img src="${esc(m)}" alt="" width="640" height="800" loading="lazy" decoding="async"></div>${ades}</div>
   <div class="linha"><h3><span class="ponto" aria-hidden="true"></span>${esc(b.nome)}</h3><span class="preco">${r(b.preco)}</span></div>
-  <p class="desc">${preencher(b.descricao)}</p>
+  ${b.descricao ? `<p class="desc">${preencher(b.descricao)}</p>` : ''}
   <p class="legenda">${b.kcal ? `≈ ${b.kcal} kcal (aproximado, 500 ml)` : '≈ <mark class="preencher">[preencher]</mark> kcal'} · Imagem ilustrativa</p>
   ${botaoAdicionar({ id: 'acai-' + b.id, nome: 'Açaí ' + b.nome, preco: b.preco, esgotado: esg, oculto: b.nome })}
 </li>`;
@@ -52,9 +80,9 @@ function botaoAdicionar({ id, nome, preco, esgotado, detalhes = '', classe = 'bt
 function montador(c) {
   const m = c.montador;
   const radio = (nome, valor, rot, marcado, prefixo) => `<label class="pilula-radio"><input type="radio" name="${nome}" value="${valor}"${marcado ? ' checked' : ''}><span>${rot}</span></label>`;
-  const bases = m.bases.map((b, i) => radio('base', b.id, `<img src="/assets/ingredientes/base-${b.id}.svg" alt="" width="28" height="28">${esc(b.nome)}`, i === 0)).join('');
+  const bases = m.bases.map((b, i) => radio('base', b.id, `<img src="/assets/ingredientes/base-${existe(`/assets/ingredientes/base-${b.id}.svg`) ? b.id : 'tradicional'}.svg" alt="" width="28" height="28">${esc(b.nome)}`, i === 0)).join('');
   const tams = m.tamanhos.map(t => radio('tamanho', t.ml, `${t.ml} ml <b>${r(t.preco)}</b>`, t.ml === 500)).join('');
-  const adesivo = (it, tipo) => `<li><button type="button" class="adesivo-btn" data-ing="${it.id}" data-tipo="${tipo}" aria-label="Colocar ${esc(it.nome.toLowerCase())} no copo"${it.esgotado ? ' aria-disabled="true" disabled' : ''}><img src="/assets/ingredientes/${it.id}.svg" alt="" width="88" height="88" draggable="false"><span class="nome" aria-hidden="true">${esc(it.nome)}</span></button>${tipo === 'adicional' ? `<span class="extra">+${r(m.precoExtra)}</span>` : ''}</li>`;
+  const adesivo = (it, tipo) => `<li><button type="button" class="adesivo-btn" data-ing="${it.id}" data-tipo="${tipo}" aria-label="Colocar ${esc(it.nome.toLowerCase())} no copo"${it.esgotado ? ' aria-disabled="true" disabled' : ''}><img src="${esc(desenho(it.desenho))}" alt="" width="88" height="88" draggable="false"><span class="nome" aria-hidden="true">${esc(it.nome)}</span></button>${tipo === 'adicional' ? `<span class="extra">+${r(m.precoExtra)}</span>` : ''}</li>`;
   const tops = m.toppings.map(t => adesivo(t, 'topping')).join('');
   const adis = m.adicionais.map(a => adesivo(a, 'adicional')).join('');
   const logo = svgInline('jambo-logo-current.svg', 'copo-logo', 'aria-hidden="true" x="122" y="206" width="156" height="74"').replace(/ role="img"/, '').replace(/ aria-label="[^"]*"/, '');
@@ -94,15 +122,15 @@ function montador(c) {
 <fieldset class="so-acai"><legend>Base</legend>${radioLista('l-base', m.bases, b => esc(b.nome), 'tradicional')}</fieldset>
 <fieldset class="so-acai"><legend>Tamanho</legend>${radioLista('l-tamanho', m.tamanhos, t => `${t.ml} ml · ${r(t.preco)}`, 500)}</fieldset>
 <fieldset class="so-acai"><legend>Toppings (${m.toppingsGratis} inclusos, depois ${r(m.precoExtra)} cada)</legend><div class="caixas">${lista('Toppings', m.toppings, 'l-topping')}</div></fieldset>
-<fieldset class="so-gelato"><legend>Sabores (de 1 a 3)</legend><div class="caixas">${c.gelato.sabores.map(sb => `<label class="caixa"><input type="checkbox" name="l-sabor" value="${sb.id}"${sb.esgotado ? ' disabled' : ''}><span><span class="bolinha sabor-${sb.cor}" aria-hidden="true"></span>${esc(sb.nome)} · ${r(sb.preco)}</span></label>`).join('')}</div></fieldset>
+<fieldset class="so-gelato"><legend>Sabores (de 1 a 3)</legend><div class="caixas">${c.gelato.sabores.map(sb => `<label class="caixa"><input type="checkbox" name="l-sabor" value="${sb.id}"${sb.esgotado ? ' disabled' : ''}><span><span class="bolinha${corSabor(sb)} aria-hidden="true"></span>${esc(sb.nome)} · ${r(sb.preco)}</span></label>`).join('')}</div></fieldset>
 <fieldset><legend>Adicionais (${r(m.precoExtra)} cada)</legend><div class="caixas">${lista('Adicionais', m.adicionais, 'l-adicional')}</div></fieldset>`
   };
 }
 
 function gelato(c) {
   const g = c.gelato;
-  const lista = g.sabores.map(s => `<li class="${s.esgotado ? 'esgotado' : ''}"><span class="bolinha sabor-${s.cor}" aria-hidden="true"></span><h3>${esc(s.nome)}</h3><span class="preco">${r(s.preco)}</span>${s.esgotado ? '<span class="pilula-esgotado">Esgotado</span>' : ''}</li>`).join('');
-  const caixas = g.sabores.map(s => `<label class="caixa"><input type="checkbox" name="sabor" value="${s.id}"${s.esgotado ? ' disabled' : ''}><span><span class="bolinha sabor-${s.cor}" aria-hidden="true"></span>${esc(s.nome)}${s.esgotado ? ' (esgotado)' : ''}</span></label>`).join('');
+  const lista = g.sabores.map(s => `<li class="${s.esgotado ? 'esgotado' : ''}"><span class="bolinha${corSabor(s)} aria-hidden="true"></span><h3>${esc(s.nome)}</h3><span class="preco">${r(s.preco)}</span>${s.esgotado ? '<span class="pilula-esgotado">Esgotado</span>' : ''}</li>`).join('');
+  const caixas = g.sabores.map(s => `<label class="caixa"><input type="checkbox" name="sabor" value="${s.id}"${s.esgotado ? ' disabled' : ''}><span><span class="bolinha${corSabor(s)} aria-hidden="true"></span>${esc(s.nome)}${s.esgotado ? ' (esgotado)' : ''}</span></label>`).join('');
   const min = Math.min(...g.sabores.map(s => s.preco)), max = Math.max(...g.sabores.map(s => s.preco));
   return { lista, caixas, faixa: `1 sabor ${r(min)} a ${r(max)} · 2 sabores ${r(g.doisSabores)} · 3 sabores ${r(g.tresSabores)}` };
 }
@@ -112,7 +140,7 @@ function shakes(c) {
 }
 
 function combos(c) {
-  return c.combos.itens.map((k, i) => `<li class="combo${i === 0 ? ' ativo' : ''}${k.esgotado ? ' esgotado' : ''}" data-i="${i}"><h3 class="combo-nome">${esc(k.nome)}</h3><p class="desc">${esc(k.descricao)}</p><p class="combo-preco">${r(k.preco)}</p>${k.esgotado ? botaoAdicionar({ esgotado: true, classe: 'btn btn--contorno-claro' }) : `<button class="btn btn--contorno-claro montar-combo" type="button" data-combo="${k.id}">Montar combo<span class="so-leitor"> ${esc(k.nome)}</span></button>`}</li>`).join('');
+  return c.combos.itens.map((k, i) => `<li class="combo${i === 0 ? ' ativo' : ''}${k.esgotado ? ' esgotado' : ''}" data-i="${i}"><h3 class="combo-nome">${esc(k.nome)}</h3><p class="desc">${esc(k.descricao)}</p><p class="combo-preco">${r(k.preco)}</p>${k.esgotado ? botaoAdicionar({ esgotado: true, classe: 'btn btn--contorno-claro' }) : !k.partes.length ? botaoAdicionar({ id: 'combo-' + k.id, nome: 'Combo ' + k.nome, preco: k.preco, classe: 'btn btn--contorno-claro', oculto: k.nome }) : `<button class="btn btn--contorno-claro montar-combo" type="button" data-combo="${k.id}">Montar combo<span class="so-leitor"> ${esc(k.nome)}</span></button>`}</li>`).join('');
 }
 
 function bebidas(c) {
@@ -170,8 +198,12 @@ function compartilhar(html, l, pagina) {
   ].filter(Boolean).join('\n');
 }
 
-export async function renderizar(html) {
-  const c = JSON.parse(ler('content/cardapio.json'));
+export async function renderizar(html, { comando = 'build' } = {}) {
+  modo = comando;
+  const c = normalizar(JSON.parse(ler('content/cardapio.json')), JSON.parse(ler('public/assets/ingredientes/lista.json')), SABORES_PRONTOS);
+  registrarIngredientes([...c.montador.toppings, ...c.montador.adicionais]);
+  registrarSabores(c.gelato.sabores);
+  const fg = foto(c.gelato.imagem, [960, 1376], 1376 / 590), fs_ = foto(c.milkshakes.imagem, [640, 896], 896 / 1120), fc = foto(c.combos.imagem, [640, 896], 896 / 720);
   const l = JSON.parse(ler('content/loja.json'));
   const mo = montador(c);
   const ge = gelato(c);
@@ -189,16 +221,18 @@ export async function renderizar(html) {
     PAINEL_LISTA: mo.painel('painel-lista'),
     LISTA: mo.listaHtml,
     REGRA: `${c.montador.toppingsGratis} toppings inclusos; do ${c.montador.toppingsGratis + 1}º em diante e cada adicional, ${r(c.montador.precoExtra)}.`,
-    GELATO_IMG: `<picture><source media="(max-width: 767px)" srcset="/assets/img/gelatos-montagem-960.webp 960w, /assets/img/gelatos-montagem.webp 1376w" sizes="100vw"><img src="${esc(c.gelato.imagem)}" srcset="/assets/img/gelatos-montagem-21x9-960.webp 960w, ${esc(c.gelato.imagem)} 1376w" sizes="100vw" alt="${esc(c.gelato.alt)}" width="1376" height="590" loading="lazy" decoding="async"></picture>`,
+    GELATO_IMG: c.gelato.imagem === '/assets/img/gelatos-montagem-21x9.webp'
+      ? `<picture><source media="(max-width: 767px)" srcset="/assets/img/gelatos-montagem-960.webp 960w, /assets/img/gelatos-montagem.webp 1376w" sizes="100vw"><img src="${esc(c.gelato.imagem)}" srcset="/assets/img/gelatos-montagem-21x9-960.webp 960w, ${esc(c.gelato.imagem)} 1376w" sizes="100vw" alt="${esc(c.gelato.alt)}" width="1376" height="590" loading="lazy" decoding="async"></picture>`
+      : `<img src="${esc(fg[1376])}" srcset="${esc(fg[960])} 960w, ${esc(fg[1376])} 1376w" sizes="100vw" alt="${esc(c.gelato.alt)}" width="1376" height="590" loading="lazy" decoding="async">`,
     GELATO_ADIS: c.montador.adicionais.map(a => `<label class="caixa"><input type="checkbox" name="g-adicional" value="${a.id}"${a.esgotado ? ' disabled' : ''}><span>${esc(a.nome)}</span></label>`).join(''),
     PRECO_EXTRA: r(c.montador.precoExtra),
     GELATO_LISTA: ge.lista, GELATO_CAIXAS: ge.caixas, GELATO_FAIXA: ge.faixa,
     GELATO_H2: palavras('O clima pede JAMBO.'),
-    SHAKES_IMG: `<img src="${esc(c.milkshakes.imagem)}" srcset="/assets/img/milkshakes-montagem-640.webp 640w, ${esc(c.milkshakes.imagem)} 896w" sizes="(min-width: 1024px) 40vw, 100vw" alt="${esc(c.milkshakes.alt)}" width="896" height="1120" loading="lazy" decoding="async">`,
+    SHAKES_IMG: `<img src="${esc(fs_.original ? c.milkshakes.imagem : fs_[896])}" srcset="${esc(fs_[640])} 640w, ${esc(fs_.original ? c.milkshakes.imagem : fs_[896])} 896w" sizes="(min-width: 1024px) 40vw, 100vw" alt="${esc(c.milkshakes.alt)}" width="896" height="1120" loading="lazy" decoding="async">`,
     SHAKES: shakes(c),
     COMBOS: combos(c),
-    COMBOS_REGRA: esc(c.combos.regra),
-    COMBOS_IMG: `<img src="/assets/img/combos-640.webp" srcset="/assets/img/combos-640.webp 640w, ${esc(c.combos.imagem)} 896w" sizes="(min-width: 768px) 50vw, 100vw" alt="${esc(c.combos.alt)}" width="896" height="720" loading="lazy" decoding="async">`,
+    COMBOS_REGRA: esc(c.combos.regra ?? ''),
+    COMBOS_IMG: `<img src="${esc(fc[640])}" srcset="${esc(fc[640])} 640w, ${esc(fc.original ? c.combos.imagem : fc[896])} 896w" sizes="(min-width: 768px) 50vw, 100vw" alt="${esc(c.combos.alt)}" width="896" height="720" loading="lazy" decoding="async">`,
     BEBIDAS: bebidas(c),
     HORARIO: horario(l),
     ENDERECO: esc(l.endereco),

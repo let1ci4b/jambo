@@ -1,11 +1,25 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
-import { renderizar } from './ferramentas/paginas.mjs';
+import fs from 'node:fs';
+import { renderizar, tarefasDeImagem } from './ferramentas/paginas.mjs';
 
 // O cardápio (content/*.json) entra no HTML no build: funciona sem JS e o Google lê.
+// Fotos novas enviadas pelo editor viram webp (com corte na proporção do lugar) depois do build.
+let comando = 'build';
 const cardapioNoHtml = {
   name: 'jambo-cardapio-no-html',
-  transformIndexHtml: { order: 'pre', handler: html => renderizar(html) },
+  configResolved(c) { comando = c.command; },
+  transformIndexHtml: { order: 'pre', handler: html => renderizar(html, { comando }) },
+  async closeBundle() {
+    if (comando !== 'build' || !tarefasDeImagem.size) return;
+    const sharp = (await import('sharp')).default;
+    for (const [saida, { origem, largura, altura }] of tarefasDeImagem) {
+      const destino = resolve(import.meta.dirname, 'dist' + saida);
+      fs.mkdirSync(resolve(destino, '..'), { recursive: true });
+      await sharp(origem).rotate().resize({ width: largura, height: altura ?? undefined, fit: 'cover', withoutEnlargement: !altura }).webp({ quality: 78 }).toFile(destino);
+    }
+    console.log(`fotos novas otimizadas: ${tarefasDeImagem.size}`);
+  },
   handleHotUpdate({ file, server }) {
     if (file.includes('/content/') || file.includes('/ferramentas/')) server.ws.send({ type: 'full-reload' });
   }

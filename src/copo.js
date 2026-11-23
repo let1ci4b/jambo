@@ -161,8 +161,8 @@ function desenharPo() {
 }
 
 // fio de calda: laçadas soltas e irregulares de um lado ao outro (cada calda num ângulo diferente)
-function desenharCalda(id, i) {
-  const cor = { 'creme-avela': C.avela, 'pasta-amendoim': C.amendoim, mel: C.mel, 'doce-de-leite': C.doce }[id];
+function desenharCalda(id, i, corNova) {
+  const cor = corNova ?? { 'creme-avela': C.avela, 'pasta-amendoim': C.amendoim, mel: C.mel, 'doce-de-leite': C.doce }[id];
   const r = rng(semente(id) + i * 17);
   const voltas = 7, inclina = [-.18, .16, -.05, .1][i % 4];
   const pts = [];
@@ -212,22 +212,52 @@ function desenharCentro(id) {
   return [[.22, -.25], [.48, .12], [.12, .3]].map(([u, v]) => { const [x, y] = P(u, v); return brigadeiro(x, y - 8, 17, r); }).join('');
 }
 
+// ---------- ingredientes novos (criados pelo editor, sem desenho próprio) ----------
+// Cada um tem um jeito (estilo) e uma cor escolhidos no editor; o desenho sai daqui.
+const NOVOS = {}; // id → { estilo, hex }
+export function registrarIngredientes(itens) {
+  for (const it of itens) if (!it.pronto && !(it.id in PECA) && ![...CALDA, ...CENTRO, ...PO].includes(it.id)) NOVOS[it.id] = { estilo: it.estilo, hex: it.hex };
+}
+const escuro = (hex, q = .25) => { const n = parseInt(hex.slice(1), 16), c = k => Math.round(((n >> k) & 255) * (1 - q)); return '#' + [16, 8, 0].map(k => c(k).toString(16).padStart(2, '0')).join(''); };
+
+function pedacoNovo(x, y, r, rot, hex) {
+  const s = 10 + r() * 3;
+  return sombra(x, y, s) + `<g transform="translate(${f(x)} ${f(y)}) rotate(${rot}) scale(1 ${ACHATA + .1})">
+    <rect x="${f(-s)}" y="${f(-s)}" width="${f(2 * s)}" height="${f(2 * s)}" rx="${f(s * .45)}" fill="${hex}" stroke="${escuro(hex)}" stroke-width="1.4"/>
+    <ellipse cx="${f(-s * .3)}" cy="${f(-s * .4)}" rx="${f(s * .35)}" ry="${f(s * .2)}" fill="#fff" opacity=".45"/></g>`;
+}
+function salpicoNovo(x, y, r, hex) {
+  const s = 2.5 + r() * 3, c = r() < .35 ? escuro(hex) : hex;
+  const pts = Array.from({ length: 5 }, (_, k) => { const a = k * 1.256 + r() * .6, rr = s * (.7 + r() * .5); return `${f(x + Math.cos(a) * rr)},${f(y + Math.sin(a) * rr * .7)}`; }).join(' ');
+  return `<polygon points="${pts}" fill="${c}"/>`;
+}
+function desenharNovo(id, i, faixa) {
+  const { estilo, hex } = NOVOS[id];
+  const r = rng(semente(id));
+  if (estilo === 'calda') return desenharCalda(id, i, hex);
+  if (estilo === 'creme') return [[.05, -.1, 50], [-.38, .22, 38]].map(([u, v, w]) => { const [x, y] = P(u, v); return colherada(x, y, w, hex, escuro(hex, .15)); }).join('');
+  if (estilo === 'salpicado') return pontos(r, 32, { dist: .07, raio: .86 }).map(([u, v]) => { const [x, y] = P(u, v); return salpicoNovo(x, y, r, hex); }).join('');
+  const [u0, u1] = faixa;
+  return pontos(r, Math.max(4, Math.round(26 * (u1 - u0) / 2)), { u0, u1, dist: .14, raio: .86 }).map(([u, v]) => { const [x, y] = P(u, v); return pedacoNovo(x, y, r, Math.round((r() - .5) * 70), hex); }).join('');
+}
+const ehFaixa = id => FAIXA.includes(id) || NOVOS[id]?.estilo === 'pedacos';
+
 // ---------- montagem do copo ----------
 // ids na ordem em que entraram; devolve [{ id, svg }] na ordem de desenho (de baixo para cima)
 export function camadas(ids) {
   const out = [];
   ids.filter(i => PO.includes(i)).forEach(id => out.push({ id, svg: desenharPo() })); // camada por baixo das frutas
-  const faixas = ids.filter(i => FAIXA.includes(i));
+  const faixas = ids.filter(ehFaixa);
   // granola sempre numa ponta (como no balcão), frutas no meio
   faixas.sort((a, b) => (a === 'granola') - (b === 'granola'));
   const n = faixas.length;
   faixas.forEach((id, k) => {
-    const u0 = -1 + (2 * k) / n, u1 = -1 + (2 * (k + 1)) / n;
-    out.push({ id, svg: desenharFaixa(id, u0 + .02, u1 - .02) });
+    const u0 = -1 + (2 * k) / n + .02, u1 = -1 + (2 * (k + 1)) / n - .02;
+    out.push({ id, svg: FAIXA.includes(id) ? desenharFaixa(id, u0, u1) : desenharNovo(id, 0, [u0, u1]) });
   });
-  ids.filter(i => SALPICO.includes(i)).forEach(id => out.push({ id, svg: desenharSalpico(id) }));
-  ids.filter(i => CALDA.includes(i)).forEach((id, i) => out.push({ id, svg: desenharCalda(id, i) }));
-  ids.filter(i => CENTRO.includes(i)).forEach(id => out.push({ id, svg: desenharCentro(id) }));
+  ids.filter(i => SALPICO.includes(i) || NOVOS[i]?.estilo === 'salpicado').forEach(id => out.push({ id, svg: SALPICO.includes(id) ? desenharSalpico(id) : desenharNovo(id) }));
+  ids.filter(i => CALDA.includes(i) || NOVOS[i]?.estilo === 'calda').forEach((id, i) => out.push({ id, svg: CALDA.includes(id) ? desenharCalda(id, i) : desenharNovo(id, i) }));
+  ids.filter(i => CENTRO.includes(i) || NOVOS[i]?.estilo === 'creme').forEach(id => out.push({ id, svg: CENTRO.includes(id) ? desenharCentro(id) : desenharNovo(id) }));
   return out;
 }
 
@@ -243,6 +273,13 @@ export const SABOR = {
   'fior-di-latte': { cor: '#FFF8EC', escuro: '#E9DDC8', det: null },
   'limao-siciliano': { cor: '#EDE7A1', escuro: '#CFC66A', det: 'raspas-limao' }
 };
+
+// sabor novo (criado no editor): usa a cor escolhida, sem detalhe por cima
+export function registrarSabores(sabores) {
+  for (const s of sabores) if (!s.cor && !SABOR[s.id]) SABOR[s.id] = { cor: s.hex, escuro: s.escuro, det: null };
+}
+
+export const SABORES_PRONTOS = Object.keys(SABOR); // os que já têm desenho (antes de registrar os novos)
 
 // bola de gelato: topo redondo + "babado" embaixo, que é o jeito de bola feita com boleador
 let contaBola = 0;
@@ -288,7 +325,8 @@ export function camadasGelato(sabores, adicionais) {
   adicionais.forEach((id, i) => {
     const r = rng(semente(id) + 3);
     let svg = '';
-    const cor = { 'creme-avela': C.avela, 'pasta-amendoim': C.amendoim, mel: C.mel, 'doce-de-leite': C.doce }[id];
+    const novo = NOVOS[id];
+    const cor = { 'creme-avela': C.avela, 'pasta-amendoim': C.amendoim, mel: C.mel, 'doce-de-leite': C.doce }[id] ?? (novo?.estilo === 'calda' ? novo.hex : null);
     if (cor) { // calda escorrendo pelas bolas
       const y0 = topo + RAIO_BOLA * (sabores.length === 3 ? .95 : .55) + i * 9;
       let d = `M ${f(meio - largura)} ${f(y0 + 10)}`;
@@ -300,6 +338,13 @@ export function camadasGelato(sabores, adicionais) {
       svg = colherada(meio + 6, topo + 14, 58);
     } else if (id === 'brigadeiro') {
       svg = brigadeiro(meio + (sabores.length === 1 ? 40 : 46), topo + RAIO_BOLA * .55, 17, r);
+    } else if (novo?.estilo === 'creme') {
+      svg = colherada(meio + 6, topo + 14, 50, novo.hex, escuro(novo.hex, .15));
+    } else if (novo) { // pedaços ou salpicado: espalhados por cima das bolas
+      for (let k = 0; k < (novo.estilo === 'pedacos' ? 7 : 26); k++) {
+        const x = meio + (r() - .5) * largura * 1.2, y = topo + 16 + r() * 46;
+        svg += novo.estilo === 'pedacos' ? pedacoNovo(x, y, r, Math.round((r() - .5) * 70), novo.hex).replace(/scale\(1 [\d.]+\)/, 'scale(.7)') : salpicoNovo(x, y, r, novo.hex);
+      }
     }
     out.push({ id, svg });
   });

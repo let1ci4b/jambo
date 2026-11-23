@@ -1,5 +1,5 @@
 // Montar combo: escolher base e toppings de cada açaí, a bebida (Solo Sun) ou o sabor do shake (Sweet Escape).
-import cardapio from '../content/cardapio.json';
+import cardapio from './dados.js';
 import { calcularCombo, reais } from './calculo.js';
 import { adicionar } from './carrinho.js';
 import { confirmar } from './montador.js';
@@ -75,7 +75,9 @@ export function iniciarCombos() {
     const b = e.target.closest('.montar-combo');
     if (!b) return;
     quemAbriu = b;
-    montar(cardapio.combos.itens.find(c => c.id === b.dataset.combo));
+    const c = cardapio.combos.itens.find(k => k.id === b.dataset.combo);
+    if (!c?.partes.length) return;
+    montar(c);
     dlg.showModal();
     $('#combo-t').focus();
   });

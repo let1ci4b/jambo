@@ -1,9 +1,14 @@
 # Pages CMS (app.pagescms.org): edição do cardápio e da loja pelo dono.
-# Só conteúdo: nada de cor, fonte ou layout (RF-16). Cada salvamento gera um build novo no Cloudflare Pages.
+# Só conteúdo: nada de cor de marca, fonte ou layout (RF-16). Cada salvamento gera um build novo no Cloudflare Pages.
+#
+# IMPORTANTE para quem mexer aqui: o Pages CMS APAGA, ao salvar, qualquer dado do JSON que não esteja
+# listado nesta configuração. Todo campo novo em content/*.json precisa entrar aqui também.
+# O site arruma o que vier do editor em src/normalizar.js (item novo ganha código, desenho, cor etc.).
 media:
   input: public/assets/img
   output: /assets/img
-  extensions: [webp, jpg, jpeg, png]
+  extensions: [webp, jpg, jpeg, png, svg]
+
 content:
   - name: cardapio
     label: Cardápio
@@ -16,123 +21,175 @@ content:
         type: object
         list: true
         fields:
-          - { name: id, label: Código (não mude), type: string, readonly: true }
-          - { name: nome, label: Nome, type: string, required: true }
-          - { name: descricao, label: Descrição, type: text, required: true }
-          - { name: preco, label: Preço (R$), type: number, required: true }
-          - { name: kcal, label: Calorias aproximadas, type: number }
-          - { name: imagem, label: Foto, type: image }
-          - { name: alt, label: Descrição da foto (deixe vazio se o nome e a descrição já dizem tudo), type: string }
-          - { name: esgotado, label: Esgotado hoje, type: boolean }
-          - { name: adesivos, label: Ingredientes que voam (códigos), type: string, list: true }
+          - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
+          - { name: nome, label: "Nome", type: string, required: true }
+          - { name: descricao, label: "Descrição (o que vai no bowl)", type: text, required: true }
+          - { name: preco, label: "Preço (R$; use ponto, ex. 26.90)", type: number, required: true }
+          - { name: kcal, label: "Calorias aproximadas (500 ml)", type: number }
+          - { name: imagem, label: "Foto (de preferência em pé, 4 por 5; o site corta o excesso)", type: image }
+          - { name: alt, label: "Descrição da foto (deixe vazio se o nome e a descrição já dizem tudo)", type: string }
+          - { name: esgotado, label: "Esgotado hoje", type: boolean }
+          - { name: adesivos, label: "Ingredientes que voam (nome de um topping ou adicional, ex. Kiwi; os 2 primeiros aparecem no celular)", type: string, list: true }
+
       - name: montador
         label: Monte seu Jambo
         type: object
         fields:
-          - { name: toppingsGratis, label: Toppings inclusos, type: number }
-          - { name: precoExtra, label: Preço do topping extra e de cada adicional (R$), type: number }
+          - { name: toppingsGratis, label: "Toppings inclusos", type: number }
+          - { name: precoExtra, label: "Preço do topping extra e de cada adicional (R$)", type: number }
           - name: bases
-            label: Bases
+            label: Bases (não crie novas; só mude nome e calorias)
             type: object
             list: true
             fields:
-              - { name: id, label: Código (não mude), type: string, readonly: true }
-              - { name: nome, label: Nome, type: string }
+              - { name: id, label: "Código (não mude)", type: string, readonly: true }
+              - { name: nome, label: "Nome", type: string }
               - name: kcal
                 label: Calorias por tamanho
                 type: object
                 fields:
-                  - { name: "300", label: 300 ml, type: number }
-                  - { name: "500", label: 500 ml, type: number }
-                  - { name: "700", label: 700 ml, type: number }
+                  - { name: "300", label: "300 ml", type: number }
+                  - { name: "500", label: "500 ml", type: number }
+                  - { name: "700", label: "700 ml", type: number }
           - name: tamanhos
-            label: Tamanhos
+            label: Tamanhos (não crie novos; só mude o preço)
             type: object
             list: true
             fields:
-              - { name: ml, label: ml, type: number, readonly: true }
-              - { name: preco, label: Preço (R$), type: number }
+              - { name: ml, label: "ml", type: number, readonly: true }
+              - { name: preco, label: "Preço (R$)", type: number }
           - name: toppings
             label: Toppings
             type: object
             list: true
             fields: &ingrediente
-              - { name: id, label: Código (não mude), type: string, readonly: true }
-              - { name: nome, label: Nome, type: string }
-              - { name: kcal, label: Calorias da porção, type: number }
-              - { name: esgotado, label: Esgotado hoje, type: boolean }
-          - { name: adicionais, label: Adicionais, type: object, list: true, fields: *ingrediente }
+              - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
+              - { name: nome, label: "Nome", type: string, required: true }
+              - { name: kcal, label: "Calorias da porção", type: number }
+              - { name: esgotado, label: "Esgotado hoje", type: boolean }
+              - name: estilo
+                label: Como vai no copo (só para ingrediente novo)
+                type: select
+                options:
+                  values: [Pedaços, Salpicado, Calda, Creme]
+              - name: cor
+                label: Cor do desenho (só para ingrediente novo)
+                type: select
+                options:
+                  values: [Vermelho, Rosa, Laranja, Amarelo, Creme, Branco, Verde-claro, Verde, Roxo, Azul, Bege, Marrom-claro, Marrom, Chocolate, Preto]
+              - { name: desenho, label: "Desenho próprio (opcional; quadrado, fundo transparente; sem ele o site desenha pela cor)", type: image }
+          - { name: adicionais, label: "Adicionais", type: object, list: true, fields: *ingrediente }
+
       - name: gelato
         label: Gelato
         type: object
         fields:
-          - { name: imagem, label: Foto, type: image }
-          - { name: alt, label: Descrição da foto, type: string, required: true }
-          - { name: doisSabores, label: Copinho 2 sabores (R$), type: number }
-          - { name: tresSabores, label: Copinho 3 sabores (R$), type: number }
+          - { name: imagem, label: "Foto (deitada e larga, 21 por 9; o site corta o excesso)", type: image }
+          - { name: alt, label: "Descrição da foto", type: string, required: true }
+          - { name: doisSabores, label: "Copinho 2 sabores (R$)", type: number }
+          - { name: tresSabores, label: "Copinho 3 sabores (R$)", type: number }
+          - { name: nota, label: "Observação (tamanho da bola etc.)", type: string }
           - name: sabores
             label: Sabores
             type: object
             list: true
             fields:
-              - { name: id, label: Código (não mude), type: string, readonly: true }
-              - { name: nome, label: Nome, type: string }
-              - { name: preco, label: Preço de 1 sabor (R$), type: number }
-              - { name: cor, label: Cor (não mude), type: string, readonly: true }
-              - { name: esgotado, label: Esgotado hoje, type: boolean }
+              - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
+              - { name: nome, label: "Nome", type: string, required: true }
+              - { name: preco, label: "Preço de 1 sabor (R$)", type: number, required: true }
+              - { name: kcal, label: "Calorias da bola", type: number }
+              - { name: esgotado, label: "Esgotado hoje", type: boolean }
+              - { name: cor, label: "Desenho pronto (não mude)", type: string, readonly: true }
+              - name: corMassa
+                label: Cor da massa (só para sabor novo)
+                type: select
+                options:
+                  values: [Vermelho, Rosa, Laranja, Amarelo, Creme, Branco, Verde-claro, Verde, Roxo, Azul, Bege, Marrom-claro, Marrom, Chocolate, Preto]
+
       - name: milkshakes
         label: Milkshakes
         type: object
         fields:
-          - { name: imagem, label: Foto, type: image }
-          - { name: alt, label: Descrição da foto, type: string, required: true }
+          - { name: imagem, label: "Foto (em pé, 4 por 5)", type: image }
+          - { name: alt, label: "Descrição da foto", type: string, required: true }
+          - { name: tamanho, label: "Tamanho do copo (ex. 400 ml)", type: string }
           - name: itens
             label: Milkshakes
             type: object
             list: true
             fields: &produto
-              - { name: id, label: Código (não mude), type: string, readonly: true }
-              - { name: nome, label: Nome, type: string }
-              - { name: descricao, label: Descrição, type: text }
-              - { name: preco, label: Preço (R$), type: number }
-              - { name: esgotado, label: Esgotado hoje, type: boolean }
+              - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
+              - { name: nome, label: "Nome", type: string, required: true }
+              - { name: descricao, label: "Descrição", type: text }
+              - { name: preco, label: "Preço (R$)", type: number, required: true }
+              - { name: esgotado, label: "Esgotado hoje", type: boolean }
+
       - name: combos
         label: Combos
         type: object
         fields:
-          - { name: imagem, label: Foto, type: image }
-          - { name: alt, label: Descrição da foto, type: string, required: true }
-          - { name: itens, label: Combos, type: object, list: true, fields: *produto }
+          - { name: imagem, label: "Foto (quase quadrada, 5 por 4)", type: image }
+          - { name: alt, label: "Descrição da foto", type: string, required: true }
+          - { name: regra, label: "Regra que aparece ao montar o combo", type: text }
+          - name: itens
+            label: Combos
+            type: object
+            list: true
+            fields:
+              - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
+              - { name: nome, label: "Nome", type: string, required: true }
+              - { name: descricao, label: "Descrição", type: text }
+              - { name: preco, label: "Preço (R$)", type: number, required: true }
+              - { name: esgotado, label: "Esgotado hoje", type: boolean }
+              - name: partes
+                label: O que o cliente escolhe (sem nada aqui, o combo vai direto para o pedido)
+                type: object
+                list: true
+                fields:
+                  - name: tipo
+                    label: Tipo
+                    type: select
+                    options:
+                      values: [acai, bebida, milkshake]
+                  - { name: ml, label: "Tamanho do açaí em ml (só para açaí)", type: number }
+                  - { name: tamanho, label: "Tamanho do milkshake (só para milkshake, ex. 300 ml)", type: string }
+
       - name: bebidas
         label: Bebidas
         type: object
         list: true
         fields:
-          - { name: id, label: Código (não mude), type: string, readonly: true }
-          - { name: nome, label: Nome, type: string }
-          - { name: preco, label: Preço (R$), type: number }
-          - { name: esgotado, label: Esgotado hoje, type: boolean }
+          - { name: id, label: "Código (automático; não mude)", type: string, readonly: true }
+          - { name: nome, label: "Nome", type: string, required: true }
+          - { name: preco, label: "Preço (R$)", type: number, required: true }
+          - { name: esgotado, label: "Esgotado hoje", type: boolean }
+
   - name: loja
     label: Loja
     type: file
     path: content/loja.json
     format: json
     fields:
-      - { name: frase, label: Frase de destaque, type: string }
-      - { name: endereco, label: Endereço completo, type: string }
-      - { name: rua, label: Rua e número, type: string }
-      - { name: bairro, label: Bairro, type: string }
-      - { name: cidade, label: Cidade, type: string }
-      - { name: uf, label: UF, type: string }
-      - { name: whatsapp, label: WhatsApp dos pedidos (só números, com 55 e DDD), type: string }
-      - { name: whatsappTexto, label: WhatsApp como aparece no site, type: string }
-      - { name: instagram, label: Instagram, type: string }
-      - { name: entrega, label: Bairros e taxa de entrega, type: text }
+      - { name: nome, label: "Nome da loja", type: string }
+      - { name: frase, label: "Frase de destaque", type: string }
+      - { name: endereco, label: "Endereço completo", type: string }
+      - { name: rua, label: "Rua e número", type: string }
+      - { name: bairro, label: "Bairro", type: string }
+      - { name: cidade, label: "Cidade", type: string }
+      - { name: uf, label: "UF", type: string }
+      - { name: whatsapp, label: "WhatsApp dos pedidos (só números, com 55 e DDD)", type: string }
+      - { name: whatsappTexto, label: "WhatsApp como aparece no site", type: string }
+      - { name: instagram, label: "Instagram", type: string }
+      - { name: entrega, label: "Bairros e taxa de entrega", type: text }
       - name: horario
         label: Horário (domingo primeiro)
         type: object
         list: true
         fields:
-          - { name: dia, label: Dia, type: string, readonly: true }
-          - { name: abre, label: Abre (hh:mm), type: string }
-          - { name: fecha, label: Fecha (hh:mm), type: string }
+          - { name: dia, label: "Dia", type: string, readonly: true }
+          - { name: abre, label: "Abre (hh:mm)", type: string }
+          - { name: fecha, label: "Fecha (hh:mm)", type: string }
+      - { name: compartilharTexto, label: "Texto do card de compartilhamento (WhatsApp, Instagram)", type: text }
+      - { name: compartilharAlt, label: "Descrição da imagem do card de compartilhamento", type: string }
+      - { name: site, label: "Endereço do site (não mude)", type: string, readonly: true }
+      - { name: whatsappLeticia, label: WhatsApp do botão "Quero um site assim" (não mude), type: string, readonly: true }
