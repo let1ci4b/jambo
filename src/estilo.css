@@ -626,3 +626,14 @@ html.links a,html.links button:not(.acess-opcao){outline:3px dashed currentColor
 .bowl .preco[data-promo] .pilula-promo,.lista-shakes .preco[data-promo] .pilula-promo{grid-column:1 / -1;margin:0}
 .bowl .preco[data-promo] .so-leitor,.lista-shakes .preco[data-promo] .so-leitor{grid-column:auto}
 #f-cupom{text-transform:uppercase}
+#f-cupom::placeholder{text-transform:none}
+.cupom-status:empty{display:none}
+.cupom-status[data-estado="ok"]{font-weight:700}
+.cupom-status[data-estado="ok"]::before{content:"✓ ";}
+.carrinho-desconto{margin:0;display:grid;gap:4px}
+.carrinho-desconto div{display:flex;justify-content:space-between;gap:12px}
+.carrinho-desconto dt,.carrinho-desconto dd{margin:0}
+.carrinho-desconto dd{font-variant-numeric:tabular-nums}
+.carrinho-desconto[hidden]{display:none}
+.carrinho-desconto:not([hidden]){margin-top:var(--e3);padding-top:var(--e2);border-top:1px solid var(--fio-claro)}
+.carrinho-desconto:not([hidden]) + .carrinho-total{border-top:0;margin-top:8px;padding-top:0}

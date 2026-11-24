@@ -2,6 +2,7 @@
 // O pedido termina no WhatsApp, com a mensagem no modelo da análise interna (seção 6).
 import loja from '../content/loja.json';
 import { reais } from './calculo.js';
+import cupons from 'virtual:cupons';
 
 const $ = (s, el = document) => el.querySelector(s);
 const CHAVE = 'jambo-pedido';
@@ -57,7 +58,50 @@ export function adicionar({ id, nome, detalhes = '', linhas = null, preco }, ori
   else avisar('Adicionado ao pedido');
 }
 
-function total() { return itens.reduce((s, i) => s + i.preco * i.qtd, 0); }
+function subtotal() { return itens.reduce((s, i) => s + i.preco * i.qtd, 0); }
+
+// ---------- cupom ----------
+// O site só conhece o hash de cada código ativo (ferramentas/cupons.mjs). Valores em centavos.
+let cupom = { codigo: '', regra: null, estado: 'vazio' }; // estado: vazio | conferindo | ok | minimo | invalido | sem-conferir
+const hojeLoja = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const limpar = v => String(v ?? '').toUpperCase().replace(/\s+/g, '').slice(0, 20);
+async function hash(t) {
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('jambo-cupom:' + t));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+async function conferirCupom(texto) {
+  const codigo = limpar(texto);
+  if (!codigo) return { codigo, regra: null, estado: 'vazio' };
+  if (!globalThis.crypto?.subtle) return { codigo, regra: null, estado: 'sem-conferir' };
+  try {
+    const h = await hash(codigo);
+    const regra = cupons.find(c => c.h === h && (!c.ate || c.ate >= hojeLoja()));
+    return { codigo, regra: regra ?? null, estado: regra ? 'ok' : 'invalido' };
+  } catch { return { codigo, regra: null, estado: 'sem-conferir' }; }
+}
+const valorTxt = r => (r.tipo === 'porcentagem' ? `${String(r.valor).replace('.', ',')}%` : reais(Math.round(r.valor * 100)));
+function desconto() {
+  const r = cupom.regra;
+  if (!r || !itens.length) return 0;
+  const sub = subtotal();
+  if (sub < Math.round(r.minimo * 100)) return 0;
+  const d = r.tipo === 'porcentagem' ? Math.round(sub * r.valor / 100) : Math.round(r.valor * 100);
+  return Math.min(d, sub);
+}
+function situacaoCupom() {
+  const r = cupom.regra;
+  if (cupom.estado === 'ok' && r && subtotal() < Math.round(r.minimo * 100)) return 'minimo';
+  return cupom.estado;
+}
+function textoCupom() {
+  const r = cupom.regra, e = situacaoCupom();
+  if (e === 'ok') return `Cupom aplicado: ${valorTxt(r)} de desconto${r.minimo ? ` em pedidos a partir de ${reais(Math.round(r.minimo * 100))}` : ''}.`;
+  if (e === 'minimo') return `Este cupom vale para pedidos a partir de ${reais(Math.round(r.minimo * 100))}. Faltam ${reais(Math.round(r.minimo * 100) - subtotal())}.`;
+  if (e === 'invalido') return 'Não encontramos este cupom. Confira as letras e os números, ou veja se ele ainda está valendo.';
+  if (e === 'sem-conferir') return 'Não deu para conferir o cupom aqui. Ele vai na mensagem, e a loja confere.';
+  return '';
+}
+function total() { return subtotal() - desconto(); }
 function contagem() { return itens.reduce((s, i) => s + i.qtd, 0); }
 
 function desenhar(pular) {
@@ -69,6 +113,13 @@ function desenhar(pular) {
   document.querySelectorAll('.conta-leitor').forEach(c => { c.textContent = `, ${n} ${n === 1 ? 'item' : 'itens'} no pedido`; });
   $('#vazio').hidden = itens.length > 0;
   $('#carrinho-total').textContent = reais(total());
+  const d = desconto(), linhaD = $('#carrinho-desconto');
+  if (linhaD) {
+    linhaD.hidden = !d;
+    if (d) { $('#carrinho-subtotal').textContent = reais(subtotal()); $('#carrinho-desconto-v').textContent = '− ' + reais(d); $('#carrinho-desconto-cod').textContent = cupom.codigo; }
+  }
+  const st = $('#s-cupom');
+  if (st) { const t = textoCupom(); if (st.textContent !== t) st.textContent = t; st.dataset.estado = situacaoCupom(); }
   lista.innerHTML = '';
   itens.forEach((it, k) => {
     const li = document.createElement('li');
@@ -97,7 +148,21 @@ function mudar(k, d) {
   itens[k].qtd += d;
   const saiu = itens[k].qtd <= 0;
   if (saiu) itens.splice(k, 1);
-  salvar(); desenhar(false);
+  salvar(); // cupom: confere enquanto o cliente digita (com uma pausa curta) e antes de enviar
+const campoCupom = form.cupom;
+let tCupom, pedidoCupom = 0;
+async function atualizarCupom() {
+  const n = ++pedidoCupom;
+  const r = await conferirCupom(campoCupom.value);
+  if (n !== pedidoCupom) return; // chegou uma digitação mais nova
+  cupom = r; desenhar(false);
+}
+if (campoCupom) {
+  campoCupom.addEventListener('input', () => { clearTimeout(tCupom); tCupom = setTimeout(atualizarCupom, 400); });
+  campoCupom.addEventListener('change', () => { clearTimeout(tCupom); atualizarCupom(); });
+}
+
+desenhar(false);
   // foco não se perde: volta para o mesmo lugar da lista (ou para o título)
   const botoes = lista.querySelectorAll('li');
   if (saiu) { avisarDentro(`${nome} removido`); (botoes[Math.min(k, botoes.length - 1)]?.querySelector('.mais') ?? $('#carrinho-t')).focus(); }
@@ -151,17 +216,22 @@ export function montarMensagem(dados) {
     for (const l of it.linhas ?? []) L.push(`   • ${l}`);
     L.push(`   ${it.qtd > 1 ? `${it.qtd} × ${reais(it.preco)} = ` : ''}*${reais(it.preco * it.qtd)}*`, '');
   });
-  L.push(LINHA, `*TOTAL: ${reais(total())}*`, '_(a confirmar pela loja)_', LINHA);
+  const d = desconto(), e = situacaoCupom();
+  L.push(LINHA);
+  if (d) L.push(`Subtotal: ${reais(subtotal())}`, `Cupom *${cupom.codigo}* (${valorTxt(cupom.regra)}): − ${reais(d)}`);
+  L.push(`*TOTAL: ${reais(total())}*`, '_(a confirmar pela loja)_', LINHA);
   L.push('*CLIENTE*', `Nome: ${dados.nome}`);
   L.push(dados.modo === 'entrega' ? `Entrega: ${dados.endereco}` : 'Retirada na loja');
   L.push(`Pagamento: ${dados.pagamento}`);
-  if (dados.cupom) L.push(`Cupom: *${dados.cupom}* _(a loja confere o desconto)_`);
+  if (cupom.codigo && !d) L.push(`Cupom informado: *${cupom.codigo}* _(${e === 'minimo' ? 'não aplicado: pedido abaixo do mínimo' : e === 'invalido' ? 'não reconhecido pelo site' : 'a loja confere'})_`);
   if (dados.obs) L.push(`Observações: ${dados.obs}`);
   return L.join('\n');
 }
 
-form.addEventListener('submit', e => {
+form.addEventListener('submit', async e => {
   e.preventDefault();
+  // normalmente o cupom já foi conferido ao sair do campo; só espera se mudou (é rápido, milissegundos)
+  if (campoCupom && limpar(campoCupom.value) !== cupom.codigo) { clearTimeout(tCupom); await atualizarCupom(); }
   const resumo = $('#resumo-erro');
   resumo.setAttribute('role', 'alert');
   const faltam = [];
@@ -177,11 +247,25 @@ form.addEventListener('submit', e => {
     return;
   }
   resumo.textContent = '';
-  const msg = montarMensagem({ nome, modo: form.modo.value, endereco: end, pagamento: form.pagamento.value, obs: form.obs.value.trim(), cupom: (form.cupom?.value ?? '').trim().toUpperCase().replace(/\s+/g, '').slice(0, 20) });
+  const msg = montarMensagem({ nome, modo: form.modo.value, endereco: end, pagamento: form.pagamento.value, obs: form.obs.value.trim() });
   const url = `https://wa.me/${loja.whatsapp}?text=${encodeURIComponent(msg)}`;
   // link de verdade (passa por bloqueador de pop-up e funciona dentro de molduras)
   const a = Object.assign(document.createElement('a'), { href: url, target: '_blank', rel: 'noopener' });
   document.body.appendChild(a); a.click(); a.remove();
 });
+
+// cupom: confere enquanto o cliente digita (com uma pausa curta) e antes de enviar
+const campoCupom = form.cupom;
+let tCupom, pedidoCupom = 0;
+async function atualizarCupom() {
+  const n = ++pedidoCupom;
+  const r = await conferirCupom(campoCupom.value);
+  if (n !== pedidoCupom) return; // chegou uma digitação mais nova
+  cupom = r; desenhar(false);
+}
+if (campoCupom) {
+  campoCupom.addEventListener('input', () => { clearTimeout(tCupom); tCupom = setTimeout(atualizarCupom, 400); });
+  campoCupom.addEventListener('change', () => { clearTimeout(tCupom); atualizarCupom(); });
+}
 
 desenhar(false);

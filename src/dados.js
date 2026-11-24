@@ -7,7 +7,7 @@ import combos from '../content/cardapio/combos.json';
 import bebidas from '../content/cardapio/bebidas.json';
 import { normalizar, montarCardapio, aplicarPromocoes, hojeLoja } from './normalizar.js';
 import { SABORES_PRONTOS, registrarIngredientes, registrarSabores } from './copo.js';
-// Atenção: content/cupons.json NÃO é importado aqui de propósito. Os cupons ficam só no editor,
+// Atenção: content/cupons.json NÃO é importado aqui de propósito. O carrinho usa 'virtual:cupons' (só hashes, ver ferramentas/cupons.mjs),
 // para a loja conferir o que o cliente escrever; não vão para o site (o vite.config.js trava o build se forem).
 
 const arquivos = import.meta.glob('../content/ingredientes/*.json', { eager: true, import: 'default' });

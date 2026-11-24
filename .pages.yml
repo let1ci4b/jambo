@@ -290,21 +290,31 @@ content:
               - { name: botao, label: Texto do botão, description: "Ex.: Ver o Jambo Classic. Vazio: Ver no cardápio.", type: string, options: { maxlength: 28 } }
 
       - name: cupons
-        label: "Cupons (só para conferência)"
+        label: Cupons de desconto
         type: file
         path: content/cupons.json
         format: json
         fields:
           - name: cupons
-            label: "Cupons: não aparecem no site. Use para conferir o cupom que o cliente escrever no pedido"
+            label: "Cupons: o site confere o código e calcula o desconto. O código não aparece escrito no site"
             type: object
-            list: { max: 50, collapsible: { collapsed: true, summary: "{codigo} · {desconto}" } }
+            list: { max: 50, collapsible: { collapsed: true, summary: "{codigo}" } }
             fields:
               - { name: codigo, label: Código, description: "Letras maiúsculas e números, sem espaço. Ex.: VERAO10", type: string, required: true, pattern: { regex: "^[A-Z0-9-]{3,20}$", message: "Use de 3 a 20 letras maiúsculas, números ou hífen, sem espaço. Ex.: VERAO10" } }
-              - { name: desconto, label: Desconto e regra, description: "Ex.: 10% no pedido acima de R$ 40,00", type: string, required: true, options: { maxlength: 80 } }
-              - { name: validoAte, label: Válido até, type: date }
-              - { name: ativo, label: Ativo, description: "Desligado: o cupom não vale mais, mas fica guardado aqui.", type: boolean, default: true }
-              - { name: observacao, label: Observação, description: "Ex.: onde foi divulgado, um uso por cliente.", type: text, options: { maxlength: 200 } }
+              - name: tipo
+                label: Tipo de desconto
+                type: select
+                required: true
+                default: porcentagem
+                options:
+                  values:
+                    - { value: porcentagem, label: "Porcentagem do pedido (%)" }
+                    - { value: valor, label: "Valor fixo em reais (R$)" }
+              - { name: valor, label: Desconto, description: "Só o número. Porcentagem: 10 é 10%. Valor fixo: 5 é R$ 5,00.", type: number, required: true, options: { min: 0.01, max: 500, step: 0.01 } }
+              - { name: minimo, label: "Pedido mínimo (R$)", description: "Vazio: vale para qualquer pedido. Ex.: 40", type: number, options: { min: 0, max: 2000, step: 0.01 } }
+              - { name: validoAte, label: Válido até, description: "Vazio: vale até você desligar. No dia seguinte a esta data, o site para de aceitar.", type: date }
+              - { name: ativo, label: Ativo, description: "Desligado: o site não aceita mais o cupom, mas ele fica guardado aqui.", type: boolean, default: true }
+              - { name: observacao, label: Observação, description: "Só para você. Ex.: onde foi divulgado, um uso por cliente.", type: text, options: { maxlength: 200 } }
 
   - name: loja
     label: Loja

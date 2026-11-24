@@ -261,17 +261,25 @@ const cb = partes.combos ?? {};
   if (hojeAtivos.length > 3) aviso('Promoções e cupons → Avisos de promoção', `Há ${hojeAtivos.length} avisos valendo hoje.`, 'O site mostra só os 3 primeiros da lista.');
 }
 
-// ---------- cupons (não vão para o site; só avisos, nunca bloqueiam) ----------
+// ---------- cupons (o site confere pelo hash e calcula o desconto) ----------
 {
   const lista = Array.isArray(cupons.cupons) ? cupons.cupons : [];
   const vistos = new Set();
+  const n = v => (typeof v === 'number' ? v : Number(String(v ?? '').replace(',', '.')));
+  const brl = v => n(v).toFixed(2).replace('.', ',');
   lista.forEach((c, k) => {
-    const o = `Promoções e cupons → Cupons → ${texto(c.codigo) || `cupom ${k + 1}`}`;
-    if (!/^[A-Z0-9-]{3,20}$/.test(texto(c.codigo))) aviso(o, 'O código está fora do padrão.', 'Use de 3 a 20 letras maiúsculas, números ou hífen, sem espaço. O cliente escreve o código no pedido e o site manda em maiúsculas.');
-    if (vistos.has(texto(c.codigo))) aviso(o, 'Há dois cupons com o mesmo código.', 'Apague um deles para não haver dúvida na conferência.');
+    const o = `Promoções e cupons → Cupons de desconto → ${texto(c.codigo) || `cupom ${k + 1}`}`;
+    if (!/^[A-Z0-9-]{3,20}$/.test(texto(c.codigo))) erro(o, 'O código está fora do padrão.', 'Use de 3 a 20 letras maiúsculas, números ou hífen, sem espaço. Ex.: VERAO10.');
+    if (vistos.has(texto(c.codigo))) erro(o, 'Há dois cupons com o mesmo código.', 'Apague um deles ou mude o código.');
     vistos.add(texto(c.codigo));
-    if (!texto(c.desconto)) aviso(o, 'Falta escrever o desconto e a regra.', 'Ex.: 10% no pedido acima de R$ 40,00.');
-    if (c.ativo !== false && ehData(c.validoAte) && c.validoAte < HOJE) aviso(o, `O cupom venceu em ${dataBR(c.validoAte)}, mas ainda está marcado como ativo.`, 'Desligue "Ativo" para não aceitar por engano.');
+    if (c.tipo !== 'porcentagem' && c.tipo !== 'valor') erro(o, 'Falta escolher o tipo de desconto.', 'Escolha "Porcentagem do pedido" ou "Valor fixo em reais".');
+    if (!(n(c.valor) > 0)) erro(o, 'Falta o valor do desconto.', 'Escreva só o número. Ex.: 10 para 10%, ou 5 para R$ 5,00.');
+    else if (c.tipo === 'porcentagem' && n(c.valor) > 100) erro(o, `O desconto está em ${brl(c.valor)}%, mais que 100%.`, 'Escreva um número de 1 a 100. Ex.: 10 para 10%.');
+    else if (c.tipo === 'porcentagem' && n(c.valor) > 50) aviso(o, `O desconto é de ${brl(c.valor)}%.`, 'Confira se é isso mesmo: é um desconto grande.');
+    if (c.minimo !== undefined && c.minimo !== null && c.minimo !== '' && !(n(c.minimo) >= 0)) erro(o, 'O pedido mínimo é inválido.', 'Escreva só o número, ou deixe vazio. Ex.: 40.');
+    if (c.tipo === 'valor' && n(c.valor) > 0 && n(c.minimo) > 0 && n(c.valor) >= n(c.minimo)) aviso(o, `O desconto (R$ ${brl(c.valor)}) é igual ou maior que o pedido mínimo (R$ ${brl(c.minimo)}).`, 'Confira: um pedido no valor mínimo sairia de graça.');
+    if (c.validoAte && !ehData(c.validoAte)) erro(o, 'A data de validade é inválida.', 'Escolha a data no calendário do campo, ou deixe vazio.');
+    if (c.ativo !== false && ehData(c.validoAte) && c.validoAte < HOJE) aviso(o, `O cupom venceu em ${dataBR(c.validoAte)}. O site já não aceita.`, 'Desligue "Ativo" para a lista ficar em dia.');
   });
 }
 

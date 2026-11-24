@@ -292,7 +292,7 @@ export async function renderizar(html, { comando = 'build' } = {}) {
     INSTAGRAM_URL: `https://www.instagram.com/${encodeURIComponent(String(l.instagram).replace(/^@/, ''))}/`,
     VISITE_FOTOS: visiteFotos(t.visite ?? {}),
     PROMOCOES: promocoesHtml(promocoes.avisos),
-    CAMPO_CUPOM: l.aceitaCupom === false ? '' : '<div class="campo"><label for="f-cupom">Cupom de desconto <span class="opcional">(opcional)</span></label><input type="text" id="f-cupom" name="cupom" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" aria-describedby="d-cupom"><p class="dica" id="d-cupom">O desconto é conferido pela loja na conversa do WhatsApp.</p></div>',
+    CAMPO_CUPOM: l.aceitaCupom === false ? '' : '<div class="campo"><label for="f-cupom">Cupom de desconto <span class="opcional">(opcional)</span></label><input type="text" id="f-cupom" name="cupom" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" aria-describedby="d-cupom s-cupom"><p class="dica" id="d-cupom">O desconto aparece no total do pedido.</p><p class="dica cupom-status" id="s-cupom" role="status"></p></div>',
     ILUSTRATIVAS_LUGAR: ilustrativas ? '<p class="legenda">Imagens ilustrativas · lugar fictício</p>' : '<!-- -->',
     PAGAMENTOS: (l.pagamentos?.length ? l.pagamentos : ['Pix']).map((p, k) => `<label class="caixa"><input type="radio" name="pagamento" value="${esc(p)}"${k ? '' : ' checked'}><span>${esc(p)}</span></label>`).join('\n      '),
     ENTREGA: esc(l.entrega),

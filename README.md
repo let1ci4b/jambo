@@ -104,7 +104,7 @@ Para ver a versão final, rode `npm run build` e depois `npm run preview` (http:
 | Aviso "Imagem ilustrativa" | `content/loja.json` → `fotosIlustrativas` | Sim |
 | Avisos de promoção (com datas) | `content/promocoes.json` | Sim |
 | Preço promocional de bowls, milkshakes, combos e bebidas (com datas) | campos `precoPromo`, `promoInicio`, `promoFim` em `content/cardapio/*.json` | Sim |
-| Cupons (só para a loja conferir; **não vão para o site**) | `content/cupons.json` | Sim |
+| Cupons (o site confere e calcula; o código **não vai escrito** para o site) | `content/cupons.json` | Sim |
 | Campo de cupom no pedido (ligar ou desligar) | `content/loja.json` → `aceitaCupom` | Sim |
 | Imagem do card de compartilhamento | `public/assets/img/compartilhar.jpg` (1200 × 630) | Não |
 | Logo, cores e fontes | `public/assets/logo/` e `src/estilo.css` (bloco `:root`) | Não (de propósito) |
@@ -125,7 +125,9 @@ As listas fecham mostrando o nome e o preço de cada item. Os "Ingredientes que 
 ### Promoções e cupons
 
 - **Promoções:** cada aviso e cada preço promocional têm início e fim. O HTML sai no estado do dia da publicação, e `src/promocoes.js` confere de novo com a data do dia em Florianópolis assim que a página abre. Assim, uma promoção que acabou some sozinha, sem precisar publicar de novo, e o pedido sai com o preço certo (o item vai como "(promoção)" na mensagem).
-- **Cupons:** o cliente escreve o código no pedido, e ele vai na mensagem do WhatsApp com "a loja confere o desconto". A lista de cupons fica só no editor, para a loja conferir. O `vite.config.js` trava o build se `content/cupons.json` for importado pelo site.
+- **Cupons:** cada cupom tem código, tipo (porcentagem ou valor fixo), desconto, pedido mínimo, validade e "ativo". No build, `ferramentas/cupons.mjs` gera o módulo `virtual:cupons` só com os cupons válidos, e cada código vira um hash SHA-256 (com o prefixo `jambo-cupom:`). O navegador calcula o hash do que o cliente digitou e compara. O carrinho mostra subtotal, desconto e total, e a mensagem do WhatsApp leva as três linhas. Cupom não reconhecido ou abaixo do mínimo vai na mensagem como "informado", sem desconto.
+- **Travas dos cupons:** código fora do padrão, código repetido, sem tipo, sem valor ou porcentagem acima de 100 bloqueiam a publicação. O `vite.config.js` trava o build se `content/cupons.json` for importado ou se algum código ativo aparecer escrito no JavaScript ou no HTML publicado.
+- **Limites (explicar ao cliente):** o hash esconde o código de quem olha o código do site, mas quem quiser pode testar palavras até acertar um código curto. O site também não sabe se o cliente já usou o cupom ("um uso por cliente" a loja confere). Use cupons para promoções divulgadas, não para descontos secretos grandes.
 - **Atenção:** com o repositório **público**, qualquer pessoa vê os cupons no GitHub. Para um cliente de verdade, o repositório precisa ser **privado** (o Pages CMS e o Cloudflare funcionam igual).
 
 ### Travas para o site não cair
