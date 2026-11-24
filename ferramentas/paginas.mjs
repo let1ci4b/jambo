@@ -5,13 +5,26 @@ import path from 'node:path';
 import QRCode from 'qrcode';
 import { reais, centavos } from '../src/calculo.js';
 import { adesivoSabor, SABORES_PRONTOS, registrarIngredientes, registrarSabores } from '../src/copo.js';
-import { normalizar, montarCardapio, corSabor } from '../src/normalizar.js';
+import { normalizar, montarCardapio, corSabor, promoDoItem, hojeLoja } from '../src/normalizar.js';
 import { lerConteudo } from './conteudo.mjs';
 
 const raiz = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const ler = f => fs.readFileSync(path.join(raiz, f), 'utf8');
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const r = v => reais(centavos(v));
+const HOJE = hojeLoja(); // data do build; no navegador, src/promocoes.js confere de novo com a data do dia
+const dataBR = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
+
+// Preço com promoção: o HTML sai no estado do dia do build e leva as datas, para o navegador conferir.
+function precoHtml(it, classe = 'preco') {
+  const pr = promoDoItem(it, HOJE);
+  if (!pr) return `<span class="${classe}">${r(it.preco)}</span>`;
+  return `<span class="${classe}" data-normal="${centavos(it.preco)}" data-promo="${centavos(pr.preco)}" data-de="${pr.inicio}" data-ate="${pr.fim}">${conteudoPreco(it.preco, pr, pr.ativa)}</span>`;
+}
+export function conteudoPreco(normal, pr, ativa) {
+  if (!ativa) return r(normal);
+  return `<span class="pilula-promo">Promoção${pr.fim ? ` até ${dataBR(pr.fim)}` : ''}</span><span class="so-leitor">: de </span><s class="preco-de">${r(normal)}</s><span class="so-leitor"> por </span> <span class="preco-por">${r(pr.preco)}</span>`;
+}
 // ---------- fotos ----------
 // As fotos originais já estão otimizadas (webp + versões menores "-640", "-960"). Uma foto nova, enviada
 // pelo editor, pode ser grande (foto de celular): no build ela vira webp nas larguras pedidas.
@@ -65,18 +78,21 @@ function acai(c) {
     const ades = b.adesivos.slice(0, 2).map((a, k) => `<img class="adesivo-fixo a${k}" src="${esc(desenho(a.desenho))}" alt="" width="64" height="64" loading="lazy">`).join('');
     return `<li class="bowl${esg ? ' esgotado' : ''}" data-foto="${esc(grande)}" data-frutas="${esc(b.adesivos.map(a => desenho(a.desenho)).join('|'))}" data-i="${i}">
   <div class="foto-celular" aria-hidden="true"><div class="moldura-c"><img src="${esc(m)}" alt="" width="640" height="800" loading="lazy" decoding="async"></div>${ades}</div>
-  <div class="linha"><h3><span class="ponto" aria-hidden="true"></span>${esc(b.nome)}</h3><span class="preco">${r(b.preco)}</span></div>
+  <div class="linha"><h3><span class="ponto" aria-hidden="true"></span>${esc(b.nome)}</h3>${precoHtml(b)}</div>
   ${b.descricao ? `<p class="desc">${preencher(b.descricao)}</p>` : ''}
   <p class="legenda">${[b.kcal ? `≈ ${b.kcal} kcal (aproximado, 500 ml)` : '', ilustrativas ? 'Imagem ilustrativa' : ''].filter(Boolean).join(' · ')}</p>
-  ${botaoAdicionar({ id: 'acai-' + b.id, nome: 'Açaí ' + b.nome, preco: b.preco, esgotado: esg, oculto: b.nome })}
+  ${botaoAdicionar({ id: 'acai-' + b.id, nome: 'Açaí ' + b.nome, preco: b.preco, esgotado: esg, oculto: b.nome, item: b })}
 </li>`;
   }).join('\n');
   return linhas;
 }
 
-function botaoAdicionar({ id, nome, preco, esgotado, detalhes = '', classe = 'btn btn--contorno', texto = 'Adicionar', oculto = '' }) {
+function botaoAdicionar({ id, nome, preco, esgotado, detalhes = '', classe = 'btn btn--contorno', texto = 'Adicionar', oculto = '', item = null }) {
   if (esgotado) return `<button class="${classe} esgotado-btn" type="button" aria-disabled="true">Esgotado hoje</button>`;
-  return `<button class="${classe} adicionar" type="button" data-id="${esc(id)}" data-nome="${esc(nome)}" data-preco="${centavos(preco)}" data-detalhes="${esc(detalhes)}">${texto}${oculto ? `<span class="so-leitor"> ${esc(oculto)}</span>` : ''}</button>`;
+  const pr = item ? promoDoItem(item, HOJE) : null;
+  const promo = pr ? ` data-normal="${centavos(preco)}" data-promo="${centavos(pr.preco)}" data-de="${pr.inicio}" data-ate="${pr.fim}" data-nome-base="${esc(nome)}"` : '';
+  const ativa = pr?.ativa;
+  return `<button class="${classe} adicionar" type="button" data-id="${esc(id)}" data-nome="${esc(ativa ? nome + ' (promoção)' : nome)}" data-preco="${centavos(ativa ? pr.preco : preco)}"${promo} data-detalhes="${esc(detalhes)}">${texto}${oculto ? `<span class="so-leitor"> ${esc(oculto)}</span>` : ''}</button>`;
 }
 
 function montador(c) {
@@ -138,15 +154,15 @@ function gelato(c) {
 }
 
 function shakes(c) {
-  return c.milkshakes.itens.map(s => `<li class="${s.esgotado ? 'esgotado' : ''}"><div class="linha"><h3>${esc(s.nome)}</h3><span class="preco">${r(s.preco)}</span></div><p class="desc">${preencher(s.descricao)}</p>${botaoAdicionar({ id: 'shake-' + s.id, nome: 'Milkshake ' + s.nome, preco: s.preco, esgotado: s.esgotado, classe: 'btn btn--contorno-claro', oculto: s.nome })}</li>`).join('');
+  return c.milkshakes.itens.map(s => `<li class="${s.esgotado ? 'esgotado' : ''}"><div class="linha"><h3>${esc(s.nome)}</h3>${precoHtml(s)}</div><p class="desc">${preencher(s.descricao)}</p>${botaoAdicionar({ id: 'shake-' + s.id, nome: 'Milkshake ' + s.nome, preco: s.preco, esgotado: s.esgotado, classe: 'btn btn--contorno-claro', oculto: s.nome, item: s })}</li>`).join('');
 }
 
 function combos(c) {
-  return c.combos.itens.map((k, i) => `<li class="combo${i === 0 ? ' ativo' : ''}${k.esgotado ? ' esgotado' : ''}" data-i="${i}"><h3 class="combo-nome">${esc(k.nome)}</h3><p class="desc">${esc(k.descricao)}</p><p class="combo-preco">${r(k.preco)}</p>${k.esgotado ? botaoAdicionar({ esgotado: true, classe: 'btn btn--contorno-claro' }) : !k.partes.length ? botaoAdicionar({ id: 'combo-' + k.id, nome: 'Combo ' + k.nome, preco: k.preco, classe: 'btn btn--contorno-claro', oculto: k.nome }) : `<button class="btn btn--contorno-claro montar-combo" type="button" data-combo="${k.id}">Montar combo<span class="so-leitor"> ${esc(k.nome)}</span></button>`}</li>`).join('');
+  return c.combos.itens.map((k, i) => `<li class="combo${i === 0 ? ' ativo' : ''}${k.esgotado ? ' esgotado' : ''}" data-i="${i}"><h3 class="combo-nome">${esc(k.nome)}</h3><p class="desc">${esc(k.descricao)}</p><p>${precoHtml(k, 'combo-preco')}</p>${k.esgotado ? botaoAdicionar({ esgotado: true, classe: 'btn btn--contorno-claro' }) : !k.partes.length ? botaoAdicionar({ id: 'combo-' + k.id, nome: 'Combo ' + k.nome, preco: k.preco, classe: 'btn btn--contorno-claro', oculto: k.nome, item: k }) : `<button class="btn btn--contorno-claro montar-combo" type="button" data-combo="${k.id}">Montar combo<span class="so-leitor"> ${esc(k.nome)}</span></button>`}</li>`).join('');
 }
 
 function bebidas(c) {
-  return c.bebidas.map(b => `<li class="${b.esgotado ? 'esgotado' : ''}"><span class="nome">${esc(b.nome)}</span><span class="preco">${r(b.preco)}</span>${b.esgotado ? '<span class="pilula-esgotado">Esgotado</span>' + botaoAdicionar({ esgotado: true, classe: 'btn-icone' }) : botaoAdicionar({ id: 'bebida-' + b.id, nome: b.nome, preco: b.preco, classe: 'btn-icone', texto: ICONE.mais, oculto: 'Adicionar ' + b.nome })}</li>`).join('');
+  return c.bebidas.map(b => `<li class="${b.esgotado ? 'esgotado' : ''}"><span class="nome">${esc(b.nome)}</span>${precoHtml(b)}${b.esgotado ? '<span class="pilula-esgotado">Esgotado</span>' + botaoAdicionar({ esgotado: true, classe: 'btn-icone' }) : botaoAdicionar({ id: 'bebida-' + b.id, nome: b.nome, preco: b.preco, classe: 'btn-icone', texto: ICONE.mais, oculto: 'Adicionar ' + b.nome, item: b })}</li>`).join('');
 }
 
 function horario(l) {
@@ -168,6 +184,22 @@ function jsonld(l) {
 }
 
 // fotos da seção Visite (editáveis): a original já tem versão de 800 px; foto nova vira webp no build
+// Avisos de promoção: saem todos os que ainda não acabaram; os que não valem hoje ficam escondidos
+// e o navegador confere a data de novo (src/promocoes.js).
+const SECOES = { acai: '#acai', monte: '#monte', gelato: '#gelato', milkshakes: '#shakes', combos: '#combos', bebidas: '#bebidas' };
+function promocoesHtml(lista) {
+  const avisos = (Array.isArray(lista) ? lista : []).filter(a => a?.titulo && !(a.fim && a.fim.slice(0, 10) < HOJE));
+  if (!avisos.length) return '';
+  const algumHoje = avisos.some(a => (!a.inicio || a.inicio.slice(0, 10) <= HOJE));
+  const cards = avisos.map(a => {
+    const de = a.inicio ? a.inicio.slice(0, 10) : '', ate = a.fim ? a.fim.slice(0, 10) : '';
+    const hoje = !de || de <= HOJE;
+    const link = SECOES[a.secao] ? `<a class="btn btn--contorno" href="${SECOES[a.secao]}">${esc(a.botao || 'Ver no cardápio')}</a>` : '';
+    return `<li class="aviso-promo" data-de="${de}" data-ate="${ate}"${hoje ? '' : ' hidden'}><p class="pilula-promo">Promoção${ate ? ` até ${dataBR(ate)}` : ''}</p><h3>${esc(a.titulo)}</h3>${a.texto ? `<p>${esc(a.texto)}</p>` : ''}${link}</li>`;
+  }).join('');
+  return `<section class="promocoes" id="promocoes" aria-labelledby="promocoes-t"${algumHoje ? '' : ' hidden'}><h2 id="promocoes-t" class="so-leitor">Promoções</h2><ul class="avisos-promo">${cards}</ul></section>`;
+}
+
 function visiteFotos(v) {
   return [1, 2].filter(k => v[`foto${k}`]).map(k => {
     const f = foto(v[`foto${k}`], [800, 1264], 1264 / 848);
@@ -218,6 +250,7 @@ export async function renderizar(html, { comando = 'build' } = {}) {
   registrarSabores(c.gelato.sabores);
   const fg = foto(c.gelato.imagem, [960, 1376], 1376 / 590), fs_ = foto(c.milkshakes.imagem, [640, 896], 896 / 1120), fc = foto(c.combos.imagem, [640, 896], 896 / 720);
   const l = conteudo.loja;
+  const promocoes = conteudo.promocoes ?? {};
   const mo = montador(c);
   const ge = gelato(c);
   const qr = await QRCode.toString(l.site + '#acai', { type: 'svg', margin: 1, color: { dark: '#2A1233', light: '#F5EBDD' } });
@@ -258,6 +291,8 @@ export async function renderizar(html, { comando = 'build' } = {}) {
     INSTAGRAM: esc(l.instagram),
     INSTAGRAM_URL: `https://www.instagram.com/${encodeURIComponent(String(l.instagram).replace(/^@/, ''))}/`,
     VISITE_FOTOS: visiteFotos(t.visite ?? {}),
+    PROMOCOES: promocoesHtml(promocoes.avisos),
+    CAMPO_CUPOM: l.aceitaCupom === false ? '' : '<div class="campo"><label for="f-cupom">Cupom de desconto <span class="opcional">(opcional)</span></label><input type="text" id="f-cupom" name="cupom" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" aria-describedby="d-cupom"><p class="dica" id="d-cupom">O desconto é conferido pela loja na conversa do WhatsApp.</p></div>',
     ILUSTRATIVAS_LUGAR: ilustrativas ? '<p class="legenda">Imagens ilustrativas · lugar fictício</p>' : '<!-- -->',
     PAGAMENTOS: (l.pagamentos?.length ? l.pagamentos : ['Pix']).map((p, k) => `<label class="caixa"><input type="radio" name="pagamento" value="${esc(p)}"${k ? '' : ' checked'}><span>${esc(p)}</span></label>`).join('\n      '),
     ENTREGA: esc(l.entrega),

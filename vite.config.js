@@ -10,8 +10,14 @@ const cardapioNoHtml = {
   name: 'jambo-cardapio-no-html',
   configResolved(c) { comando = c.command; },
   transformIndexHtml: { order: 'pre', handler: html => renderizar(html, { comando }) },
+  // trava: o arquivo de cupons nunca pode entrar no site publicado (é só para a loja conferir)
+  generateBundle() {
+    const usados = [...this.getModuleIds()].filter(id => /content[\\/]cupons\.json/.test(id));
+    if (usados.length) this.error('O arquivo de cupons (content/cupons.json) foi importado pelo site. Os cupons não podem ir para o site publicado.');
+  },
   async closeBundle() {
-    if (comando !== 'build' || !tarefasDeImagem.size) return;
+    if (comando !== 'build') return;
+    if (!tarefasDeImagem.size) return;
     const sharp = (await import('sharp')).default;
     for (const [saida, { origem, largura, altura }] of tarefasDeImagem) {
       const destino = resolve(import.meta.dirname, 'dist' + saida);

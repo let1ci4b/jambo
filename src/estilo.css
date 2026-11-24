@@ -604,3 +604,25 @@ html.legivel body,html.legivel h1,html.legivel h2,html.legivel h3{letter-spacing
 html.espaco p,html.espaco li,html.espaco label,html.espaco dd{line-height:1.9!important;letter-spacing:.03em;word-spacing:.12em}
 html.links a{text-decoration:underline!important;text-decoration-thickness:3px!important;text-underline-offset:4px}
 html.links a,html.links button:not(.acess-opcao){outline:3px dashed currentColor;outline-offset:2px}
+
+/* ---------- promoções e cupom ---------- */
+.pilula-promo{display:inline-block;margin:0 8px 0 0;font:600 calc(12px * var(--fs,1))/1 var(--f-texto);letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-botao);background:var(--lilas-claro);color:var(--roxo);vertical-align:middle;white-space:nowrap}
+.preco-de{font-weight:400;font-size:.8em;margin-right:4px;text-decoration-thickness:2px}
+.preco-por{font-weight:700}
+.lista-bebidas .pilula-promo{display:none}
+.combo-preco{display:block}
+.combo-preco .pilula-promo{display:table;margin:0 0 8px}
+.promocoes{padding:var(--e5) var(--lado) 0;max-width:var(--max);margin:0 auto}
+.avisos-promo{list-style:none;margin:0;padding:0;display:grid;gap:var(--e3);grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.aviso-promo{background:var(--roxo);color:var(--creme);border-radius:var(--r-cartao);padding:var(--e4);display:grid;gap:var(--e2);align-content:start;justify-items:start}
+.aviso-promo h3{margin:0;font:800 calc(clamp(24px,2.6vw,36px) * var(--fs,1))/1.05 var(--f-titulo)}
+.aviso-promo p{margin:0}
+.aviso-promo .btn{border-color:var(--creme);color:var(--creme)}
+.aviso-promo .btn:hover{background:var(--creme);color:var(--roxo)}
+.aviso-promo :focus-visible{outline-color:var(--creme)}
+.carrinho .dica{margin:0;font-size:calc(14px * var(--fs,1));opacity:.9}
+.carrinho .opcional{font-weight:400}
+.bowl .preco[data-promo],.lista-shakes .preco[data-promo]{display:inline-grid;grid-template-columns:auto auto;justify-items:end;align-items:baseline;column-gap:6px;row-gap:4px;text-align:right;flex-shrink:0}
+.bowl .preco[data-promo] .pilula-promo,.lista-shakes .preco[data-promo] .pilula-promo{grid-column:1 / -1;margin:0}
+.bowl .preco[data-promo] .so-leitor,.lista-shakes .preco[data-promo] .so-leitor{grid-column:auto}
+#f-cupom{text-transform:uppercase}

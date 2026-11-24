@@ -18,5 +18,5 @@ export function lerConteudo() {
   const pasta = path.join(raiz, 'content/ingredientes');
   partes.ingredientes = Object.fromEntries(fs.readdirSync(pasta).filter(f => f.endsWith('.json')).sort()
     .map(f => [f.replace(/\.json$/, ''), ler(`content/ingredientes/${f}`)]));
-  return { partes, loja: ler('content/loja.json'), textos: ler('content/textos.json'), errosDeLeitura: erros };
+  return { partes, loja: ler('content/loja.json'), textos: ler('content/textos.json'), promocoes: ler('content/promocoes.json'), cupons: ler('content/cupons.json'), errosDeLeitura: erros };
 }

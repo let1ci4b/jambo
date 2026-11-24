@@ -1,0 +1,11 @@
+{
+  "cupons": [
+    {
+      "codigo": "VERAO10",
+      "desconto": "10% no pedido acima de R$ 40,00",
+      "validoAte": "2026-12-31",
+      "ativo": true,
+      "observacao": "Divulgado no Instagram. Um uso por cliente."
+    }
+  ]
+}

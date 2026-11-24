@@ -61,7 +61,23 @@ function lista(onde, itens, minimo = 1) {
   return itens;
 }
 
-const { partes, loja, textos, errosDeLeitura } = lerConteudo();
+const { partes, loja, textos, promocoes, cupons, errosDeLeitura } = lerConteudo();
+const HOJE = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const ehData = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v));
+const dataBR = d => `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}`;
+// preço promocional de um item (bowls, milkshakes, combos e bebidas)
+function promo(onde, it) {
+  const temPreco = it.precoPromo !== undefined && it.precoPromo !== null && it.precoPromo !== '';
+  const temData = !!(it.promoInicio || it.promoFim);
+  if (!temPreco) { if (temData) aviso(onde, 'Tem data de promoção, mas não tem preço promocional.', 'Preencha o preço promocional ou apague as datas.'); return; }
+  if (!ehNumero(it.precoPromo) || it.precoPromo <= 0) { erro(onde, 'O "Preço promocional" não é um número válido.', 'Escreva só o número, com os centavos (ex.: 22,90), ou apague o campo.'); return; }
+  if (ehNumero(it.preco) && it.precoPromo >= it.preco) erro(onde, `O preço promocional (R$ ${String(it.precoPromo).replace('.', ',')}) não é menor que o preço normal (R$ ${String(it.preco).replace('.', ',')}).`, 'Coloque um preço promocional menor, ou apague o campo para tirar a promoção.');
+  if (it.promoInicio && !ehData(it.promoInicio)) erro(onde, 'A data de início da promoção é inválida.', 'Escolha a data no calendário do campo.');
+  if (it.promoFim && !ehData(it.promoFim)) erro(onde, 'A data de fim da promoção é inválida.', 'Escolha a data no calendário do campo.');
+  if (ehData(it.promoInicio) && ehData(it.promoFim) && it.promoFim < it.promoInicio) erro(onde, `A promoção termina (${dataBR(it.promoFim)}) antes de começar (${dataBR(it.promoInicio)}).`, 'Confira as datas.');
+  if (ehData(it.promoFim) && it.promoFim < HOJE) aviso(onde, `A promoção acabou em ${dataBR(it.promoFim)}. O site já mostra o preço normal.`, 'Pode apagar o preço promocional e as datas.');
+  if (!it.promoFim) aviso(onde, 'A promoção não tem data para acabar.', 'Ela vale até você apagar o preço promocional. Se tiver prazo, coloque a data de fim.');
+}
 for (const e of errosDeLeitura) erro(e.arquivo, e.msg, 'Desfaça a última mudança no histórico do GitHub ou chame a Letícia.');
 
 // ---------- ingredientes ----------
@@ -100,6 +116,7 @@ acai.forEach((b, k) => {
   const refs = Array.isArray(b.ingredientes) ? b.ingredientes : [];
   refs.forEach(r => { if (!ids.includes(idDoArquivo(r))) erro(onde, `Um dos "Ingredientes que voam" não existe mais (${idDoArquivo(r)}).`, 'Tire esse ingrediente da lista ou escolha outro.'); });
   if (refs.length > 4) erro(onde, `Há ${refs.length} "Ingredientes que voam".`, 'Escolha até 4.');
+  promo(onde, b);
   if (!refs.length) aviso(onde, 'Nenhum ingrediente que voa.', 'Escolha até 4 ingredientes para a animação do bowl.');
 });
 
@@ -142,7 +159,7 @@ const ms = partes.milkshakes ?? {};
   foto(onde, 'Foto', ms.imagem); descricaoFoto(onde, ms.alt);
   textoObrigatorio(onde, 'Tamanho do copo', ms.tamanho, 20);
   const itens = lista(onde, ms.itens); repetidos(onde, itens);
-  itens.forEach((s, k) => { const o = `${onde} → ${nomeDe(s, k)}`; textoObrigatorio(o, 'Nome', s.nome, 28); textoObrigatorio(o, 'Descrição', s.descricao, 140); preco(o, s.preco); });
+  itens.forEach((s, k) => { const o = `${onde} → ${nomeDe(s, k)}`; textoObrigatorio(o, 'Nome', s.nome, 28); textoObrigatorio(o, 'Descrição', s.descricao, 140); preco(o, s.preco); promo(o, s); });
 }
 const cb = partes.combos ?? {};
 {
@@ -153,7 +170,7 @@ const cb = partes.combos ?? {};
   if (itens.length > 6) erro(onde, `Há ${itens.length} combos.`, 'O máximo é 6, para a rolagem não ficar cansativa.');
   itens.forEach((c, k) => {
     const o = `${onde} → ${nomeDe(c, k)}`;
-    textoObrigatorio(o, 'Nome', c.nome, 24); textoObrigatorio(o, 'Descrição', c.descricao, 160); preco(o, c.preco);
+    textoObrigatorio(o, 'Nome', c.nome, 24); textoObrigatorio(o, 'Descrição', c.descricao, 160); preco(o, c.preco); promo(o, c);
     if (/^[.\s…-]*$/.test(texto(c.descricao)) && texto(c.descricao)) erro(o, 'A descrição está só com pontinhos.', 'Escreva o que vem no combo.');
     const ps = Array.isArray(c.partes) ? c.partes : [];
     if (ps.length > 3) erro(o, `O combo tem ${ps.length} partes.`, 'Use até 3 partes.');
@@ -169,7 +186,7 @@ const cb = partes.combos ?? {};
 {
   const onde = 'Cardápio → Bebidas';
   const itens = lista(onde, partes.bebidas?.itens); repetidos(onde, itens);
-  itens.forEach((b, k) => { const o = `${onde} → ${nomeDe(b, k)}`; textoObrigatorio(o, 'Nome', b.nome, 32); preco(o, b.preco); });
+  itens.forEach((b, k) => { const o = `${onde} → ${nomeDe(b, k)}`; textoObrigatorio(o, 'Nome', b.nome, 32); preco(o, b.preco); promo(o, b); });
 }
 
 // ---------- loja ----------
@@ -224,6 +241,38 @@ const cb = partes.combos ?? {};
   T('Pedido', t.pedido?.privacidade, 'Aviso de privacidade', 160);
   // lembrete de coerência: o endereço aparece escrito no texto da seção Visite
   if (texto(loja.rua) && texto(t.visite?.texto) && !slug(t.visite.texto).includes(slug(texto(loja.rua).split(',')[0]))) aviso('Textos da página → Visite → Texto', 'O texto não cita a rua da loja.', 'Se o endereço mudou, confira se o texto da seção Visite ainda está certo.');
+}
+
+// ---------- avisos de promoção ----------
+{
+  const lista = Array.isArray(promocoes.avisos) ? promocoes.avisos : [];
+  const SECOES = ['acai', 'monte', 'gelato', 'milkshakes', 'combos', 'bebidas', 'nenhum'];
+  lista.forEach((a, k) => {
+    const o = `Promoções e cupons → Avisos de promoção → ${texto(a.titulo) ? `"${texto(a.titulo)}"` : `aviso ${k + 1}`}`;
+    textoObrigatorio(o, 'Título', a.titulo, 40);
+    textoObrigatorio(o, 'Texto', a.texto, 160);
+    if (!ehData(a.fim)) erro(o, 'Falta a data em que a promoção termina.', 'Escolha a data no campo "Termina em". O aviso some sozinho depois desse dia.');
+    if (a.inicio && !ehData(a.inicio)) erro(o, 'A data de início é inválida.', 'Escolha a data no calendário do campo.');
+    if (ehData(a.inicio) && ehData(a.fim) && a.fim < a.inicio) erro(o, `O aviso termina (${dataBR(a.fim)}) antes de começar (${dataBR(a.inicio)}).`, 'Confira as datas.');
+    if (a.secao && !SECOES.includes(a.secao)) erro(o, 'O botão aponta para uma seção que não existe.', 'Escolha a seção de novo no campo "Botão leva para".');
+    if (ehData(a.fim) && a.fim < HOJE) aviso(o, `O aviso acabou em ${dataBR(a.fim)} e não aparece mais.`, 'Pode apagar.');
+  });
+  const hojeAtivos = lista.filter(a => ehData(a.fim) && a.fim >= HOJE && (!a.inicio || a.inicio <= HOJE));
+  if (hojeAtivos.length > 3) aviso('Promoções e cupons → Avisos de promoção', `Há ${hojeAtivos.length} avisos valendo hoje.`, 'O site mostra só os 3 primeiros da lista.');
+}
+
+// ---------- cupons (não vão para o site; só avisos, nunca bloqueiam) ----------
+{
+  const lista = Array.isArray(cupons.cupons) ? cupons.cupons : [];
+  const vistos = new Set();
+  lista.forEach((c, k) => {
+    const o = `Promoções e cupons → Cupons → ${texto(c.codigo) || `cupom ${k + 1}`}`;
+    if (!/^[A-Z0-9-]{3,20}$/.test(texto(c.codigo))) aviso(o, 'O código está fora do padrão.', 'Use de 3 a 20 letras maiúsculas, números ou hífen, sem espaço. O cliente escreve o código no pedido e o site manda em maiúsculas.');
+    if (vistos.has(texto(c.codigo))) aviso(o, 'Há dois cupons com o mesmo código.', 'Apague um deles para não haver dúvida na conferência.');
+    vistos.add(texto(c.codigo));
+    if (!texto(c.desconto)) aviso(o, 'Falta escrever o desconto e a regra.', 'Ex.: 10% no pedido acima de R$ 40,00.');
+    if (c.ativo !== false && ehData(c.validoAte) && c.validoAte < HOJE) aviso(o, `O cupom venceu em ${dataBR(c.validoAte)}, mas ainda está marcado como ativo.`, 'Desligue "Ativo" para não aceitar por engano.');
+  });
 }
 
 // ---------- resultado ----------

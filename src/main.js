@@ -1,4 +1,5 @@
 // JAMBO · entrada da página
+import { conferirPromocoes } from './promocoes.js';
 import './estilo.css';
 import loja from '../content/loja.json';
 import { adicionar, situacao } from './carrinho.js';
@@ -18,6 +19,7 @@ const raiz = document.documentElement;
 const reduzido = raiz.classList.contains('reduzido');
 
 // menu de acessibilidade primeiro: é o padrão de todo site
+seguro('promoções', conferirPromocoes); // antes de tudo: preços certos para o dia
 seguro('acessibilidade', iniciarAcessibilidade);
 seguro('abertura', () => mov.abertura({ reduzido }));
 seguro('cabeçalho', () => mov.cabecalho());

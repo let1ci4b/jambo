@@ -155,6 +155,7 @@ export function montarMensagem(dados) {
   L.push('*CLIENTE*', `Nome: ${dados.nome}`);
   L.push(dados.modo === 'entrega' ? `Entrega: ${dados.endereco}` : 'Retirada na loja');
   L.push(`Pagamento: ${dados.pagamento}`);
+  if (dados.cupom) L.push(`Cupom: *${dados.cupom}* _(a loja confere o desconto)_`);
   if (dados.obs) L.push(`Observações: ${dados.obs}`);
   return L.join('\n');
 }
@@ -176,7 +177,7 @@ form.addEventListener('submit', e => {
     return;
   }
   resumo.textContent = '';
-  const msg = montarMensagem({ nome, modo: form.modo.value, endereco: end, pagamento: form.pagamento.value, obs: form.obs.value.trim() });
+  const msg = montarMensagem({ nome, modo: form.modo.value, endereco: end, pagamento: form.pagamento.value, obs: form.obs.value.trim(), cupom: (form.cupom?.value ?? '').trim().toUpperCase().replace(/\s+/g, '').slice(0, 20) });
   const url = `https://wa.me/${loja.whatsapp}?text=${encodeURIComponent(msg)}`;
   // link de verdade (passa por bloqueador de pop-up e funciona dentro de molduras)
   const a = Object.assign(document.createElement('a'), { href: url, target: '_blank', rel: 'noopener' });

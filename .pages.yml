@@ -44,6 +44,19 @@ components:
     type: string
     required: true
     options: { maxlength: 160 }
+  precoPromo:
+    label: "Preço promocional (R$)"
+    description: "Opcional. Menor que o preço normal. No site, o preço normal aparece riscado."
+    type: number
+    options: { min: 0.01, max: 499, step: 0.01 }
+  promoInicio:
+    label: Promoção começa em
+    description: "Vazio: começa já."
+    type: date
+  promoFim:
+    label: Promoção termina em
+    description: "Último dia com o preço promocional. Vazio: vale até você apagar o preço promocional."
+    type: date
   cor:
     label: Cor do desenho
     type: select
@@ -74,6 +87,9 @@ content:
               - { name: imagem, label: Foto, description: "Em pé, proporção 4 por 5. O site corta o que sobrar e deixa a foto leve.", type: image, required: true, options: { media: fotos } }
               - { name: alt, label: Descrição da foto, description: "Pode ficar vazia: o nome e a descrição do bowl já aparecem ao lado.", type: string, options: { maxlength: 160 } }
               - { name: esgotado, component: esgotado }
+              - { name: precoPromo, component: precoPromo }
+              - { name: promoInicio, component: promoInicio }
+              - { name: promoFim, component: promoFim }
               - name: ingredientes
                 label: Ingredientes que voam
                 description: "Até 4. Aparecem voando sobre a foto do bowl; os 2 primeiros também no celular."
@@ -187,6 +203,9 @@ content:
               - { name: descricao, label: Descrição, type: text, required: true, options: { maxlength: 140 } }
               - { name: preco, component: preco }
               - { name: esgotado, component: esgotado }
+              - { name: precoPromo, component: precoPromo }
+              - { name: promoInicio, component: promoInicio }
+              - { name: promoFim, component: promoFim }
 
       - name: combos
         label: Combos
@@ -207,6 +226,9 @@ content:
               - { name: descricao, label: Descrição, description: "O que vem no combo.", type: text, required: true, options: { maxlength: 160 } }
               - { name: preco, component: preco }
               - { name: esgotado, component: esgotado }
+              - { name: precoPromo, component: precoPromo }
+              - { name: promoInicio, component: promoInicio }
+              - { name: promoFim, component: promoFim }
               - name: partes
                 label: "O que o cliente escolhe (até 3; sem nenhuma, o combo vai direto para o pedido)"
                 type: object
@@ -237,6 +259,52 @@ content:
               - { name: nome, label: Nome, type: string, required: true, options: { maxlength: 32 } }
               - { name: preco, component: preco }
               - { name: esgotado, component: esgotado }
+              - { name: precoPromo, component: precoPromo }
+              - { name: promoInicio, component: promoInicio }
+              - { name: promoFim, component: promoFim }
+
+  - name: promocoes
+    label: Promoções e cupons
+    type: group
+    items:
+      - name: avisos
+        label: Avisos de promoção
+        type: file
+        path: content/promocoes.json
+        format: json
+        fields:
+          - name: avisos
+            label: "Avisos (aparecem logo depois da abertura; até 3 ao mesmo tempo)"
+            type: object
+            list: { max: 6, collapsible: { collapsed: true, summary: "{titulo} · até {fim}" } }
+            fields:
+              - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 40 } }
+              - { name: texto, label: Texto, description: "O que é a promoção e a regra. Ex.: Jambo Classic por R$ 22,90 até domingo.", type: text, required: true, options: { maxlength: 160 } }
+              - { name: inicio, label: Começa em, description: "Vazio: aparece já.", type: date }
+              - { name: fim, label: Termina em, description: "Último dia em que o aviso aparece. Depois disso ele some sozinho.", type: date, required: true }
+              - name: secao
+                label: Botão leva para
+                type: select
+                options:
+                  values: [{ value: acai, label: Açaí da casa }, { value: monte, label: Monte seu Jambo }, { value: gelato, label: Gelato }, { value: milkshakes, label: Milkshakes }, { value: combos, label: Combos }, { value: bebidas, label: Bebidas }, { value: nenhum, label: Sem botão }]
+              - { name: botao, label: Texto do botão, description: "Ex.: Ver o Jambo Classic. Vazio: Ver no cardápio.", type: string, options: { maxlength: 28 } }
+
+      - name: cupons
+        label: "Cupons (só para conferência)"
+        type: file
+        path: content/cupons.json
+        format: json
+        fields:
+          - name: cupons
+            label: "Cupons: não aparecem no site. Use para conferir o cupom que o cliente escrever no pedido"
+            type: object
+            list: { max: 50, collapsible: { collapsed: true, summary: "{codigo} · {desconto}" } }
+            fields:
+              - { name: codigo, label: Código, description: "Letras maiúsculas e números, sem espaço. Ex.: VERAO10", type: string, required: true, pattern: { regex: "^[A-Z0-9-]{3,20}$", message: "Use de 3 a 20 letras maiúsculas, números ou hífen, sem espaço. Ex.: VERAO10" } }
+              - { name: desconto, label: Desconto e regra, description: "Ex.: 10% no pedido acima de R$ 40,00", type: string, required: true, options: { maxlength: 80 } }
+              - { name: validoAte, label: Válido até, type: date }
+              - { name: ativo, label: Ativo, description: "Desligado: o cupom não vale mais, mas fica guardado aqui.", type: boolean, default: true }
+              - { name: observacao, label: Observação, description: "Ex.: onde foi divulgado, um uso por cliente.", type: text, options: { maxlength: 200 } }
 
   - name: loja
     label: Loja
@@ -263,6 +331,7 @@ content:
             type: string
             list: { min: 1, max: 6 }
             options: { maxlength: 30 }
+          - { name: aceitaCupom, label: "Mostrar o campo \"Cupom de desconto\" no pedido", description: "Os cupons ficam em Promoções e cupons → Cupons.", type: boolean, default: true }
           - name: horario
             label: Horário
             type: object

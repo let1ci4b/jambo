@@ -102,6 +102,10 @@ Para ver a versão final, rode `npm run build` e depois `npm run preview` (http:
 | Endereço, WhatsApp, Instagram, entrega, pagamento, horário, card de compartilhamento | `content/loja.json` | Sim |
 | Textos das seções, botões, busca do Google, fotos da seção Visite | `content/textos.json` | Sim |
 | Aviso "Imagem ilustrativa" | `content/loja.json` → `fotosIlustrativas` | Sim |
+| Avisos de promoção (com datas) | `content/promocoes.json` | Sim |
+| Preço promocional de bowls, milkshakes, combos e bebidas (com datas) | campos `precoPromo`, `promoInicio`, `promoFim` em `content/cardapio/*.json` | Sim |
+| Cupons (só para a loja conferir; **não vão para o site**) | `content/cupons.json` | Sim |
+| Campo de cupom no pedido (ligar ou desligar) | `content/loja.json` → `aceitaCupom` | Sim |
 | Imagem do card de compartilhamento | `public/assets/img/compartilhar.jpg` (1200 × 630) | Não |
 | Logo, cores e fontes | `public/assets/logo/` e `src/estilo.css` (bloco `:root`) | Não (de propósito) |
 | Abertura (vídeo) e vídeo do "Monte seu Jambo" | `public/assets/js/abertura.js`, `public/assets/video/` | Não (precisa gerar os quadros) |
@@ -117,6 +121,12 @@ O dono edita em [app.pagescms.org](https://app.pagescms.org), configurado em `.p
 - **Loja:** Dados, horário e pagamento · Textos da página
 
 As listas fecham mostrando o nome e o preço de cada item. Os "Ingredientes que voam" de cada bowl são escolhidos numa lista com o nome dos ingredientes. Ingrediente novo pode ter um desenho próprio ou, sem desenho, um estilo (pedaços, salpicado, calda, creme) e uma cor. O site desenha o adesivo e o ingrediente dentro do copo. Foto nova vira webp e é cortada na proporção do lugar (sharp, no build).
+
+### Promoções e cupons
+
+- **Promoções:** cada aviso e cada preço promocional têm início e fim. O HTML sai no estado do dia da publicação, e `src/promocoes.js` confere de novo com a data do dia em Florianópolis assim que a página abre. Assim, uma promoção que acabou some sozinha, sem precisar publicar de novo, e o pedido sai com o preço certo (o item vai como "(promoção)" na mensagem).
+- **Cupons:** o cliente escreve o código no pedido, e ele vai na mensagem do WhatsApp com "a loja confere o desconto". A lista de cupons fica só no editor, para a loja conferir. O `vite.config.js` trava o build se `content/cupons.json` for importado pelo site.
+- **Atenção:** com o repositório **público**, qualquer pessoa vê os cupons no GitHub. Para um cliente de verdade, o repositório precisa ser **privado** (o Pages CMS e o Cloudflare funcionam igual).
 
 ### Travas para o site não cair
 

@@ -86,6 +86,7 @@ function lista(itens, { precisaPreco = false } = {}) {
     vistos.add(id);
     const out = { ...it, id, nome: texto(it.nome), esgotado: it.esgotado === true };
     if (precisaPreco) out.preco = num(it.preco);
+    if ('precoPromo' in it) out.precoPromo = num(it.precoPromo, null);
     return out;
   });
 }
@@ -157,3 +158,33 @@ export function normalizar(c, sabores = []) {
 
 // bolinha de cor do sabor: classe do desenho pronto ou do sabor novo (a cor do novo vem num <style> gerado no build)
 export const corSabor = s => ` sabor-${s.cor ?? s.id}"`;
+
+// ---------- promoções ----------
+// Datas no formato do editor (AAAA-MM-DD). Sem início = já vale; sem fim = vale até tirar.
+// "Hoje" é sempre o dia em Florianópolis, para o site e o pedido concordarem.
+export const hojeLoja = (agora = new Date()) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(agora);
+const dataOk = d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d);
+export const dentroDoPeriodo = (inicio, fim, hoje) =>
+  (!dataOk(inicio) || inicio.slice(0, 10) <= hoje) && (!dataOk(fim) || fim.slice(0, 10) >= hoje);
+// preço promocional de um item: só vale se for menor que o preço normal e estiver no período
+export function promoDoItem(it, hoje) {
+  const p = num(it?.precoPromo, null);
+  if (p === null || p <= 0 || p >= num(it.preco, 0)) return null;
+  return { preco: p, inicio: dataOk(it.promoInicio) ? it.promoInicio.slice(0, 10) : '', fim: dataOk(it.promoFim) ? it.promoFim.slice(0, 10) : '', ativa: dentroDoPeriodo(it.promoInicio, it.promoFim, hoje) };
+}
+// aplica a promoção do dia ao cardápio já arrumado: preco vira o promocional e precoNormal guarda o cheio
+export function aplicarPromocoes(c, hoje = hojeLoja()) {
+  const ap = it => { const pr = promoDoItem(it, hoje); return pr ? { ...it, promo: pr, ...(pr.ativa ? { preco: pr.preco, precoNormal: it.preco } : {}) } : it; };
+  return {
+    ...c,
+    acai: c.acai.map(ap),
+    milkshakes: { ...c.milkshakes, itens: c.milkshakes.itens.map(ap) },
+    combos: { ...c.combos, itens: c.combos.itens.map(ap) },
+    bebidas: c.bebidas.map(ap)
+  };
+}
+// avisos de promoção válidos hoje (no máximo 3, na ordem do editor)
+export function avisosAtivos(lista, hoje = hojeLoja()) {
+  return (Array.isArray(lista) ? lista : []).filter(a => texto(a?.titulo) && dentroDoPeriodo(a.inicio, a.fim, hoje)).slice(0, 3);
+}
