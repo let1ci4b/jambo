@@ -128,7 +128,7 @@ export function iniciarMontador({ reduzido }) {
   function paraPedido(botao) {
     const r = calcular();
     if (produto === 'gelato' && !r.n) { painel.querySelector('.anuncio').textContent = 'Escolha pelo menos 1 sabor.'; avisar('Escolha pelo menos 1 sabor'); return; }
-    adicionar({ id: produto === 'acai' ? 'montador' : 'gelato-montado', nome: r.nome, detalhes: r.detalhes, linhas: r.linhas, preco: r.total }, botao);
+    adicionar({ id: produto === 'acai' ? 'montador' : 'gelato-montado', nome: r.nome, detalhes: r.detalhes, linhas: r.linhas, preco: r.total, estado: r.estado }, botao);
     confirmar(botao);
   }
   $('.colocar', painel).addEventListener('click', e => paraPedido(e.currentTarget));
@@ -268,7 +268,7 @@ export function iniciarLista() {
   $('.colocar', painel).addEventListener('click', e => {
     const r = calcular();
     if (produto() === 'gelato' && !r.n) { painel.querySelector('.anuncio').textContent = 'Escolha pelo menos 1 sabor.'; avisar('Escolha pelo menos 1 sabor'); form.querySelector('[name="l-sabor"]:not(:disabled)')?.focus(); return; }
-    adicionar({ id: produto() === 'acai' ? 'montador' : 'gelato-montado', nome: r.nome, detalhes: r.detalhes, linhas: r.linhas, preco: r.total }, e.currentTarget);
+    adicionar({ id: produto() === 'acai' ? 'montador' : 'gelato-montado', nome: r.nome, detalhes: r.detalhes, linhas: r.linhas, preco: r.total, estado: r.estado }, e.currentTarget);
     confirmar(e.currentTarget);
   });
   atualizar(false);

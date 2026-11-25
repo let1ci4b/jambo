@@ -1,5 +1,7 @@
-// Carrinho: vive na memória e no sessionStorage (com try/catch). Nada vai para servidor.
+// Carrinho: vive na memória e no sessionStorage (com try/catch).
 // O pedido termina no WhatsApp, com a mensagem no modelo da análise interna (seção 6).
+// Se loja.planilhaPedidos tiver o endereço do Apps Script, uma cópia do pedido vai também para a planilha da loja.
+// Modo balcão (?balcao na URL): o funcionário lança o pedido feito no balcão; vai só para a planilha, sem WhatsApp.
 import loja from '../content/loja.json';
 import { reais } from './calculo.js';
 import cupons from 'virtual:cupons';
@@ -11,6 +13,7 @@ try { itens = JSON.parse(sessionStorage.getItem(CHAVE) || '[]'); } catch { itens
 const salvar = () => { try { sessionStorage.setItem(CHAVE, JSON.stringify(itens)); } catch { /* modo privado */ } };
 
 const dialogo = $('#carrinho');
+const BALCAO = (() => { try { return new URLSearchParams(location.search).has('balcao'); } catch { return false; } })();
 const lista = $('#itens');
 const form = $('#pedido-form');
 let jaAbriu = false;
@@ -49,10 +52,10 @@ export function situacao() {
 }
 
 // ---------- itens ----------
-export function adicionar({ id, nome, detalhes = '', linhas = null, preco }, origem) {
+export function adicionar({ id, nome, detalhes = '', linhas = null, preco, estado = null }, origem) {
   const chave = id + '|' + detalhes;
   const ja = itens.find(i => i.chave === chave);
-  if (ja) ja.qtd += 1; else itens.push({ chave, nome, detalhes, linhas: linhas ?? (detalhes ? [detalhes] : []), preco: Number(preco), qtd: 1 });
+  if (ja) ja.qtd += 1; else itens.push({ chave, nome, detalhes, linhas: linhas ?? (detalhes ? [detalhes] : []), preco: Number(preco), qtd: 1, estado });
   salvar(); desenhar(true);
   if (!jaAbriu) abrir(origem);
   else avisar('Adicionado ao pedido');
@@ -221,6 +224,7 @@ export function montarMensagem(dados) {
   if (d) L.push(`Subtotal: ${reais(subtotal())}`, `Cupom *${cupom.codigo}* (${valorTxt(cupom.regra)}): − ${reais(d)}`);
   L.push(`*TOTAL: ${reais(total())}*`, '_(a confirmar pela loja)_', LINHA);
   L.push('*CLIENTE*', `Nome: ${dados.nome}`);
+  if (dados.telefone) L.push(`WhatsApp: ${dados.telefone}`);
   L.push(dados.modo === 'entrega' ? `Entrega: ${dados.endereco}` : 'Retirada na loja');
   L.push(`Pagamento: ${dados.pagamento}`);
   if (cupom.codigo && !d) L.push(`Cupom informado: *${cupom.codigo}* _(${e === 'minimo' ? 'não aplicado: pedido abaixo do mínimo' : e === 'invalido' ? 'não reconhecido pelo site' : 'a loja confere'})_`);
@@ -239,6 +243,9 @@ form.addEventListener('submit', async e => {
   const entrega = form.modo.value === 'entrega';
   const end = form.endereco.value.trim();
   erro(form.nome, $('#e-nome'), !nome); if (!nome) faltam.push(['Nome', form.nome]);
+  const tel = (form.telefone?.value ?? '').replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, '');
+  const telOk = /^\d{10,11}$/.test(tel) || (BALCAO && !tel) || !form.telefone;
+  if (form.telefone) { erro(form.telefone, $('#e-telefone'), !telOk); if (!telOk) faltam.push(['WhatsApp com DDD', form.telefone]); }
   erro(form.endereco, $('#e-endereco'), entrega && !end); if (entrega && !end) faltam.push(['Endereço', form.endereco]);
   if (!itens.length) faltam.push(['um item no pedido', null]);
   if (faltam.length) {
@@ -247,12 +254,70 @@ form.addEventListener('submit', async e => {
     return;
   }
   resumo.textContent = '';
-  const msg = montarMensagem({ nome, modo: form.modo.value, endereco: end, pagamento: form.pagamento.value, obs: form.obs.value.trim() });
+  const dados = { nome, telefone: tel, modo: form.modo.value, endereco: end, pagamento: form.pagamento.value, obs: form.obs.value.trim() };
+  if (BALCAO) { enviarBalcao(dados); return; }
+  const msg = montarMensagem(dados);
   const url = `https://wa.me/${loja.whatsapp}?text=${encodeURIComponent(msg)}`;
   // link de verdade (passa por bloqueador de pop-up e funciona dentro de molduras)
   const a = Object.assign(document.createElement('a'), { href: url, target: '_blank', rel: 'noopener' });
   document.body.appendChild(a); a.click(); a.remove();
+  enviarPlanilha(dados, 'Site'); // cópia para a planilha da loja (não atrasa o WhatsApp)
 });
+
+// ---------- planilha da loja ----------
+// Envia uma cópia do pedido para o Apps Script da planilha. text/plain evita a "pré-consulta" do navegador.
+// O preço que vale é o da planilha (aba Produtos); o total do site vai só para conferência.
+function pacote(dados, origem) {
+  return JSON.stringify({
+    origem, nome: dados.nome, telefone: dados.telefone, modo: dados.modo, endereco: dados.modo === 'entrega' ? dados.endereco : '',
+    pagamento: dados.pagamento, obs: dados.obs, cupom: cupom.codigo || '', desconto: desconto() / 100, total: total() / 100,
+    site: form.site?.value ?? '', // armadilha para robôs: pessoas não veem este campo
+    codigo: origem === 'Balcão' ? (form.codigoBalcao?.value ?? '').trim() : '', // só o balcão: o Apps Script confere
+    itens: itens.map(i => ({ nome: i.nome, qtd: i.qtd, preco: i.preco / 100, linhas: i.linhas, estado: i.estado }))
+  });
+}
+async function enviarPlanilha(dados, origem) {
+  if (!loja.planilhaPedidos) return { ok: false, motivo: 'sem-planilha' };
+  try {
+    const r = await fetch(loja.planilhaPedidos, { method: 'POST', body: pacote(dados, origem), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, keepalive: true });
+    const j = await r.json().catch(() => ({}));
+    return j.ok ? j : { ok: false, motivo: j.erro || 'resposta' };
+  } catch { return { ok: false, motivo: 'rede' }; }
+}
+async function enviarBalcao(dados) {
+  if (!form.codigoBalcao?.value.trim()) { $('#resumo-erro').textContent = 'Falta preencher: Código do balcão'; form.codigoBalcao?.focus(); return; }
+  const botao = form.querySelector('[type="submit"]');
+  botao.disabled = true;
+  const r = await enviarPlanilha(dados, 'Balcão');
+  botao.disabled = false;
+  const resumo = $('#resumo-erro');
+  if (!r.ok) {
+    resumo.textContent = r.motivo === 'sem-planilha' ? 'A planilha ainda não está ligada ao site.'
+      : r.motivo === 'codigo' ? 'Código do balcão errado. Confira com o dono da loja.'
+      : r.motivo === 'bloqueado' ? 'Muitas tentativas com código errado. Espere 15 minutos.'
+      : 'Não deu para enviar para a planilha. Confira a internet e tente de novo.';
+    return;
+  }
+  try { localStorage.setItem('jambo-balcao', form.codigoBalcao.value.trim()); } catch { /* modo privado */ }
+  itens.length = 0; salvar(); form.reset(); campoEnd.hidden = false; desenhar(false);
+  try { form.codigoBalcao.value = localStorage.getItem('jambo-balcao') || ''; } catch { /* modo privado */ }
+  avisar(`Pedido nº ${r.numero} lançado na planilha`);
+  resumo.textContent = '';
+  fechar();
+}
+if (BALCAO) {
+  // Modo balcão: só funciona com o código que o dono vê na planilha (o Apps Script recusa sem ele).
+  document.documentElement.classList.add('modo-balcao');
+  const campo = document.createElement('div');
+  campo.className = 'campo';
+  campo.innerHTML = '<label for="f-codigo-balcao">Código do balcão</label><input type="password" id="f-codigo-balcao" name="codigoBalcao" inputmode="numeric" autocomplete="off" maxlength="12" required><p class="dica">Fica salvo neste aparelho. Quem não tem o código não consegue lançar pedidos.</p>';
+  form.prepend(campo);
+  try { form.codigoBalcao.value = localStorage.getItem('jambo-balcao') || ''; } catch { /* modo privado */ }
+  const ret = form.querySelector('[name="modo"][value="retirada"]'); if (ret) { ret.checked = true; campoEnd.hidden = true; } // no balcão o padrão é retirada
+  const botao = form.querySelector('[type="submit"]');
+  if (botao) botao.textContent = 'Lançar na planilha';
+  if (form.telefone) { form.telefone.required = false; form.telefone.closest('.campo')?.querySelector('.opcional')?.removeAttribute('hidden'); }
+}
 
 // cupom: confere enquanto o cliente digita (com uma pausa curta) e antes de enviar
 const campoCupom = form.cupom;

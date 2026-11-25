@@ -26,7 +26,9 @@ export function calcularMontador(m, estado) {
   if (aTxt) detalhes += ' + ' + aTxt;
   const linhas = [`Base: ${base.nome.toLowerCase()}`, `Toppings: ${tTxt || 'nenhum'}${pagos ? ` (${pagos} extra${pagos > 1 ? 's' : ''})` : ''}`];
   if (aTxt) linhas.push(`Adicionais: ${aTxt}`);
-  return { total, kcal, nome, detalhes, linhas, toppingsPagos: pagos };
+  // estado: o que foi escolhido, com os nomes do cardápio (vai para a planilha de pedidos)
+  const escolha = { tipo: 'montador', base: base.nome, ml: tam.ml, toppings: tops.map(t => t.nome), adicionais: adis.map(a => a.nome) };
+  return { total, kcal, nome, detalhes, linhas, toppingsPagos: pagos, estado: escolha };
 }
 
 // Gelato montado: preço do copinho (1, 2 ou 3 sabores) + adicionais a R$ 3,00
@@ -41,7 +43,8 @@ export function calcularGelato(c, sabores, adicionais = []) {
   const nome = `Gelato ${sab.length} ${sab.length === 1 ? 'sabor' : 'sabores'}`;
   const linhas = [`Sabores: ${sTxt || 'nenhum'}`];
   if (aTxt) linhas.push(`Adicionais: ${aTxt}`);
-  return { total, kcal, nome, detalhes: sTxt + (aTxt ? ' + ' + aTxt : ''), linhas, n: sab.length };
+  const estado = { tipo: 'gelato', sabores: sab.map(x => x.nome), adicionais: adis.map(a => a.nome) };
+  return { total, kcal, nome, detalhes: sTxt + (aTxt ? ' + ' + aTxt : ''), linhas, n: sab.length, estado };
 }
 
 export function precoCopinho(g, ids) {
@@ -57,7 +60,7 @@ export function precoCopinho(g, ids) {
 export function calcularCombo(c, combo, escolha) {
   const m = c.montador, extra = centavos(m.precoExtra);
   let total = centavos(combo.preco);
-  const partes = [];
+  const partes = [], escolhas = [];
   let nAcai = 0;
   combo.partes.forEach((p, i) => {
     const e = escolha[i] ?? {};
@@ -71,13 +74,16 @@ export function calcularCombo(c, combo, escolha) {
       if (adis.length) txt += ' + ' + adis.map(a => a.nome.toLowerCase()).join(', ');
       const rot = combo.partes.filter(q => q.tipo === 'acai').length > 1 ? `açaí ${nAcai}` : 'açaí';
       partes.push(`${rot[0].toUpperCase() + rot.slice(1)} ${p.ml} ml (${base.nome.toLowerCase()}): ${txt}`);
+      escolhas.push({ tipo: 'acai', ml: p.ml, base: base.nome, toppings: tops.map(t => t.nome), adicionais: adis.map(a => a.nome) });
     } else if (p.tipo === 'bebida') {
       const b = c.bebidas.find(x => x.id === e.id);
       partes.push(`Bebida: ${b ? b.nome.toLowerCase() : 'a escolher'}`);
+      escolhas.push({ tipo: 'bebida', nome: b?.nome ?? '' });
     } else if (p.tipo === 'milkshake') {
       const s = c.milkshakes.itens.find(x => x.id === e.id);
       partes.push(`Milkshake ${p.tamanho}: ${s ? s.nome : 'a escolher'}`);
+      escolhas.push({ tipo: 'milkshake', nome: s?.nome ?? '' });
     }
   });
-  return { total, detalhes: partes.join(' · '), linhas: partes };
+  return { total, detalhes: partes.join(' · '), linhas: partes, estado: { tipo: 'combo', combo: combo.nome, partes: escolhas } };
 }

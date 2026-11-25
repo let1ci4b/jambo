@@ -28,7 +28,7 @@ seguro('cabeçalho', () => mov.cabecalho());
 document.addEventListener('click', e => {
   const b = e.target.closest('.adicionar');
   if (!b) return;
-  adicionar({ id: b.dataset.id, nome: b.dataset.nome, detalhes: b.dataset.detalhes, preco: b.dataset.preco }, b);
+  adicionar({ id: b.dataset.id, nome: b.dataset.nome, detalhes: b.dataset.detalhes, preco: b.dataset.preco, estado: { tipo: 'simples', nome: b.dataset.nomeBase || b.dataset.nome } }, b);
   confirmar(b);
 });
 document.addEventListener('click', e => { if (e.target.closest('[aria-disabled="true"]')) e.preventDefault(); });

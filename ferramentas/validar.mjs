@@ -199,6 +199,7 @@ const cb = partes.combos ?? {};
   textoObrigatorio(onde, 'WhatsApp como aparece no site', loja.whatsappTexto, 24);
   if (!/^@[A-Za-z0-9._]{1,30}$/.test(texto(loja.instagram))) erro(onde, `Instagram inválido ("${loja.instagram ?? ''}").`, 'Use o @ e o nome do perfil, sem espaço (ex.: @jambo.gelato).');
   textoObrigatorio(onde, 'Entrega', loja.entrega, 200);
+  if (texto(loja.planilhaPedidos) && !/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(texto(loja.planilhaPedidos))) erro(onde, `Endereço da planilha de pedidos inválido ("${loja.planilhaPedidos}").`, 'Cole o endereço do Apps Script inteiro: começa com https://script.google.com/macros/s/ e termina com /exec. Ou deixe em branco.');
   const pg = Array.isArray(loja.pagamentos) ? loja.pagamentos.filter(p => texto(p)) : [];
   if (!pg.length) erro(onde, 'Nenhuma forma de pagamento.', 'Coloque pelo menos uma (ex.: Pix).');
   textoObrigatorio(onde, 'Texto do card de compartilhamento', loja.compartilharTexto, 200);

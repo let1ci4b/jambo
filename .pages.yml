@@ -355,6 +355,7 @@ content:
           - { name: compartilharTexto, label: Texto do card de compartilhamento, description: "Aparece quando o link é mandado no WhatsApp ou nas redes.", type: text, required: true, options: { maxlength: 200 } }
           - { name: compartilharAlt, label: Descrição da imagem do card, type: string, required: true, options: { maxlength: 200 } }
           - { name: site, label: Endereço do site, type: string, readonly: true }
+          - { name: planilhaPedidos, label: "Endereço da planilha de pedidos (Apps Script)", description: "Opcional. Com ele, cada pedido do site também cai na planilha. Começa com https://script.google.com/macros/s/ e termina com /exec. Em branco: o pedido vai só pelo WhatsApp.", type: string, pattern: { regex: "^$|^https://script\\.google\\.com/macros/s/[A-Za-z0-9_-]+/exec$", message: "Cole o endereço do Apps Script inteiro, que termina com /exec" } }
           - { name: whatsappLeticia, label: "WhatsApp do botão \"Quero um site assim\"", type: string, hidden: true }
 
       - name: textos

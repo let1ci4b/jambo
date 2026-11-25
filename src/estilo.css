@@ -35,6 +35,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 ::selection{background:var(--lilas);color:var(--roxo)}
 :focus-visible{outline:3px solid var(--roxo);outline-offset:3px}
 .monte :focus-visible,.shakes :focus-visible,.combos :focus-visible,.rodape :focus-visible,.carrinho :focus-visible,.menu-celular :focus-visible{outline-color:var(--creme)}
+.armadilha{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
 .so-leitor{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 mark.preencher{background:var(--lilas-claro);color:var(--roxo);padding:0 4px;border-radius:4px}
 

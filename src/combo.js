@@ -67,7 +67,7 @@ export function iniciarCombos() {
     }
     const r = calcularCombo(cardapio, combo, esc2);
     dlg.close();
-    adicionar({ id: 'combo-' + combo.id, nome: 'Combo ' + combo.nome, detalhes: r.detalhes, linhas: r.linhas, preco: r.total }, quemAbriu);
+    adicionar({ id: 'combo-' + combo.id, nome: 'Combo ' + combo.nome, detalhes: r.detalhes, linhas: r.linhas, preco: r.total, estado: r.estado }, quemAbriu);
     if (quemAbriu) confirmar(quemAbriu);
   });
 
