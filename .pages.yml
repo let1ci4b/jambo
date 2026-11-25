@@ -383,6 +383,7 @@ content:
             type: object
             fields:
               - { name: titulo, label: Título, type: string, required: true, options: { maxlength: 50 } }
+              - { name: tamanho, label: Tamanho dos bowls da casa, description: "Ex.: Todos os bowls da casa vêm no copo de 500 ml.", type: string, required: true, options: { maxlength: 80 } }
               - { name: chamada, label: Chamada para montar, type: text, required: true, options: { maxlength: 120 } }
               - { name: botao, label: Botão, type: string, required: true, options: { maxlength: 24 } }
           - name: gelato
