@@ -531,9 +531,13 @@ address{font-style:normal;margin-bottom:var(--e1)}
 .pedido-form{display:grid;gap:var(--e2)}
 .campo{display:grid;gap:6px}
 .campo>label{font-weight:600}
-.campo input[type="text"],.campo textarea{width:100%;min-height:48px;padding:10px 14px;border-radius:14px;border:2px solid var(--lilas-claro);background:var(--creme);color:var(--roxo)}
+.campo input[type="text"],.campo input[type="tel"],.campo input[type="password"],.campo textarea{width:100%;min-height:48px;padding:10px 14px;border-radius:14px;border:2px solid var(--lilas-claro);background:var(--creme);color:var(--roxo)}
 .campo input[aria-invalid="true"]{border-color:var(--lilas);box-shadow:0 0 0 3px var(--lilas)}
 .campo input:focus-visible,.campo textarea:focus-visible{outline:3px solid var(--creme);outline-offset:2px}
+.aviso-demo:has(strong:empty){display:none}
+.aviso-demo{border:2px dashed var(--lilas-claro);border-radius:14px;padding:12px 16px;color:var(--creme)}
+.aviso-demo p{margin:0;font-size:calc(14px * var(--fs,1));line-height:1.45}
+.aviso-demo strong{color:var(--lilas-claro)}
 .resumo-erro:empty{display:none}
 .resumo-erro{background:var(--lilas-claro);color:var(--roxo);padding:12px 16px;border-radius:14px;font-weight:600}
 .privacidade-aviso{color:var(--lilas-claro)}

@@ -429,3 +429,5 @@ content:
             type: object
             fields:
               - { name: privacidade, label: Aviso de privacidade, type: text, required: true, options: { maxlength: 160 } }
+              - { name: demoTitulo, label: Aviso de loja fictícia (título), description: "Apague os dois avisos quando o site virar de uma loja de verdade.", type: string, options: { maxlength: 60 } }
+              - { name: demoTexto, label: Aviso de loja fictícia (texto), type: text, options: { maxlength: 240 } }

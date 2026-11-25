@@ -42,6 +42,8 @@
     "foto2Legenda": "Para levar: o bowl vai com você até a Beira-Mar."
   },
   "pedido": {
-    "privacidade": "Seu pedido vai pela mensagem do WhatsApp e uma cópia fica na planilha de pedidos da loja, só para preparar e confirmar a entrega. Detalhes em Privacidade."
+    "privacidade": "Seu pedido vai pela mensagem do WhatsApp e uma cópia fica na planilha de pedidos da loja, só para preparar e confirmar a entrega. Detalhes em Privacidade.",
+    "demoTitulo": "Loja fictícia, pedido de teste.",
+    "demoTexto": "A JAMBO não existe: é um exemplo do portfólio de Letícia Beatriz. Nada será preparado, entregue ou cobrado. O pedido vai para uma planilha de demonstração, então use nome e número inventados, não os seus."
   }
 }

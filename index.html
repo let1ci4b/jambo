@@ -300,6 +300,7 @@
   </dl>
   <p class="carrinho-total">Total <b id="carrinho-total">R$ 0,00</b> <span class="legenda">(a confirmar pela loja)</span></p>
   <form class="pedido-form" id="pedido-form" novalidate>
+    <div class="aviso-demo" role="note"><p><strong><!--@T:pedido.demoTitulo--></strong> <!--@T:pedido.demoTexto--></p></div>
     <div class="resumo-erro" id="resumo-erro" role="alert"></div>
     <div class="campo"><label for="f-nome">Nome</label><input type="text" id="f-nome" name="nome" autocomplete="name" required aria-describedby="e-nome"><p class="erro" id="e-nome" hidden>Escreva seu nome para a loja saber de quem é o pedido.</p></div>
     <div class="campo"><label for="f-telefone">WhatsApp com DDD <span class="opcional" hidden>(opcional no balcão)</span></label><input type="tel" id="f-telefone" name="telefone" autocomplete="tel" inputmode="tel" maxlength="20" required aria-describedby="d-telefone e-telefone"><p class="dica" id="d-telefone">A loja usa este número para confirmar o seu pedido.</p><p class="erro" id="e-telefone" hidden>Escreva o número com DDD. Ex.: (48) 99999-0000</p></div>
