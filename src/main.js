@@ -21,6 +21,8 @@ const reduzido = raiz.classList.contains('reduzido');
 // menu de acessibilidade primeiro: é o padrão de todo site
 seguro('promoções', conferirPromocoes); // antes de tudo: preços certos para o dia
 seguro('acessibilidade', iniciarAcessibilidade);
+// rodapé: o ano se atualiza sozinho (o HTML já traz o ano do build como reserva)
+document.querySelectorAll('.js-ano').forEach(e => { e.textContent = new Date().getFullYear(); });
 seguro('abertura', () => mov.abertura({ reduzido }));
 seguro('cabeçalho', () => mov.cabecalho());
 

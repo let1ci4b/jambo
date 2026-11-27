@@ -335,7 +335,9 @@ content:
           - { name: whatsapp, label: WhatsApp dos pedidos, description: "Só números, com 55 e o DDD. Ex.: 5548999990000", type: string, required: true, pattern: { regex: "^55[0-9]{10,11}$", message: "Só números, começando com 55 e o DDD. Ex.: 5548999990000" } }
           - { name: whatsappTexto, label: WhatsApp como aparece no site, description: "Ex.: (48) 99999-0000", type: string, required: true, options: { maxlength: 24 } }
           - { name: instagram, label: Instagram, description: "Com @. Ex.: @jambo.gelato", type: string, required: true, pattern: { regex: "^@[A-Za-z0-9._]{1,30}$", message: "Use o @ e o nome do perfil, sem espaço. Ex.: @jambo.gelato" } }
+          - { name: email, label: E-mail da loja, description: "Opcional. Aparece no rodapé, em Contato.", type: string, pattern: { regex: "^$|^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", message: "Escreva um e-mail completo. Ex.: contato@loja.com.br" } }
           - { name: entrega, label: Entrega, description: "Bairros atendidos e taxa.", type: text, required: true, options: { maxlength: 200 } }
+          - { name: acessibilidadeLocal, label: Acessibilidade do local, description: "Opcional. Uma linha no rodapé. Ex.: Entrada sem degrau, balcão baixo.", type: string, options: { maxlength: 90 } }
           - name: pagamentos
             label: "Formas de pagamento (aparecem no pedido nesta ordem; a primeira já vem marcada)"
             type: string
@@ -356,6 +358,8 @@ content:
           - { name: compartilharAlt, label: Descrição da imagem do card, type: string, required: true, options: { maxlength: 200 } }
           - { name: site, label: Endereço do site, type: string, readonly: true }
           - { name: planilhaPedidos, label: "Endereço da planilha de pedidos (Apps Script)", description: "Opcional. Com ele, cada pedido do site também cai na planilha. Começa com https://script.google.com/macros/s/ e termina com /exec. Em branco: o pedido vai só pelo WhatsApp.", type: string, pattern: { regex: "^$|^https://script\\.google\\.com/macros/s/[A-Za-z0-9_-]+/exec$", message: "Cole o endereço do Apps Script inteiro, que termina com /exec" } }
+          - { name: razaoSocial, label: "Nome da empresa (razão social)", description: "Opcional. Se em branco, usa o nome da loja.", type: string, options: { maxlength: 100 } }
+          - { name: cnpj, label: CNPJ ou CPF, description: "Com o CNPJ preenchido, o rodapé mostra nome, CNPJ, endereço e WhatsApp, como pede a lei para quem vende pela internet.", type: string, options: { maxlength: 20 } }
           - { name: whatsappLeticia, label: "WhatsApp do botão \"Quero um site assim\"", type: string, hidden: true }
 
       - name: textos

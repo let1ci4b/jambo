@@ -171,6 +171,67 @@ function horario(l) {
   return ordem.map(i => { const h = l.horario[i]; return `<li data-dia="${i}"><span>${esc(h.dia)}</span><span>${h.fechado ? 'Fechado' : `${h.abre.replace(':00', 'h')}–${h.fecha.replace(':00', 'h')}`}</span></li>`; }).join('');
 }
 
+// Horário resumido do rodapé: junta os dias seguidos com o mesmo horário (segunda primeiro).
+function horarioResumo(l) {
+  const curto = { Domingo: 'Dom.', Segunda: 'Seg.', Terça: 'Ter.', Quarta: 'Qua.', Quinta: 'Qui.', Sexta: 'Sex.', Sábado: 'Sáb.' };
+  const faixa = h => h.fechado ? 'fechado' : `${h.abre.replace(':00', 'h')}–${h.fecha.replace(':00', 'h')}`;
+  const grupos = [];
+  for (const i of [1, 2, 3, 4, 5, 6, 0]) {
+    const h = l.horario[i], f = faixa(h), ult = grupos[grupos.length - 1];
+    if (ult && ult.f === f) ult.ate = h.dia; else grupos.push({ de: h.dia, ate: h.dia, f });
+  }
+  return grupos.map(g => `${curto[g.de] ?? g.de}${g.ate !== g.de ? ` a ${(curto[g.ate] ?? g.ate).toLowerCase()}` : ''} ${g.f}`).join(' · ');
+}
+
+// Rodapé padrão (claude/padrao-rodape.md): marca e chamada, 4 blocos de informação, linha final.
+// O mesmo em todas as páginas; nas internas, os links de seção apontam para "/#secao".
+function rodape(l, t, { interno, leticia, mapsDir }) {
+  const pre = interno ? '/' : '';
+  const nova = '<span class="so-leitor"> (abre em nova aba)</span>';
+  const botao = interno
+    ? `<a class="btn btn--claro btn--grande" href="/#acai">Ver o cardápio</a>`
+    : `<button class="btn btn--claro btn--grande abre-carrinho" type="button">${ICONE.sacola}Pedir agora</button>`;
+  const secoes = [['acai', 'Açaí'], ['gelato', 'Gelato'], ['monte', 'Monte o seu'], ['shakes', 'Shakes'], ['combos', 'Combos'], ['bebidas', 'Bebidas'], ['info', 'Horário e endereço']];
+  const insta = String(l.instagram).replace(/^@/, '');
+  const email = texto => texto && /@/.test(texto) ? `<li><a href="mailto:${esc(texto)}">${esc(texto)}</a></li>` : '';
+  // Loja que vende pela internet: nome, CNPJ, endereço e contato visíveis (CDC e decreto do comércio eletrônico).
+  const dadosLoja = l.cnpj ? `<p class="rodape-dados">${esc(l.razaoSocial || l.nome)} · CNPJ ${preencher(l.cnpj)} · ${esc(l.endereco)} · WhatsApp ${esc(l.whatsappTexto)}</p>` : '';
+  const demo = ilustrativas ? '<p class="rodape-demo">Exemplo fictício de portfólio · imagens ilustrativas geradas por IA · calorias aproximadas</p>' : '';
+  return `<footer class="rodape">
+  <div class="rodape-marca">
+    <img class="rodape-logo" src="/assets/logo/jambo-logo-creme.svg" alt="${esc(l.nome)}" width="701" height="333" loading="lazy" decoding="async">
+    <div class="rodape-chamada">
+      <p class="rodape-frase">${esc(t.inicio?.titulo ?? '')}</p>
+      ${botao}
+    </div>
+  </div>
+  <div class="rodape-info">
+    <section aria-labelledby="rod-contato"><h2 class="rodape-titulo" id="rod-contato">Contato</h2><ul>
+      <li><a href="https://wa.me/${l.whatsapp}" target="_blank" rel="noopener">WhatsApp ${esc(l.whatsappTexto)}${nova}</a></li>
+      ${email(l.email)}
+      <li><a href="https://www.instagram.com/${encodeURIComponent(insta)}/" target="_blank" rel="noopener">Instagram ${esc(l.instagram)}${nova}</a></li>
+    </ul></section>
+    <section aria-labelledby="rod-onde"><h2 class="rodape-titulo" id="rod-onde">Onde e quando</h2>
+      <address>${esc(l.endereco)}</address>
+      <p>${esc(horarioResumo(l))}</p>
+      ${l.acessibilidadeLocal ? `<p>${esc(l.acessibilidadeLocal)}</p>` : ''}
+      <p><a href="${mapsDir}" target="_blank" rel="noopener">Abrir no mapa${nova}</a></p>
+    </section>
+    <nav aria-labelledby="rod-nav"><h2 class="rodape-titulo" id="rod-nav">No site</h2><ul>
+      ${secoes.map(([id, nome]) => `<li><a href="${pre}#${id}">${nome}</a></li>`).join('\n      ')}
+    </ul></nav>
+    <section aria-labelledby="rod-acess"><h2 class="rodape-titulo" id="rod-acess">Acessibilidade e privacidade</h2><ul>
+      <li><a href="/acessibilidade.html">Declaração de acessibilidade</a></li>
+      <li><a href="/privacidade.html">Privacidade</a></li>
+    </ul></section>
+  </div>
+  <div class="rodape-final">
+    <div><p>© <span class="js-ano">${new Date().getFullYear()}</span> ${esc(l.nome)}</p>${dadosLoja}${demo}</div>
+    <p><a href="${leticia}" target="_blank" rel="noopener">Site por Letícia Beatriz<span class="so-leitor"> (abre o WhatsApp da Letícia)</span></a> · <a href="${interno ? '#conteudo' : '#abertura'}">Voltar ao topo ↑</a></p>
+  </div>
+</footer>`.replace(/^[ \t]+\n/gm, ''); // sem linhas vazias quando um campo opcional está em branco
+}
+
 function jsonld(l) {
   const dias = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dados = {
@@ -298,6 +359,8 @@ export async function renderizar(html, { comando = 'build' } = {}) {
     ENTREGA: esc(l.entrega),
     QR: qr.replace('<svg ', '<svg class="qr" role="img" aria-label="QR code do cardápio" width="160" height="160" '),
     LETICIA: leticia,
+    RODAPE: rodape(l, t, { interno: false, leticia, mapsDir: `https://www.google.com/maps/dir/?api=1&amp;destination=${mapsBusca}` }),
+    RODAPE_INTERNO: rodape(l, t, { interno: true, leticia, mapsDir: `https://www.google.com/maps/dir/?api=1&amp;destination=${mapsBusca}` }),
     JSONLD: jsonld(l),
     ICO_SACOLA: ICONE.sacola, ICO_SETA: ICONE.seta, ICO_WHATS: ICONE.whatsapp, ICO_FECHAR: ICONE.fechar, ICO_MENU: ICONE.menu
   };

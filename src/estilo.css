@@ -482,8 +482,8 @@ legend{font-weight:600;padding:0 6px}
 .onda-final{position:absolute;left:0;right:0;bottom:0;width:100%;height:clamp(150px,30svh,300px)}
 @media (max-width:767px){.final h2{font-size:calc(clamp(48px,15vw,64px) * var(--fs,1))}.final .btn{width:100%}}
 
-/* ---------- 3.8 rodapé ---------- */
-.rodape{background:var(--noite);color:var(--creme);padding:var(--secao) var(--lado) var(--e5);overflow:hidden}
+/* ---------- 3.8 visite ---------- */
+.visite{background:var(--noite);color:var(--creme);padding:var(--secao) var(--lado) var(--e6);overflow:hidden}
 .visite-cabeca{max-width:var(--max);margin:0 auto var(--e5)}
 .visite-cabeca h2{color:var(--lilas);max-width:12ch}
 .visite-intro{margin-top:var(--e3);max-width:52ch;color:var(--creme)}
@@ -504,10 +504,27 @@ address{font-style:normal;margin-bottom:var(--e1)}
 .mapa iframe{width:100%;height:240px;border:0;border-radius:20px;margin-top:var(--e1)}
 .legenda-rodape{font-size:calc(15px * var(--fs,1));color:var(--lilas-claro);margin-top:var(--e1)}
 .qr{border-radius:12px}
-.jambo-rodape{color:var(--lilas);margin:var(--e7) auto var(--e4);max-width:var(--max);text-align:center;-webkit-user-select:none;user-select:none}
-.creditos{max-width:var(--max);margin:0 auto;display:grid;gap:var(--e3);padding-top:var(--e4);border-top:1px solid var(--fio-claro)}
-.creditos p{max-width:70ch}
-.creditos-links{display:flex;flex-wrap:wrap;align-items:center;gap:var(--e2) var(--e3)}
+
+/* ---------- 3.9 rodapé (padrão de todo site: claude/padrao-rodape.md) ---------- */
+.rodape{background:var(--noite);color:var(--creme);padding:var(--e6) var(--lado) 96px;border-top:1px solid var(--fio-claro)}
+.rodape>*{max-width:var(--max);margin-inline:auto}
+.rodape a{color:var(--creme)}
+.rodape-marca{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--e5);padding-bottom:var(--e6);border-bottom:1px solid var(--fio-claro)}
+.rodape-logo{width:clamp(180px,26vw,360px);height:auto}
+.rodape-chamada{display:grid;gap:var(--e3);justify-items:start}
+.rodape-frase{font:800 calc(clamp(24px,2.6vw,36px) * var(--fs,1))/1.05 var(--f-titulo);letter-spacing:-.01em;color:var(--lilas-claro);max-width:16ch}
+.rodape-info{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e5);padding:var(--e5) 0}
+.rodape-titulo{font:600 calc(13px * var(--fs,1))/1.4 var(--f-texto);letter-spacing:.08em;text-transform:uppercase;margin-bottom:var(--e2);color:var(--lilas-claro)}
+.rodape-info ul{list-style:none;margin:0;padding:0}
+.rodape-info address{margin-bottom:var(--e1)}
+.rodape-info p{margin-bottom:var(--e1)}
+.rodape-info a,.rodape-final a{display:inline-block;padding:10px 0;text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 85%/0 1px no-repeat;transition:background-size .3s}
+.rodape-info a:hover,.rodape-info a:focus-visible,.rodape-final a:hover,.rodape-final a:focus-visible{background-size:100% 1px}
+.rodape-final{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--e3);align-items:center;padding-top:var(--e3);border-top:1px solid var(--fio-claro);font-size:calc(14px * var(--fs,1))}
+.rodape-demo,.rodape-dados{color:var(--lilas-claro);margin-top:4px;max-width:70ch}
+html.links .rodape-info a,html.links .rodape-final a{text-decoration:underline}
+@media (max-width:1023px){.rodape-info{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:767px){.rodape-marca,.rodape-info,.rodape-final{grid-template-columns:1fr}.rodape-chamada .btn{width:100%}}
 
 /* ---------- 3.9 carrinho ---------- */
 .carrinho{position:fixed;inset:0 0 0 auto;margin:0;width:min(440px,100vw);max-width:100vw;height:100%;max-height:none;padding:var(--e3);overflow-y:auto;overscroll-behavior:contain}

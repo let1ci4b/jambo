@@ -8,7 +8,9 @@
   "whatsapp": "5548999990000",
   "whatsappTexto": "(48) 99999-0000",
   "instagram": "@jambo.gelato",
+  "email": "",
   "entrega": "Centro, Beira-Mar Norte e bairros próximos. Taxa a confirmar no WhatsApp.",
+  "acessibilidadeLocal": "",
   "pagamentos": [
     "Pix",
     "Cartão na entrega",
@@ -64,5 +66,7 @@
   "compartilharAlt": "Logo JAMBO — Açaí & Gelato e a frase \"Seu verão, do seu jeito.\" sobre morangos, banana, manga, kiwi, granola e pistache.",
   "site": "https://jambo-3cc.pages.dev/",
   "whatsappLeticia": "5548984395620",
-  "planilhaPedidos": "https://script.google.com/macros/s/AKfycbx6qsXbqPwKg4NottTUovHYA_X_-A1uL9EhEWjIIdIN2yrry-O5EJO5nrlzOPU-xyE/exec"
+  "planilhaPedidos": "https://script.google.com/macros/s/AKfycbx6qsXbqPwKg4NottTUovHYA_X_-A1uL9EhEWjIIdIN2yrry-O5EJO5nrlzOPU-xyE/exec",
+  "razaoSocial": "",
+  "cnpj": ""
 }
