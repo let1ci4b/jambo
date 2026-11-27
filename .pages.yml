@@ -40,7 +40,7 @@ components:
     options: { min: 0.01, max: 499, step: 0.01 }
   descricaoFoto:
     label: Descrição da foto
-    description: "Uma frase dizendo o que aparece na foto. É o que o leitor de tela lê para quem não enxerga."
+    description: "Uma frase dizendo o que aparece na foto. É o que aparece para quem não consegue ver a foto."
     type: string
     required: true
     options: { maxlength: 160 }

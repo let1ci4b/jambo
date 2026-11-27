@@ -44,7 +44,7 @@ function foto(onde, campo, url, obrigatoria = true) {
 }
 function descricaoFoto(onde, valor) {
   const t = texto(valor);
-  if (!t) erro(onde, 'Falta a "Descrição da foto".', 'Descreva a foto em uma frase. É o que o leitor de tela lê para quem não enxerga.');
+  if (!t) erro(onde, 'Falta a "Descrição da foto".', 'Descreva a foto em uma frase. É o que aparece para quem não consegue ver a foto.');
   else if (t.length > 160) erro(onde, `A "Descrição da foto" está longa (${t.length} letras).`, 'Use até 160 letras.');
 }
 function repetidos(onde, itens) {

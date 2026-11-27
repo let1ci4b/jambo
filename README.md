@@ -65,7 +65,7 @@
 | Lighthouse no celular | Desempenho 96 · Acessibilidade 100 · Boas práticas 100 |
 | Peso da primeira carga | ~669 KB (o limite do projeto é 1,5 MB) |
 | Texto aumentado para 160% no celular | sem rolagem para o lado |
-| Teclado e leitor de tela | carrinho, montador e menus funcionam sem mouse |
+| Teclado | carrinho, montador e menus funcionam sem mouse |
 | Movimento reduzido | abertura, fotos e vídeos ficam parados |
 
 ## Tecnologias

@@ -46,7 +46,7 @@ export function iniciarAcessibilidade() {
       ${OPCOES.map(([k, rot]) => `<button type="button" class="acess-opcao" data-opcao="${k}" aria-pressed="false"><span>${rot}</span><span class="acess-chave" aria-hidden="true"></span></button>`).join('')}
       <p class="acess-nota" id="acess-nota-parado">"Parar animações" recarrega a página.</p>
       <button type="button" class="acess-zerar" data-acao="zerar">Voltar ao padrão</button>
-      <p class="acess-nota">As escolhas ficam salvas neste navegador. A tradução para Libras (VLibras) entra quando o site for publicado no endereço definitivo.</p>
+      <p class="acess-nota">As escolhas ficam salvas neste navegador.</p>
     </div>`;
   document.body.appendChild(caixa);
 
