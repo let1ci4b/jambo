@@ -57,6 +57,7 @@ export default defineConfig({
         index: resolve(import.meta.dirname, 'index.html'),
         privacidade: resolve(import.meta.dirname, 'privacidade.html'),
         acessibilidade: resolve(import.meta.dirname, 'acessibilidade.html'),
+        termos: resolve(import.meta.dirname, 'termos.html'),
         404: resolve(import.meta.dirname, '404.html')
       }
     }

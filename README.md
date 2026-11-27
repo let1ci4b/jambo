@@ -6,7 +6,7 @@
 
 **Cardápio online com monte-seu-açaí e pedido pelo WhatsApp**
 
-[**Ver o site**](https://jambo-3cc.pages.dev/) &nbsp;·&nbsp; [Declaração de acessibilidade](https://jambo-3cc.pages.dev/acessibilidade.html) &nbsp;·&nbsp; [Privacidade](https://jambo-3cc.pages.dev/privacidade.html)
+[**Ver o site**](https://jambo-3cc.pages.dev/) &nbsp;·&nbsp; [Declaração de acessibilidade](https://jambo-3cc.pages.dev/acessibilidade.html) &nbsp;·&nbsp; [Privacidade](https://jambo-3cc.pages.dev/privacidade.html) &nbsp;·&nbsp; [Termos, trocas e cancelamento](https://jambo-3cc.pages.dev/termos.html)
 
 ![Status](https://img.shields.io/badge/status-demonstrativo-A67CC4?style=flat-square)
 ![WCAG 2.2 AA](https://img.shields.io/badge/WCAG_2.2-AA-2A1233?style=flat-square)
@@ -111,7 +111,7 @@ Para ver a versão final, rode `npm run build` e depois `npm run preview` (http:
 | Abertura (vídeo) e vídeo do "Monte seu Jambo" | `public/assets/js/abertura.js`, `public/assets/video/` | Não (precisa gerar os quadros) |
 | Copos 3D dos combos | `public/assets/3d/` | Não (saem das partes de cada combo) |
 | Desenho das bases e do copo | `src/copo.js` | Não |
-| Textos legais e o crédito do rodapé | `privacidade.html`, `acessibilidade.html`, `index.html` | Não |
+| Textos legais e o crédito do rodapé | `privacidade.html`, `termos.html`, `acessibilidade.html`, `index.html` | Não |
 
 ### Edição pelo Pages CMS
 
@@ -144,7 +144,7 @@ Rodar a conferência à mão: `npm run validar`.
 ## Estrutura
 
 ```
-├── index.html, privacidade.html, acessibilidade.html, 404.html   páginas
+├── index.html, privacidade.html, termos.html, acessibilidade.html, 404.html   páginas
 ├── content/          dados do cardápio e da loja
 ├── src/              estilo e código (carrinho, montador, combos, acessibilidade)
 ├── public/           imagens, vídeos, fontes, ícones e modelos 3D

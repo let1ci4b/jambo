@@ -223,6 +223,7 @@ function rodape(l, t, { interno, leticia, mapsDir }) {
     <section aria-labelledby="rod-acess"><h2 class="rodape-titulo" id="rod-acess">Acessibilidade e privacidade</h2><ul>
       <li><a href="/acessibilidade.html">Declaração de acessibilidade</a></li>
       <li><a href="/privacidade.html">Privacidade</a></li>
+      <li><a href="/termos.html">Termos, trocas e cancelamento</a></li>
     </ul></section>
   </div>
   <div class="rodape-final">
@@ -359,6 +360,11 @@ export async function renderizar(html, { comando = 'build' } = {}) {
     ENTREGA: esc(l.entrega),
     QR: qr.replace('<svg ', '<svg class="qr" role="img" aria-label="QR code do cardápio" width="160" height="160" '),
     LETICIA: leticia,
+    HORARIO_RESUMO: esc(horarioResumo(l)),
+    PAGAMENTOS_TEXTO: esc((l.pagamentos?.length ? l.pagamentos : ['Pix']).join(', ')),
+    LOJA_IDENT: l.cnpj
+      ? `${esc(l.razaoSocial || l.nome)}, CNPJ ${preencher(l.cnpj)}, ${esc(l.endereco)}.`
+      : `${esc(l.nome)}, ${esc(l.endereco)}.${ilustrativas ? ' <strong>Site demonstrativo:</strong> a loja é fictícia e não tem CNPJ.' : ' CNPJ: <mark class="preencher">[preencher]</mark>'}`,
     RODAPE: rodape(l, t, { interno: false, leticia, mapsDir: `https://www.google.com/maps/dir/?api=1&amp;destination=${mapsBusca}` }),
     RODAPE_INTERNO: rodape(l, t, { interno: true, leticia, mapsDir: `https://www.google.com/maps/dir/?api=1&amp;destination=${mapsBusca}` }),
     JSONLD: jsonld(l),

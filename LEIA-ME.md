@@ -21,10 +21,11 @@ Para ver a versão final (a mesma que vai para o ar): `npm run build` e `npm run
 | Abertura (tempo, cores da onda) | `public/assets/js/abertura.js` |
 | Copos 3D | `public/assets/3d/` |
 | Quadros do vídeo "o bowl se monta" | `public/assets/video/montar/` |
-| Textos legais | `privacidade.html`, `acessibilidade.html` |
+| Textos legais | `privacidade.html`, `termos.html`, `acessibilidade.html` |
+| Rodapé (todas as páginas) | `ferramentas/paginas.mjs` (função `rodape`), com os dados de `content/loja.json` |
 
 ## Pastas
-- `index.html`, `privacidade.html`, `acessibilidade.html`, `404.html`: as páginas (com marcadores `<!--@...-->` que o build preenche).
+- `index.html`, `privacidade.html`, `termos.html`, `acessibilidade.html`, `404.html`: as páginas (com marcadores `<!--@...-->` que o build preenche).
 - `src/`: estilo e código (carrinho, montador, movimento, cálculo de preço e calorias).
 - `ferramentas/paginas.mjs`: gera o HTML do cardápio no build. `ferramentas/video/` e `ferramentas/3d/`: arquivos de reserva que não vão para o site (abertura em vídeo para o Instagram, copo de gelato 3D).
 - `.pages.yml`: configuração do Pages CMS. `public/robots.txt`: bloqueia o Google (site demonstrativo).
