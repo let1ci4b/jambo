@@ -508,7 +508,7 @@ address{font-style:normal;margin-bottom:var(--e1)}
 /* ---------- 3.9 rodapé (padrão de todo site: claude/padrao-rodape.md) ---------- */
 .rodape{background:var(--noite);color:var(--creme);padding:var(--e6) var(--lado) 96px;border-top:1px solid var(--fio-claro)}
 .rodape>*{max-width:var(--max);margin-inline:auto}
-.rodape a{color:var(--creme)}
+.rodape a:not(.btn){color:var(--creme)}
 .rodape-marca{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--e5);padding-bottom:var(--e6);border-bottom:1px solid var(--fio-claro)}
 .rodape-logo{width:clamp(180px,26vw,360px);height:auto}
 .rodape-chamada{display:grid;gap:var(--e3);justify-items:start}
